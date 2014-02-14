@@ -1,4 +1,3 @@
 name: poltak's test site
 markdown: redcarpet
 pygments: true
-baseurl: /test-site
