@@ -1,3 +1,24 @@
-name: poltak's test site
-markdown: redcarpet
+name: Jonathan Poltak Samosir's Blog
+
 pygments: true
+
+markdown: redcarpet
+redcarpet:
+  extensions: [autolink, superscript, no_intra_emphasis]
+
+timezone: Australia/Melbourne
+encoding: utf-8
+
+defaults:
+  -
+    scope:
+      path: ""
+      type: "post"
+    values:
+      layout: "post"
+  -
+    scope:
+      path: ""
+      type: "page"
+    values:
+      layout: "page"
