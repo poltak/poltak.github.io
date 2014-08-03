@@ -1,6 +1,5 @@
 ---
-title: Jonathan Poltak Samosir
-layout: page
+title: Home
 ---
 
 # What is this site?
