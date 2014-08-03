@@ -4,7 +4,7 @@ pygments: true
 
 markdown: redcarpet
 redcarpet:
-  extensions: [autolink, superscript, no_intra_emphasis]
+  extensions: [autolink, superscript, tables, no_intra_emphasis]
 
 timezone: Australia/Melbourne
 encoding: utf-8
