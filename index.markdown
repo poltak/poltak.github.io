@@ -2,7 +2,7 @@
 title: Home
 ---
 
-# What is this site?
+## What is this site?
 
 This site is an online space for myself (Jonathan Poltak Samosir) to:
 

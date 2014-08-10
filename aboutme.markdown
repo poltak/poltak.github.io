@@ -8,7 +8,7 @@ Bachelor of Software Engineering degree at Monash.
 
 ## Research interests
 
-I am currently working on a project looking at
+TODO
 
 
 ## Human language interests
