@@ -4,12 +4,13 @@ title: Curriculum vitae
 
 ##Jonathan Poltak Samosir
 
-|           |                                                                 |
-| --------- | --------------------------------------------------------------- |
-| Email     | [jonathan.samosir@gmail.com](mailto:jonathan.samosir@gmail.com) |
-| LinkedIn  | [jsamosir](http://www.linkedin.com/in/jsamosir)                 |
-| GitHub    | [poltak](http://www.github.com/poltak)                          |
-| Twitter   | [@poltak_](http://www.twitter.com/poltak_)                      |
+|           |                                                                   |
+| --------- | ----------------------------------------------------------------- |
+| Email     | [jonathan.samosir@gmail.com](mailto:jonathan.samosir@gmail.com)   |
+|           | [jonathan.samosir@monash.edu](mailto:jonathan.samosir@monash.edu) |
+| LinkedIn  | [jsamosir](http://www.linkedin.com/in/jsamosir)                   |
+| GitHub    | [poltak](http://www.github.com/poltak)                            |
+| Twitter   | [@poltak_](http://www.twitter.com/poltak_)                        |
 
 
 ###Qualifications summary
