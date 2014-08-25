@@ -8,8 +8,10 @@ Bachelor of Software Engineering degree at Monash.
 
 ## Research interests
 
-TODO
-
+My research interests are in the area of big data processing and handling. Currently, we are at a stage where we are
+generating an exponentially large amount of data at a faster rate than technology can keep up with. What this means
+practically is that it is infeasible to store all this data. Instead, a hot topic in big data is realtime processing of
+streams of incoming data. This is what I am currently researching.
 
 ## Human language interests
 
