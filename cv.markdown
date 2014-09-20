@@ -4,18 +4,31 @@ title: Curriculum vitae
 
 ##Jonathan Poltak Samosir
 
-|           |                                                                   |
-| --------- | ----------------------------------------------------------------- |
-| Email     | [jonathan.samosir@gmail.com](mailto:jonathan.samosir@gmail.com)   |
-|           | [jonathan.samosir@monash.edu](mailto:jonathan.samosir@monash.edu) |
-| LinkedIn  | [jsamosir](http://www.linkedin.com/in/jsamosir)                   |
-| GitHub    | [poltak](http://www.github.com/poltak)                            |
-| Twitter   | [@poltak_](http://www.twitter.com/poltak_)                        |
+<table>
+  <tbody>
+    <tr>
+      <td>Email</td>
+      <td><a href="mailto:jonathan.samosir@gmail.com">jonathan.samosir@gmail.com</a></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><a href="mailto:jonathan.samosir@monash.edu">jonathan.samosir@monash.edu</a></td>
+    </tr>
+    <tr>
+      <td>LinkedIn</td>
+      <td><a href="http://www.linkedin.com/in/jsamosir">jsamosir</a></td>
+    </tr>
+    <tr>
+      <td>GitHub</td>
+      <td><a href="http://www.github.com/poltak">poltak</a></td>
+    </tr>
+    <tr>
+      <td>Twitter</td>
+      <td><a href="http://www.twitter.com/poltak_">@poltak_</a></td>
+    </tr>
+  </tbody>
+</table>
 
-
-###Qualifications summary
-* Passion for learning new skills and discovering new things
-* Hard worker, quick learner, and ability to assume responsibility
 
 ###Personal Project Involvement
 * [apache/incubator-samza](http://github.com/apache/incubator-samza) : LinkedIn&#39;s distributed stream processing framework, live at [Apache incubator](https://samza.incubator.apache.org)
@@ -29,18 +42,19 @@ title: Curriculum vitae
 
 ###Technical Skills
 ####Programming Languages:
- `C` `Java` `Shell (bash, zsh, sh)` `Lisp (Scheme, Clojure)` `Javascript` `Python` `C#` `Perl` `XSLT` `Prolog` `PL/SQL`
+ `C` `Java` `Python` `Shell (bash, zsh, sh)` `Lisp (Scheme, Clojure)` `Javascript` `Lua` `MiniZinc (CP)` `C#` `Perl` `XSLT` `Prolog` `PL/SQL`
 
 ####Frameworks/Platforms:
-`Android` `Node.js` `.NET` `SDL` `Samza` `MPI`  `VCS (git, svn, hg)`
+`Android` `Node.js` `.NET` `SDL` `MPI` `VCS (git, svn, hg)` `Jekyll`
 
-####Databases:
-`MySQL` `Oracle` `JDBC` `MongoDB`
+#### Databases/Processing frameworks:
+`MySQL` `Oracle` `JDBC` `MongoDB` `Hadoop` `Pig` `Hive` `Spark/Streaming` `Storm` `Samza`
 
 ###Education
-| Degree | Major | Institution | Graduation | GPA |
+| Degree | Major/Specialisation | Institution | Graduation | GPA |
 | ------ | ----- | ----------- | ---------- | --- |
-| Bachelor of Computer Science (Hons) | Systems Development | Monash University | 2015 | 3.492/4 |
+| Bachelor of Computer Science | Systems Development | Monash University | 2014 | 3.492/4 |
+| Honours Degree of Bachelor of Computer Science | Streaming Big Data Processing | Monash University | 2015 | ?/4 |
 
 ###Academic Achievements
 * MURPA 2014 recipient to do research project at UCSD, USA on behalf of Monash University, Australia.
@@ -52,7 +66,7 @@ title: Curriculum vitae
 * Undergraduate Research Assistant at Qualcomm Institute, UCSD, San Diego, California, USA (Jan. 2014 – Mar. 2014)
     - Worked on components of research project [SenseHealth](https://portal.futuregrid.org/projects/383), a platform to enable personalised healthcare.
     - Technologies worked with: `Java` `Scala` `Samza` `MPI` `Hadoop YARN` `Apache Kafka`
-
+* Honours degree research project working on new streaming big data processing technologies at Monash University (July 2014 - )
 
 ###Extra Curricular Awards
 * Contestant in Codehire Cup Australia 2013 (Java competitor) - made it through all rounds to the finale in Sydney.
