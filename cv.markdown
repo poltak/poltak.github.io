@@ -48,7 +48,7 @@ title: Curriculum vitae
 `Android` `Node.js` `.NET` `SDL` `MPI` `VCS (git, svn, hg)` `Jekyll`
 
 #### Databases/Processing frameworks:
-`MySQL` `Oracle` `JDBC` `MongoDB` `Hadoop` `Pig` `Hive` `Spark/Streaming` `Storm` `Samza`
+`MySQL` `Oracle` `JDBC` `Hadoop (Pig, Hive)` `Spark/Streaming` `Storm` `Samza` `MongoDB`
 
 ###Education
 | Degree | Major/Specialisation | Institution | Graduation | GPA |
@@ -66,7 +66,7 @@ title: Curriculum vitae
 * Undergraduate Research Assistant at Qualcomm Institute, UCSD, San Diego, California, USA (Jan. 2014 – Mar. 2014)
     - Worked on components of research project [SenseHealth](https://portal.futuregrid.org/projects/383), a platform to enable personalised healthcare.
     - Technologies worked with: `Java` `Scala` `Samza` `MPI` `Hadoop YARN` `Apache Kafka`
-* Honours degree research project working on new streaming big data processing technologies at Monash University (July 2014 - )
+* Honours degree research project working on new streaming big data processing technologies at Monash University (July 2014 - present)
 
 ###Extra Curricular Awards
 * Contestant in Codehire Cup Australia 2013 (Java competitor) - made it through all rounds to the finale in Sydney.
