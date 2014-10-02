@@ -1,0 +1,24 @@
+name: Jonathan Poltak Samosir's Blog
+
+highlighter: true
+
+markdown: redcarpet
+redcarpet:
+  extensions: [autolink, superscript, tables, no_intra_emphasis, footnotes]
+
+timezone: Australia/Melbourne
+encoding: utf-8
+
+defaults:
+  -
+    scope:
+      path: ""
+      type: "post"
+    values:
+      layout: "post"
+  -
+    scope:
+      path: ""
+      type: "page"
+    values:
+      layout: "page"
