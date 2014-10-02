@@ -22,3 +22,7 @@ defaults:
       type: "page"
     values:
       layout: "page"
+
+exclude: docs/, lib/, scripts/
+
+navbar: true
