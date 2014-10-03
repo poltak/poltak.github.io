@@ -1,5 +1,6 @@
 ---
 title: Home
+weight: 1
 ---
 
 ## What is this site?

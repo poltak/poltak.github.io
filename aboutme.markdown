@@ -1,5 +1,6 @@
 ---
 title: About me
+weight: 2
 ---
 
 I am currently a student doing my Honours Degree[^1] of Bachelor of Computer Science at Monash University, Melbourne,

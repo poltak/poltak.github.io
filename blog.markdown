@@ -1,5 +1,6 @@
 ---
 title: Blog posts
+weight: 4
 ---
 
 ## What is this page?

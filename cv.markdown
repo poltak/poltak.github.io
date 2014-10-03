@@ -1,5 +1,6 @@
 ---
 title: Curriculum vitae
+weight: 3
 ---
 
 ##Jonathan Poltak Samosir
