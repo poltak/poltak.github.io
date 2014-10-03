@@ -1,6 +1,7 @@
 ---
 title: Curriculum vitae
 weight: 3
+icon: fa-book
 ---
 
 ##Jonathan Poltak Samosir
@@ -29,10 +30,34 @@ weight: 3
 `MySQL` `Oracle` `JDBC` `Hadoop (Pig, Hive)` `Spark/Streaming` `Storm` `Samza` `MongoDB`
 
 ###Education
-| Degree | Major/Specialisation | Institution | Graduation | GPA |
-| ------ | ----- | ----------- | ---------- | --- |
-| Bachelor of Computer Science | Systems Development | Monash University | 2014 | 3.492/4 |
-| Honours Degree of Bachelor of Computer Science | Streaming Big Data Processing | Monash University | 2015 | ?/4 |
+
+<table class="table table-bordered table-hover table-striped">
+  <thead>
+    <tr>
+      <th>Degree</th>
+      <th>Major/Specialisation</th>
+      <th>Institution</th>
+      <th>Graduation</th>
+      <th>GPA</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Bachelor of Computer Science</td>
+      <td>Systems Development</td>
+      <td>Monash University</td>
+      <td>2014</td>
+      <td>3.492/4</td>
+    </tr>
+    <tr>
+      <td>Honours Degree of Bachelor of Computer Science</td>
+      <td>Streaming Big Data Processing</td>
+      <td>Monash University</td>
+      <td>2015</td>
+      <td>?/4</td>
+    </tr>
+  </tbody>
+</table>
 
 ###Academic Achievements
 * MURPA 2014 recipient to do research project at UCSD, USA on behalf of Monash University, Australia.

@@ -1,6 +1,7 @@
 ---
 title: Blog posts
 weight: 4
+icon: fa-bullhorn
 ---
 
 ## What is this page?

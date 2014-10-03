@@ -1,4 +1,4 @@
-<nav class="navbar navbar-default navbar-static-top" role="navigation">
+<nav class="navbar navbar-inverse navbar-static-top" role="navigation">
   <div class="container">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
@@ -18,7 +18,7 @@
         {% for p in pages %}
           <li {% if p.url == page.url %}class="active"{% endif %} >
             <a href="{{ p.url }}">
-              {{ p.title }}
+              <i class="fa {{ p.icon }}"></i> {{ p.title }}
             </a>
           </li>
         {% endfor %}

@@ -1,6 +1,7 @@
 ---
 title: Home
 weight: 1
+icon: fa-home
 ---
 
 ## What is this site?
