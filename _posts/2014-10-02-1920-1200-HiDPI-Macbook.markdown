@@ -1,0 +1,78 @@
+---
+title: Enabling 1920 x 1200 HiDPI Resolution on the 13" Retina MacBook Pro
+---
+
+Upon purchasing my new 13" Retina MacBook Pro late last year, I was disappointed at finding the highest supported
+"HiDPI" resolution was 1680 x 1050. The main reason I opted to buy this laptop over the 13" MacBook Air was the
+far higher resolution screen (the Air is 1400 x 900 at 128 PPI). I cared less for the fact of having a higher pixel
+density than being able to run it at a higher effective resolution, allowing me to fit more objects on the screen.
+
+I soon discovered the [Retina DisplayMenu (RDM) application][1] which is essentially a handy little switcher that sits
+in your menubar and allows you to change resolutions on the fly. It attempts to give your Mac access to a larger range
+of resolutions than supported, which includes running the Retina MacBook Pros at their full, unscaled resolutions.
+Unfortunately, RDM does not give the option of using your MacBook Pro in the effective (scaled) resolution of 1920 x
+1200, only native 1920 x 1200. Running in native 1920 x 1200 on a 2560 x 1600 screen is definitely not optimal, and you
+get those lovely aliased fonts.
+
+So, the solution to this issue requires a bit of messing around with different tools, but the good thing is that it can
+be done with free-to-use tools and is a permanent solution. First, you need to make sure you have the following:
+
+- RDM ([download link][2])
+- SwitchResX[^1] ([link][3])
+- administrator privileges
+
+If you're a [Homebrew Cask][4] user, you can install SwitchResX using:
+
+<pre><code>brew cask install switchresx</code></pre>
+
+Once you have those components all installed, open up SwitchResX, which should automatically open up a Preferences
+window. Here you should see <strong>Color LCD</strong> listed at the bottom of the option list on the left:
+
+<img src="{{ site.baseurl }}/assets/img/2014-10/switchresx-monitor.png" alt="SwitchResX - Color LCD option location" class="img-responsive" />
+
+What you want to do here is click on the <strong>Custom Resolutions</strong> tab within the <strong>Color LCD</strong> window. Once in that tab, we will
+create a new custom resolution by pressing the add button at the bottom:
+
+<img src="{{ site.baseurl }}/assets/img/2014-10/switchresx-add.png" alt="SwitchResX - add custom resolution location" class="img-responsive" />
+
+Then all you need to do is switch to scaled mode in the new custom resolution window, enter 3840 pixels in the
+<strong>Horizontal</strong> column, while in the <strong>Vertical</strong> column enter 2400 lines. This is all pictured
+here:
+
+<img src="{{ site.baseurl }}/assets/img/2014-10/switchresx-setres.png" alt="SwitchResX - set custom resolution" class="img-responsive" />
+
+You should notice now that SwitchResX asks that you restart before the custom resolution can be applied, so go ahead
+and reboot. After you're back up and running, all you need to do is open up RDM and you should be able to see the brand
+new option of <strong>1920 x 1200 (HiDPI)</strong>:
+
+<br />
+<center>
+<img src="{{ site.baseurl }}/assets/img/2014-10/rdm.png" alt="RDM - new setting present" class="img-responsive img-thumbnail" />
+</center>
+<br />
+
+So go ahead and select that and your screen should scale the the effective resolution of 1920 x 1200 (note that I say
+"effective" as your screen should still be at its native resolution of 2560 x 1600, although scaled down to appear as
+1920 x 1200).
+
+Now, you can go ahead and uninstall SwitchResX if you have no further use of it. You can even uninstall RDM and your
+screen will still be a persistent 1920 x 1200, although in the system Display menu, you will not find your new resolution,
+hence you may want to keep RDM around if you ever want to switch resolutions.
+
+Using this method, your screen should stay at 1920 x 1200 even after reboots and minor system updates. However, you will
+lose the option upon a major system upgrade (such as upgrading from Mavericks 10.9 to Yosemite 10.10), so just repeat
+the same method.
+
+Leave a comment below if you have any troubles with these instructions, or in general, and I'll try to assist.
+
+
+
+
+
+[^1]: Note that SwitchResX is commercial software, and requires purchasing for extended use, although comes with a free 10-day trial. The trial is all that is needed for this, although, of course, if you find the software useful and are in the financial position to afford it, I'm sure the developers would appreciate the business :)
+
+
+[1]: http://www.reddit.com/r/apple/comments/vi9yf/set_your_retina_macbook_pros_resolution_to        "RDM Reddit thread"
+[2]: https://dl.dropbox.com/u/87351306/RDM.tar.gz                                                   "RDM direct download link"
+[3]: http://www.madrau.com                                                                          "SwitchResX Homepage"
+[4]: http://caskroom.io                                                                             "Homebrew Cask Homepage"
