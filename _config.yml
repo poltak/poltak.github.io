@@ -27,3 +27,5 @@ exclude: docs/, lib/, scripts/
 include: .htaccess
 
 navbar: true
+
+permalink: pretty
