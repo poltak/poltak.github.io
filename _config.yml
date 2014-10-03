@@ -24,5 +24,6 @@ defaults:
       layout: "page"
 
 exclude: docs/, lib/, scripts/
+include: .htaccess
 
 navbar: true
