@@ -6535,3 +6535,12 @@ select.form-control {
   -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
+ul.social-media-widgets {
+  margin-top: 10%;
+  overflow: auto;
+}
+ul.social-media-widgets li {
+  list-style: none;
+  float: left;
+  margin-right: 5px;
+}
