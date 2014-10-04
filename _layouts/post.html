@@ -7,13 +7,15 @@
 <body>
   {% include navbar.html %}
 
+
+
   <div class="container">
     <div class="page-header">
       <h2>{{ page.title }}</h2>
     </div>
 
     <p class="lead">
-      {{ page.date | date_to_string }}
+      <a href="{{ site.baseurl }}/blog"><i class="fa fa-arrow-circle-left"></i></a> {{ page.date | date_to_string }}
     </p>
 
     <div class="post">
