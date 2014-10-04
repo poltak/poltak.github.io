@@ -1,16 +1,24 @@
-{% include head.html %}
+<!DOCTYPE html>
+<html>
+<head>
+  {% include head.html %}
+</head>
 
-{% include navbar.html %}
+<body>
+  {% include navbar.html %}
 
-<div class="container">
-  <div class="page-header">
-    <h1>{{ page.title }}</h1>
+  <div class="container">
+    <div class="page-header">
+      <h1>{{ page.title }}</h1>
+    </div>
+
+    <div class="container" style="margin-bottom: 10%;">
+      {{ content }}
+    </div>
   </div>
 
-  <div class="container" style="margin-bottom: 10%;">
-    {{ content }}
-  </div>
-</div>
+  {% include foot.html %}
+  {% include javascripts.html %}
 
-{% include javascripts.html %}
-{% include foot.html %}
+</body>
+</html>
