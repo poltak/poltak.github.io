@@ -6,7 +6,9 @@ icon: fa-book
 
 ##Jonathan Poltak Samosir
 
+<div class="table-responsive">
 {% include contact-table.html %}
+</div>
 
 
 ###Personal Project Involvement
@@ -31,6 +33,7 @@ icon: fa-book
 
 ###Education
 
+<div class="table-responsive">
 <table class="table table-bordered table-hover table-striped">
   <thead>
     <tr>
@@ -58,6 +61,7 @@ icon: fa-book
     </tr>
   </tbody>
 </table>
+</div>
 
 ###Academic Achievements
 * MURPA 2014 recipient to do research project at UCSD, USA on behalf of Monash University, Australia.
