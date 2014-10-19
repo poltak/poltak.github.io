@@ -4,14 +4,15 @@ weight: 3
 icon: fa-book
 ---
 
-##Jonathan Poltak Samosir
+## Jonathan Poltak Samosir
 
 <div class="table-responsive">
 {% include contact-table.html %}
 </div>
 
 
-###Personal Project Involvement
+### Personal Project Involvement
+
 * [apache/incubator-samza](http://github.com/apache/incubator-samza) : LinkedIn&#39;s distributed stream processing framework, live at [Apache incubator](https://samza.incubator.apache.org)
     - Contributed new subsystem that allows streaming of file contents
     - Major documentation contributor
@@ -21,17 +22,21 @@ icon: fa-book
     - Major contributor of new packages
     - Maintainer of several existing packages
 
-###Technical Skills
-####Programming Languages:
- `C` `Java` `Python` `Shell (bash, zsh, sh)` `Lisp (Scheme, Clojure)` `Javascript` `Lua` `MiniZinc (CP)` `C#` `Perl` `XSLT` `Prolog` `PL/SQL`
+### Technical Skills
 
-####Frameworks/Platforms:
-`Android` `Node.js` `.NET` `SDL` `MPI` `VCS (git, svn, hg)` `Jekyll`
+#### Programming Languages:
+
+ `C` `Java (EE, SE)` `Python` `Shell (bash, zsh, sh)` `Lisp (Scheme, Clojure)` `Javascript` `Lua` `MiniZinc (CP)` `C#` `Ruby` `Perl` `XSLT` `Prolog` `PL/SQL`
+
+#### Frameworks/Platforms:
+
+`Android` `Node.js` `.NET` `SDL` `jQuery` `MPI` `VCS (git, svn, hg)` `Jekyll`
 
 #### Databases/Processing frameworks:
+
 `MySQL` `Oracle` `JDBC` `Hadoop (Pig, Hive)` `Spark/Streaming` `Storm` `Samza` `MongoDB`
 
-###Education
+### Education
 
 <div class="table-responsive">
 <table class="table table-bordered table-hover table-striped">
@@ -63,17 +68,28 @@ icon: fa-book
 </table>
 </div>
 
-###Academic Achievements
+### Work Experience
+
+* Monash University : teaching associate in the Faculty of Information Technology (July 2014 - Nov. 2014)
+  - Taught [second-year undergraduate level topics](http://www.infotech.monash.edu.au/units/archive/fit2070.html) on operating systems and computer architecture
+  - Taught a class of 16, once a week; included assessed labs and interactive tutorials
+  - Marking of interim assignments and final exams also included in the role
+
+### Academic Achievements
+
 * MURPA 2014 recipient to do research project at UCSD, USA on behalf of Monash University, Australia.
 * 95% overall mark on final year project for Bachelor of Computer Science
 * Monash University Jubilee Honours Scholarship recipient for the Honours Degree of Bachelor of Computer Science (Semester 2, 2014)
 * Huayu Enrichment Scholarship 2014 recipient to study Mandarin at National Taiwan Normal University, Taiwan.
 
-###Research Experience
+### Research Experience
+
 * Undergraduate Research Assistant at Qualcomm Institute, UCSD, San Diego, California, USA (Jan. 2014 – Mar. 2014)
     - Worked on components of research project [SenseHealth](https://portal.futuregrid.org/projects/383), a platform to enable personalised healthcare.
     - Technologies worked with: `Java` `Scala` `Samza` `MPI` `Hadoop YARN` `Apache Kafka`
 * Honours degree research project working on new streaming big data processing technologies at Monash University (July 2014 - present)
+* Minor research project looking into possible methods of predicting app pricing for developers publishing new paid apps on mobile app stores (Sept. 2014 - present)
 
-###Extra Curricular Awards
+### Extra Curricular Awards
+
 * Contestant in Codehire Cup Australia 2013 (Java competitor) - made it through all rounds to the finale in Sydney.
