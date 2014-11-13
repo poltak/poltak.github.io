@@ -24,6 +24,8 @@ This site was created with the assistance of the following technologies:
 - [Font Awesome][5] (to get those cute little icons)
 - [Markdown][6] (so I can write in everyone's favourite mark-up language)
 - [Disqus][7] (powers comments of the blog section of my site)
+- [InstantClick][8] (for preloading of links)
+- [Simple-Jekyll-Search][9] (for indexing my blog posts with a basic search bar)
 
 
 ## Open source
@@ -40,10 +42,12 @@ Feel free to criticize my code, send PRs, etc. Very new to web development, so o
 
 
 
-[1]: https://github.com/poltak/poltak.github.io         "This website's source code repository"
-[2]: https://pages.github.com                           "GitHub Pages Homepage"
-[3]: http://jekyllrb.com                                "Jekyll Homepage"
-[4]: http://getbootstrap.com                            "Twitter Bootstrap Homepage"
-[5]: http://fortawesome.github.io/Font-Awesome/         "Font Awesome Homepage"
-[6]: http://daringfireball.net/projects/markdown/       "Markdown Website"
-[7]: https://disqus.com                                 "Disqus Homepage"
+[1]: https://github.com/poltak/poltak.github.io               "This website's source code repository"
+[2]: https://pages.github.com                                 "GitHub Pages Homepage"
+[3]: http://jekyllrb.com                                      "Jekyll Homepage"
+[4]: http://getbootstrap.com                                  "Twitter Bootstrap Homepage"
+[5]: http://fortawesome.github.io/Font-Awesome/               "Font Awesome Homepage"
+[6]: http://daringfireball.net/projects/markdown/             "Markdown Website"
+[7]: https://disqus.com                                       "Disqus Homepage"
+[8]: http://instantclick.io                                   "InstantClick Homepage"
+[9]: https://github.com/christian-fei/Simple-Jekyll-Search    "Simple-Jekyll-Search Website"
