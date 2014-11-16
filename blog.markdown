@@ -53,7 +53,9 @@ icon: fa-bullhorn
     });
   };
 
-  // Generate the initial blog post list
-  generateAllBlogPosts(blogPosts, 'results-container');
+  // Generate the initial blog post list once the document is ready
+  $( document ).ready(function() {
+    generateAllBlogPosts(blogPosts, 'results-container');
+  });
 
 </script>
