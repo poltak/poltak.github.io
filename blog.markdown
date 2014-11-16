@@ -16,18 +16,20 @@ icon: fa-bullhorn
 
 <script src="{{ site.baseurl }}/assets/js/jekyll-search.js"></script>
 <script>
-  // Generate the blog JSON data using Liquid
-  var blogPosts = [
-    {% for post in site.posts %}
-      {
-        "title"     : "{{ post.title | escape }}",
-        "category"  : "{{ post.category }}",
-        "tags"      : "{{ post.tags | array_to_sentence_string }}",
-        "url"       : "{{ site.baseurl }}{{ post.url }}",
-        "date"      : "{{ post.date | date_to_string }}"
-      } {% unless forloop.last %},{% endunless %}
-    {% endfor %}
-  ];
+  // Get the blog post JSON data from the Liquid generated JSON file
+  var blogposts = (function() {
+      var json = null;
+      $.ajax({
+        "async": false,
+        "global": false,
+        "url": "/blogposts.json",
+        "dataType": "json",
+        "success": function(data) {
+          json = data;
+        }
+      });
+      return json;
+    })();
 
   // Initialise the search script
   SimpleJekyllSearch.init({
