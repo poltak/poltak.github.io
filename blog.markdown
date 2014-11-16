@@ -17,7 +17,7 @@ icon: fa-bullhorn
 <script src="{{ site.baseurl }}/assets/js/jekyll-search.js"></script>
 <script>
   // Get the blog post JSON data from the Liquid generated JSON file
-  var blogposts = (function() {
+  var blogPosts = (function() {
       var json = null;
       $.ajax({
         "async": false,
