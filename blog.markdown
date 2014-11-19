@@ -14,7 +14,6 @@ icon: fa-bullhorn
   </div>
 </div>
 
-<script src="{{ site.baseurl }}/assets/js/jekyll-search.js"></script>
 <script>
   // Get the blog post JSON data from the Liquid generated JSON file
   var blogPosts = (function() {

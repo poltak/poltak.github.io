@@ -28,18 +28,18 @@ If you're a [Homebrew Cask][4] user, you can install SwitchResX using:
 Once you have those components all installed, open up SwitchResX, which should automatically open up a Preferences
 window. Here you should see <strong>Color LCD</strong> listed at the bottom of the option list on the left:
 
-<img src="{{ site.baseurl }}/assets/img/2014-10/switchresx-monitor.png" alt="SwitchResX - Color LCD option location" class="img-responsive" />
+<img src="{{ site.baseurl }}/assets/img/build/2014-10/switchresx-monitor.png" alt="SwitchResX - Color LCD option location" class="img-responsive" />
 
 What you want to do here is click on the <strong>Custom Resolutions</strong> tab within the <strong>Color LCD</strong> window. Once in that tab, we will
 create a new custom resolution by pressing the add button at the bottom:
 
-<img src="{{ site.baseurl }}/assets/img/2014-10/switchresx-add.png" alt="SwitchResX - add custom resolution location" class="img-responsive" />
+<img src="{{ site.baseurl }}/assets/img/build/2014-10/switchresx-add.png" alt="SwitchResX - add custom resolution location" class="img-responsive" />
 
 Then all you need to do is switch to scaled mode in the new custom resolution window, enter 3840 pixels in the
 <strong>Horizontal</strong> column, while in the <strong>Vertical</strong> column enter 2400 lines. This is all pictured
 here:
 
-<img src="{{ site.baseurl }}/assets/img/2014-10/switchresx-setres.png" alt="SwitchResX - set custom resolution" class="img-responsive" />
+<img src="{{ site.baseurl }}/assets/img/build/2014-10/switchresx-setres.png" alt="SwitchResX - set custom resolution" class="img-responsive" />
 
 You should notice now that SwitchResX asks that you restart before the custom resolution can be applied, so go ahead
 and reboot. After you're back up and running, all you need to do is open up RDM and you should be able to see the brand
@@ -47,7 +47,7 @@ new option of <strong>1920 x 1200 (HiDPI)</strong>:
 
 <br />
 <center>
-<img src="{{ site.baseurl }}/assets/img/2014-10/rdm.png" alt="RDM - new setting present" class="img-responsive img-thumbnail" />
+<img src="{{ site.baseurl }}/assets/img/build/2014-10/rdm.png" alt="RDM - new setting present" class="img-responsive img-thumbnail" />
 </center>
 <br />
 
