@@ -26,6 +26,7 @@ This site was created with the assistance of the following technologies:
 - [Disqus][7] (powers comments of the blog section of my site)
 - [InstantClick][8] (for preloading of links)
 - [Simple-Jekyll-Search][9] (for indexing my blog posts with a basic search bar)
+- [Grunt][10] (for the automating of site build related tasks)
 
 
 ## Open source
@@ -51,3 +52,4 @@ Feel free to criticize my code, send PRs, etc. Very new to web development, so o
 [7]: https://disqus.com                                       "Disqus Homepage"
 [8]: http://instantclick.io                                   "InstantClick Homepage"
 [9]: https://github.com/christian-fei/Simple-Jekyll-Search    "Simple-Jekyll-Search Website"
+[10]: http://gruntjs.com/                                     "Grunt Website"
