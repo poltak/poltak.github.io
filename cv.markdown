@@ -80,7 +80,8 @@ icon: fa-book
 * MURPA 2014 recipient to do research project at UCSD, USA on behalf of Monash University, Australia.
 * 95% overall mark on final year project for Bachelor of Computer Science
 * Monash University Jubilee Honours Scholarship recipient for the Honours Degree of Bachelor of Computer Science (Semester 2, 2014)
-* Huayu Enrichment Scholarship 2014 recipient to study Mandarin at National Taiwan Normal University, Taiwan.
+* Huayu Enrichment Scholarship 2014 recipient to study Mandarin in Taiwan with a full financial scholarship from the Ministry of Education of Taiwan
+* Mandarin Training Center Scholarship 2014 recipient to study Mandarin at the Mandarin Training Center, National Taiwan Normal University
 
 ### Research Experience
 
