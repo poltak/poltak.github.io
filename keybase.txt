@@ -1,0 +1,74 @@
+==================================================================
+https://keybase.io/poltak
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://poltak.github.io
+  * I am poltak (https://keybase.io/poltak) on keybase.
+  * I have a public key with fingerprint 2853 F053 61B3 891A 4066  8CA9 A32C 5C73 BEEF 3B1B
+
+To claim this, I am signing this object:
+
+{
+    "body": {
+        "key": {
+            "fingerprint": "2853f05361b3891a40668ca9a32c5c73beef3b1b",
+            "host": "keybase.io",
+            "key_id": "a32c5c73beef3b1b",
+            "kid": "0101140c82c5f392f6d2e790652bc012e5c96f54766801fb4d0953a6a155562a01400a",
+            "uid": "597536c75f9e5f6d795afa405dda3000",
+            "username": "poltak"
+        },
+        "service": {
+            "hostname": "poltak.github.io",
+            "protocol": "https:"
+        },
+        "type": "web_service_binding",
+        "version": 1
+    },
+    "ctime": 1419341077,
+    "expire_in": 157680000,
+    "prev": "e145c37a562c1342aa2884e4312ed56d1dea11d10a59da86a9debb727e8bd4cd",
+    "seqno": 7,
+    "tag": "signature"
+}
+
+with the aforementioned key, yielding the PGP signature:
+
+-----BEGIN PGP MESSAGE-----
+Version: Keybase OpenPGP v2.0.1
+Comment: https://keybase.io/crypto
+
+yMM0AnicbVJ7UFRVGF8EMwgErSVnSAZvYNQsdM997l0mbAbL10STCbK0A9x7z1m4
+s7C77gtJqGmmpsJsGgI2SWg2BJsKJMmoRBsEFIkAEU2DeGn4KEAoxoVKOpfqj2Y6
+/5w53+/xfb9vTkdYoCYkoFZncp6aSYoK+LYtxa3ZdbBAu4+QbLCIMOwjLGj5MivW
+XOSwOxSrizAQlJ6lzSRLc0Ci9QIQGZLj9LIoiDQlszJPSwiZaQlIhI7IszlVBbaR
+RCdKVGy4hh/ZCsTV/+FblgESkAAwpKzHuJkWKDMHKcQLJMdSkkwCCrGywJlZhsd9
+SWCWGEgKLC1yImBZlqNEEotJEdu5l+1YgcfDyjxrFhCLvXiBFc14ahZCkSZJUiU6
+kcMqFiDMttvyXaKFKNERuOZRZKQuQM3xHzwxV3HluaW/E9kdNpdNtuVjNM/lsjsN
+qtpVZFfphUjK/scoW1KsEG8SKzzI4VRsVsIAMFN2KaozYIBAM4DkeR2B9toVB8pW
+VAbL45T4qH2QB1siwLAyzYs4qgxohhJFSq9nEEPjzUCWgwAiEQAISJEVoKjnRAEi
+SeIpHuklyMiQUKPtsdoIA+7kEnOxpVPJtYoutwMRJafbTEGagBDNPStXqH9BExIc
+8e8P6R8MX8rMMMxXdV+PfOPl79s9swMn9nd5H3s/KqtvPC2o79FHKm8FDG9rnfyh
+7JKnsKXdfnJ1z+8xV0KkqAvDd+O3j215tuPA1rQzbdesVb8mf24Mzd8d3Du+38Q7
+vq4eODu3cGYo55lX2sd2XGqvqz58vKnNuJA0z8wFrqtdoGyNZZkvDj4Vx6Zd71U6
+X793Rdfx89UZ604nTIOm8q3SOffV4D8+OToeFKdPeOCbypSu2lPDTatGJkdvzhbs
+SHuwKzI8upFqbpn7Ka9i/rex/hjLd68RqP+F0ZpNVx6O9nY/Vz9XY36Ju1EXMzTR
++3YSUVj08dlA+N4df0rlicWc2dBzFRe5qC9XzpzMjIdHn8guiaurf1xblXN5j3/L
+YNyRlmtvVu7crA2VMtYe2lDtD81Z8seWhRRbAnp8ETk1/sAfoTao47PE4obZqOTG
+vam7Ns6460dgwcGvvng63ZK6fmKnj1bA1LHwP7OSI1JjpyuOHNg4fhvd1Png3Qvd
+qwpGPhzzew+1b9BDze41CUtZ8xOJQ6D42KI3qz66Mc44XromN54yibGV6wdgzwcz
+mp+12hq36R2hufx8efNtU/pia+erm6buN3rQNPXRVGnDL3XGq2sjJ98KTu8Ka0p/
+svN5Xd9DYZ8mBLXlD9zwjdbduTWt8bVuNq4mG4RtFw+Xpd6n3X5ZV5ps8DYm+Ybe
+7fsLkumzlA==
+=Qx24
+-----END PGP MESSAGE-----
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/poltak
+
+==================================================================
+
