@@ -64,6 +64,13 @@ icon: fa-book
       <td>2015</td>
       <td>?/4</td>
     </tr>
+    <tr>
+      <td>Contemporary Chinese II</td>
+      <td>Chinese Language (Mandarin)</td>
+      <td>National Taiwan Normal University 國立臺灣師範大學</td>
+      <td>2015</td>
+      <td>92.6% (grade average)</td>
+    </tr>
   </tbody>
 </table>
 </div>
