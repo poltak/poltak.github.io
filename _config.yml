@@ -1,6 +1,6 @@
 name: Jonathan Poltak Samosir's Blog
 
-highlighter: true
+highlighter: pygments
 
 markdown: redcarpet
 redcarpet:
