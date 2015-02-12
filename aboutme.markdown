@@ -21,22 +21,22 @@ also finding the best ways of processing that data depending on their characteri
 Apart from the fields of computer science and software engineering, my academic interests include human languages and
 world history, both particularly in the East and South East Asian regions. Human languages I have studied include:
 
+- Mandarin (tertiary study)
 - Japanese (high school study)
 - Indonesian (informal study)
 - Cantonese (informal study)
-- Mandarin (tertiary study)
 
-Mandarin is the language that currently I am focussing a lot of my time into, and plan to move to Taipei, Taiwan at the end of
-2014 for further language study at the [Mandarin Training Center][1] at the [National Taiwan Normal University][2]. In
-preparation for this, I am currently trying to relearn the 400 or so Simplified Chinese characters that I am familiar with
-in Traditional Chinese.
+Mandarin is the language that currently I am focussing a lot of my time into. From November 2014 to March 2015, I lived
+in Taipei, Taiwan (Republic of China) for further intensive Chinese language study 
+at the [Mandarin Training Center][1] at [National Taiwan Normal University][2].
 
-I am currently using [Skritter][4] on my iPad to learn to read, write, and recognise both Simplified and Traditional
+I am currently using [Skritter][4] on my iPhone to learn to read, write, and recognise both Simplified and Traditional
 Chinese characters. [Pleco][5] is my go to Chinese dictionary, which integrates well into Skritter.
 
-I also plan to find some time in the near future to sit down and learn the [Korean writing system][3]. Although I have
+I also plan to find some time in the near future to sit down and learn the Korean writing system, [Hangul][3]. Although I have
 no experience with the spoken language, I find the premise behind the writing system fascinating and it seems to be very
-logical in comparison to [Hanzi][7] and the Japanese writing systems of [Hiragana][8] and [Katakana][9] (in fact, there
+logical in comparison to the Chinese wrting system, [Hanzi][7], and the Japanese writing systems 
+of [Hiragana][8] and [Katakana][9] (in fact, there
 is no real difference behind the mechanisms underlying those two writing systems).
 
 For anyone interested in learning more about Chinese language and culture, I suggest diving deep into the history of the
