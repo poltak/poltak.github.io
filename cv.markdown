@@ -4,7 +4,9 @@ weight: 3
 icon: fa-book
 ---
 
-## Jonathan Poltak Samosir
+_Please note that a PDF compiled version of my resume is available [here]({{ site.baseurl }}/assets/pdf/resume_tex.pdf)._
+
+## Jonathan Poltak Samosir 森旭
 
 <div class="table-responsive">
 {% include contact-table.html %}
@@ -13,6 +15,8 @@ icon: fa-book
 
 ### Personal Project Involvement
 
+* [poltak/LockerDB](http://github.com/poltak/LockerDB) : An experimental NoSQL key-value store database
+		- Lead project developer and researcher
 * [apache/incubator-samza](http://github.com/apache/incubator-samza) : LinkedIn&#39;s distributed stream processing framework, live at [Apache incubator](https://samza.incubator.apache.org)
     - Contributed new subsystem that allows streaming of file contents
     - Major documentation contributor
@@ -26,15 +30,15 @@ icon: fa-book
 
 #### Programming Languages:
 
- `C` `Java (EE, SE)` `Python` `Shell (bash, zsh, sh)` `Lisp (Scheme, Clojure)` `Javascript` `Lua` `MiniZinc (CP)` `C#` `Ruby` `Perl` `XSLT` `Prolog` `PL/SQL`
+ `C` `Java (EE, SE)` `Python` `Shell (bash, zsh, sh)` `Lisp (Scheme, Clojure)` `Swift` `Javascript` `Lua` `MiniZinc (CP)` `C#` `Ruby` `Perl` `XSLT` `Prolog` `PL/SQL`
 
 #### Frameworks/Platforms:
 
-`Android` `Node.js` `.NET` `SDL` `jQuery` `MPI` `VCS (git, svn, hg)` `Jekyll`
+`Android` `iOS` `Node.js` `Meteor` `.NET` `SDL` `jQuery` `MPI` `VCS (git, svn, hg)` `Jekyll`
 
 #### Databases/Processing frameworks:
 
-`MySQL` `Oracle` `JDBC` `Hadoop (Pig, Hive)` `Spark/Streaming` `Storm` `Samza` `MongoDB`
+`MySQL` `Oracle` `JDBC` `Hadoop (Pig, Hive)` `Spark Streaming` `Storm` `Samza` `MongoDB`
 
 ### Education
 
@@ -59,7 +63,7 @@ icon: fa-book
     </tr>
     <tr>
       <td>Honours Degree of Bachelor of Computer Science</td>
-      <td>Streaming Big Data Processing</td>
+      <td>Real-time Big Data Processing</td>
       <td>Monash University</td>
       <td>2015</td>
       <td>?/4</td>
@@ -77,10 +81,14 @@ icon: fa-book
 
 ### Work Experience
 
-* Monash University : teaching associate in the Faculty of Information Technology (July 2014 - Nov. 2014)
+* Monash University : teaching associate in the Faculty of Information Technology (July 2014 - present)
   - Taught [second-year undergraduate level topics](http://www.infotech.monash.edu.au/units/archive/fit2070.html) on operating systems and computer architecture
   - Taught a class of 16, once a week; included assessed labs and interactive tutorials
   - Marking of interim assignments and final exams also included in the role
+
+* TeamFusian : co-founded startup (Oct. 2014 - present)
+	- Focusing on mobile and web application development
+	- Currently working on web and mobile-based card game
 
 ### Academic Achievements
 
@@ -92,12 +100,26 @@ icon: fa-book
 
 ### Research Experience
 
-* Undergraduate Research Assistant at Qualcomm Institute, UCSD, San Diego, California, USA (Jan. 2014 – Mar. 2014)
+* Research Assistant, Faculty of Information Technology, Monash University, Australia (Feb. 2015 - present)
+	- Looking at the developments in the space of NoSQL database technology.
+	- Working on the development of an experimental NoSQL database.
+	- Technologies worked with: `Clojure`
+
+* Honours Degree Thesis, Faculty of Information Technology, Monash University, Melbourne, Australia (July 2014 - present)
+	- Working on the processing of real-time big data streams in the context of the Australian railway industry.
+	- Technologies worked with: `Java` `Clojure` `Python` `Samza` `Spark Streaming` `Storm` `Hadoop YARN`
+
+* Research Assistant, Faculty of Information Technology, Monash University, Australia (Sept. 2014 - Dec. 2014)
+	- Minor research project.
+	- Looked at possible methods of predicting app pricing for developers publishing new paid apps on mobile app stores.
+	- Technologies worked with: `Python` `Weka` `Ruby`
+
+* Undergraduate Research Assistant, Qualcomm Institute, UCSD, San Diego, California, USA (Jan. 2014 – Mar. 2014)
     - Worked on components of research project [SenseHealth](https://portal.futuregrid.org/projects/383), a platform to enable personalised healthcare.
     - Technologies worked with: `Java` `Scala` `Samza` `MPI` `Hadoop YARN` `Apache Kafka`
-* Honours degree research project working on new streaming big data processing technologies at Monash University (July 2014 - present)
-* Minor research project looking into possible methods of predicting app pricing for developers publishing new paid apps on mobile app stores (Sept. 2014 - present)
+
 
 ### Extra Curricular Awards
 
+* Personally invited to participate in Cisco Live 2015 Melbourne hackathon - team came fourth overall.
 * Contestant in Codehire Cup Australia 2013 (Java competitor) - made it through all rounds to the finale in Sydney.
