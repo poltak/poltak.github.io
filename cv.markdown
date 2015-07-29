@@ -17,8 +17,9 @@ _Please note that a LaTeX compiled PDF version of my resume is available [here](
 
 ### Personal Project Involvement
 
-* [poltak/LockerDB](http://github.com/poltak/LockerDB) : An experimental NoSQL key-value store database
-		- Lead project developer and researcher
+* [poltak/brightsparqe-web](http://github.com/poltak/brightsparqe-web) : Website for the Bright Sparqe charity based in Melbourne, Australia.
+    - Working to alleviating the issue of homelessness in Australia
+    - Lead backend designer and programmer
 * [apache/incubator-samza](http://github.com/apache/incubator-samza) : LinkedIn&#39;s distributed stream processing framework, live at [Apache incubator](https://samza.incubator.apache.org)
     - Contributed new subsystem that allows streaming of file contents
     - Major documentation contributor
@@ -32,15 +33,15 @@ _Please note that a LaTeX compiled PDF version of my resume is available [here](
 
 #### Programming Languages:
 
- `C` `Java (EE, SE)` `Python` `Shell (bash, zsh, sh)` `Lisp (Scheme, Clojure)` `Swift` `Javascript` `Lua` `MiniZinc (CP)` `C#` `Ruby` `Perl` `XSLT` `Prolog` `PL/SQL`
+ `C` `Java (EE, SE)` `JavaScript` `Python` `Shell (bash, zsh, sh)` `Lisp (Scheme, Clojure)` `Swift` `Lua` `MiniZinc (CP)` `C#` `Ruby` `Perl` `XSLT` `Prolog` `PL/SQL`
 
 #### Frameworks/Platforms:
 
-`Android` `iOS` `Node.js` `Meteor` `.NET` `SDL` `jQuery` `MPI` `VCS (git, svn, hg)` `Jekyll`
+`Android` `iOS` `Node.js` `Meteor` `React` `Express` `.NET` `SDL` `jQuery` `MPI` `VCS (git, svn, hg)` `Jekyll`
 
 #### Databases/Processing frameworks:
 
-`MySQL` `Oracle` `JDBC` `Hadoop (Pig, Hive)` `Spark Streaming` `Storm` `Samza` `MongoDB`
+`Postgres` `MySQL` `Oracle` `JDBC` `Hadoop (Pig, Hive)` `Spark Streaming` `Storm` `Samza` `MongoDB`
 
 ### Education
 
@@ -68,7 +69,7 @@ _Please note that a LaTeX compiled PDF version of my resume is available [here](
       <td>Real-time Big Data Processing</td>
       <td>Monash University</td>
       <td>2015</td>
-      <td>?/4</td>
+      <td>3.5/4 (first class honours)</td>
     </tr>
     <tr>
       <td>Contemporary Chinese II</td>
@@ -83,9 +84,14 @@ _Please note that a LaTeX compiled PDF version of my resume is available [here](
 
 ### Work Experience
 
-* Monash University : teaching associate in the Faculty of Information Technology (July 2014 - present)
+* [YoungPilots.vn](http://youngpilots.vn/): lead developer (June 2015 - present)
+  - Web development shop based out of Ho Chi Minh City (Saigon), Vietnam
+  - Looking to expand into fully-fledged startup working on our own ideas
+  - Technologies worked with: `Postgres` `NodeJS` `React`
+
+* Monash University : teaching associate in the Faculty of Information Technology (July 2014 - July 2015)
   - Taught [second-year undergraduate level topics](http://www.infotech.monash.edu.au/units/archive/fit2070.html) on operating systems and computer architecture
-  - Taught a class of 16, once a week; included assessed labs and interactive tutorials
+  - Taught first year undergraduate introductory programming to software engineering and computer science students
   - Marking of interim assignments and final exams also included in the role
 
 * TeamFusian : co-founded startup (Oct. 2014 - present)
@@ -94,6 +100,7 @@ _Please note that a LaTeX compiled PDF version of my resume is available [here](
 
 ### Academic Achievements
 
+* First class honours (highest award in undergraduate research)
 * MURPA 2014 recipient to do research project at UCSD, USA on behalf of Monash University, Australia.
 * 95% overall mark on final year project for Bachelor of Computer Science
 * Monash University Jubilee Honours Scholarship recipient for the Honours Degree of Bachelor of Computer Science (Semester 2, 2014)
@@ -102,14 +109,14 @@ _Please note that a LaTeX compiled PDF version of my resume is available [here](
 
 ### Research Experience
 
-* Research Assistant, Faculty of Information Technology, Monash University, Australia (Feb. 2015 - present)
+* Research Assistant, Faculty of Information Technology, Monash University, Australia (Feb. 2015 - July 2015)
 	- Looking at the developments in the space of NoSQL database technology.
 	- Working on the development of an experimental NoSQL database.
-	- Technologies worked with: `Clojure`
+	- Technologies worked with: `Clojure` `NodeJS` `MongoDB`
 
-* Honours Degree Thesis, Faculty of Information Technology, Monash University, Melbourne, Australia (July 2014 - present)
+* Honours Degree Thesis, Faculty of Information Technology, Monash University, Melbourne, Australia (July 2014 - July 2015)
 	- Working on the processing of real-time big data streams in the context of the Australian railway industry.
-	- Technologies worked with: `Java` `Clojure` `Python` `Samza` `Spark Streaming` `Storm` `Hadoop YARN`
+	- Technologies worked with: `Java` `Clojure` `Python` `Scala` `Samza` `Spark Streaming` `Storm` `Hadoop YARN`
 
 * Research Assistant, Faculty of Information Technology, Monash University, Australia (Sept. 2014 - Dec. 2014)
 	- Minor research project.
