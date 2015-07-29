@@ -13,18 +13,24 @@ defaults:
   -
     scope:
       path: ""
-      type: "post"
+      type: "posts"
     values:
-      layout: "post"
+      layout: "posts"
   -
     scope:
       path: ""
-      type: "page"
+      type: "pages"
     values:
-      layout: "page"
+      layout: "pages"
 
-exclude: docs/, lib/, scripts/
-include: .htaccess
+exclude: [
+          docs/,
+          lib/,
+          scripts/
+         ]
+include: [
+          .htaccess
+         ]
 
 navbar: true
 
