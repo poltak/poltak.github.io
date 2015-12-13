@@ -37,7 +37,7 @@ _Please note that a LaTeX compiled PDF version of my resume is available [here](
 
 #### Frameworks/Platforms:
 
-`Android` `iOS` `Node.js` `Meteor` `React` `Express` `.NET` `SDL` `jQuery` `MPI` `VCS (git, svn, hg)` `Jekyll`
+`Android` `iOS` `Node.js` `Meteor` `React` `Express` `Ionic` `.NET` `SDL` `jQuery` `MPI` `VCS (git, svn, hg)` `Jekyll`
 
 #### Databases/Processing frameworks:
 
