@@ -6,7 +6,7 @@ icon: fa-book
 
 _Please note that a LaTeX compiled PDF version of my resume is available [here]({{ site.baseurl }}/assets/pdf/resume_tex.pdf)._
 
-## Jonathan Poltak Samosir 森旭
+## Jonathan Poltak Samosir 林旭明
 
 <br />
 

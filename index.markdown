@@ -6,7 +6,7 @@ icon: fa-home
 
 ## What is this site?
 
-This site is an online space for myself (Jonathan Poltak Samosir 森旭) to:
+This site is an online space for myself (Jonathan Poltak Samosir 林旭明) to:
 
 - blog about my research
 - keep an online version of my resume updated
