@@ -33,7 +33,7 @@ _Please note that a LaTeX compiled PDF version of my resume is available [here](
 
 #### Programming Languages:
 
- `C` `Java (EE, SE)` `JavaScript` `Python` `Shell (bash, zsh, sh)` `Lisp (Scheme, Clojure)` `Swift` `Lua` `MiniZinc (CP)` `C#` `Ruby` `Perl` `XSLT` `Prolog` `PL/SQL`
+ `C` `Java (EE, SE)` `JavaScript (ES2015, JSX)` `Python` `Shell (bash, zsh, sh)` `Lisp (Scheme, Clojure)` `Swift` `Lua` `MiniZinc (CP)` `C#` `Ruby` `Perl` `XSLT` `Prolog` `PL/SQL`
 
 #### Frameworks/Platforms:
 
@@ -87,7 +87,7 @@ _Please note that a LaTeX compiled PDF version of my resume is available [here](
 * [YoungPilots.vn](http://youngpilots.vn/): lead developer (June 2015 - present)
   - Web development shop based out of Ho Chi Minh City (Saigon), Vietnam
   - Looking to expand into fully-fledged startup working on our own ideas
-  - Technologies worked with: `Postgres` `NodeJS` `React`
+  - Technologies worked with: `Postgres` `NodeJS` `ExpressJS` `React` `Meteor` `MongoDB`
 
 * Monash University : teaching associate in the Faculty of Information Technology (July 2014 - July 2015)
   - Taught [second-year undergraduate level topics](http://www.infotech.monash.edu.au/units/archive/fit2070.html) on operating systems and computer architecture
@@ -130,5 +130,5 @@ _Please note that a LaTeX compiled PDF version of my resume is available [here](
 
 ### Extra Curricular Awards
 
-* Personally invited to participate in Cisco Live 2015 Melbourne hackathon - team came fourth overall.
+* Personally invited to participate in Cisco Live 2015 Melbourne hackathon for Cisco IoT technologies - team came fourth overall.
 * Contestant in Codehire Cup Australia 2013 (Java competitor) - made it through all rounds to the finale in Sydney.
