@@ -84,19 +84,20 @@ _Please note that a LaTeX compiled PDF version of my resume is available [here](
 
 ### Work Experience
 
-* [YoungPilots.vn](http://youngpilots.vn/): lead developer (June 2015 - present)
+* [YoungPilots.vn](http://youngpilots.vn/) : lead developer (June 2015 - present)
   - Web development shop based out of Ho Chi Minh City (Saigon), Vietnam
   - Looking to expand into fully-fledged startup working on our own ideas
   - Technologies worked with: `Postgres` `NodeJS` `ExpressJS` `React` `Meteor` `MongoDB`
+
+* Sportistics : CTO, lead developer (July 2015 - present)
+  - Startup developing a sports betting social network app based out of Taipei, Taiwan
+  - Currently in development, nearing release
+  - Technologies worked with: `Meteor` `Ionic` `MongoDB` `Python` `Cordova` `ES2015`
 
 * Monash University : teaching associate in the Faculty of Information Technology (July 2014 - July 2015)
   - Taught [second-year undergraduate level topics](http://www.infotech.monash.edu.au/units/archive/fit2070.html) on operating systems and computer architecture
   - Taught first year undergraduate introductory programming to software engineering and computer science students
   - Marking of interim assignments and final exams also included in the role
-
-* TeamFusian : co-founded startup (Oct. 2014 - present)
-	- Focusing on mobile and web application development
-	- Currently working on web and mobile-based card game
 
 ### Academic Achievements
 
