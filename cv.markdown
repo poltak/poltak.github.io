@@ -14,6 +14,36 @@ _Please note that a LaTeX compiled PDF version of my resume is available [here](
 {% include contact-table.html %}
 </div>
 
+### Technical Skills
+
+#### Programming Languages:
+
+ `C` `Java (EE, SE)` `JavaScript (ES2015, JSX)` `Python` `Shell (bash, zsh, sh)` `Lisp (Scheme, Clojure)` `Swift` `Lua` `MiniZinc (CP)` `C#` `Ruby` `Perl` `XSLT` `Prolog` `PL/SQL`
+
+#### Frameworks/Platforms:
+
+`Android` `iOS` `Node.js` `Meteor` `React` `Express` `Ionic` `.NET` `SDL` `jQuery` `MPI` `VCS (git, svn, hg)` `Jekyll`
+
+#### Databases/Processing frameworks:
+
+`Postgres` `MySQL` `Oracle` `JDBC` `Hadoop (Pig, Hive)` `Spark Streaming` `Storm` `Samza` `MongoDB`
+
+### Work Experience
+
+* [YoungPilots.vn](http://youngpilots.vn/) : lead developer (June 2015 - present)
+  - Web development shop based out of Ho Chi Minh City (Saigon), Vietnam
+  - Looking to expand into fully-fledged startup working on our own ideas
+  - Technologies worked with: `Postgres` `NodeJS` `ExpressJS` `React` `Meteor` `MongoDB`
+
+* Sportistics : CTO, lead developer (July 2015 - present)
+  - Startup developing a sports betting social network app based out of Taipei, Taiwan
+  - Currently in development, nearing release
+  - Technologies worked with: `Meteor` `Ionic` `MongoDB` `Python` `Cordova` `ES2015`
+
+* Monash University : teaching associate in the Faculty of Information Technology (July 2014 - July 2015)
+  - Taught [second-year undergraduate level topics](http://www.infotech.monash.edu.au/units/archive/fit2070.html) on operating systems and computer architecture
+  - Taught first year undergraduate introductory programming to software engineering and computer science students
+  - Marking of interim assignments and final exams also included in the role
 
 ### Personal Project Involvement
 
@@ -29,19 +59,6 @@ _Please note that a LaTeX compiled PDF version of my resume is available [here](
     - Major contributor of new packages
     - Maintainer of several existing packages
 
-### Technical Skills
-
-#### Programming Languages:
-
- `C` `Java (EE, SE)` `JavaScript (ES2015, JSX)` `Python` `Shell (bash, zsh, sh)` `Lisp (Scheme, Clojure)` `Swift` `Lua` `MiniZinc (CP)` `C#` `Ruby` `Perl` `XSLT` `Prolog` `PL/SQL`
-
-#### Frameworks/Platforms:
-
-`Android` `iOS` `Node.js` `Meteor` `React` `Express` `Ionic` `.NET` `SDL` `jQuery` `MPI` `VCS (git, svn, hg)` `Jekyll`
-
-#### Databases/Processing frameworks:
-
-`Postgres` `MySQL` `Oracle` `JDBC` `Hadoop (Pig, Hive)` `Spark Streaming` `Storm` `Samza` `MongoDB`
 
 ### Education
 
@@ -81,23 +98,6 @@ _Please note that a LaTeX compiled PDF version of my resume is available [here](
   </tbody>
 </table>
 </div>
-
-### Work Experience
-
-* [YoungPilots.vn](http://youngpilots.vn/) : lead developer (June 2015 - present)
-  - Web development shop based out of Ho Chi Minh City (Saigon), Vietnam
-  - Looking to expand into fully-fledged startup working on our own ideas
-  - Technologies worked with: `Postgres` `NodeJS` `ExpressJS` `React` `Meteor` `MongoDB`
-
-* Sportistics : CTO, lead developer (July 2015 - present)
-  - Startup developing a sports betting social network app based out of Taipei, Taiwan
-  - Currently in development, nearing release
-  - Technologies worked with: `Meteor` `Ionic` `MongoDB` `Python` `Cordova` `ES2015`
-
-* Monash University : teaching associate in the Faculty of Information Technology (July 2014 - July 2015)
-  - Taught [second-year undergraduate level topics](http://www.infotech.monash.edu.au/units/archive/fit2070.html) on operating systems and computer architecture
-  - Taught first year undergraduate introductory programming to software engineering and computer science students
-  - Marking of interim assignments and final exams also included in the role
 
 ### Academic Achievements
 
