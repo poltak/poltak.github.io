@@ -1,5 +1,7 @@
+# Basic settings
 name: Jonathan Poltak Samosir's Blog
-
+timezone: Asia/Jakarta
+encoding: utf-8
 
 # Conversion
 markdown: kramdown
@@ -9,9 +11,6 @@ highlighter: rouge
 detach: false
 port: 4000
 host: 127.0.0.1
-
-timezone: Australia/Melbourne
-encoding: utf-8
 
 defaults:
   -
