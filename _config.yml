@@ -1,10 +1,14 @@
 name: Jonathan Poltak Samosir's Blog
 
-highlighter: pygments
 
-markdown: redcarpet
-redcarpet:
-  extensions: [autolink, superscript, tables, no_intra_emphasis, footnotes]
+# Conversion
+markdown: kramdown
+highlighter: rouge
+
+# Serving
+detach: false
+port: 4000
+host: 127.0.0.1
 
 timezone: Australia/Melbourne
 encoding: utf-8
