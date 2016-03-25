@@ -17,18 +17,20 @@ icon: fa-bullhorn
 <script>
   // Get the blog post JSON data from the Liquid generated JSON file
   var blogPosts = (function() {
-      var json = null;
-      $.ajax({
-        "async": false,
-        "global": false,
-        "url": "/blogposts.json",
-        "dataType": "json",
-        "success": function(data) {
-          json = data;
-        }
-      });
-      return json;
-    })();
+    var json = null;
+
+    $.ajax({
+      async:    false,
+      global:   false,
+      url:      '/blogposts.json',
+      dataType: 'json',
+      success:  function(data) {
+        json = data;
+      },
+    });
+
+    return json;
+  })();
 
   // Initialise the search script
   SimpleJekyllSearch.init({
