@@ -1,6 +1,7 @@
 ---
 title: Curriculum vitae
 weight: 3
+subtitle: Want more detail?
 icon: fa-book
 ---
 

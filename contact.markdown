@@ -1,6 +1,7 @@
 ---
 title: Contact
 weight: 5
+subtitle: How can you contact me?
 icon: fa-phone
 ---
 

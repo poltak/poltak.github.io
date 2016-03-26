@@ -7,14 +7,10 @@
 <body>
   {% include navbar.html %}
 
-  <div class="container">
-    <div class="page-header">
-      <h1>{{ page.title }}</h1>
-    </div>
+  {% include header.html %}
 
-    <div class="container" style="margin-bottom: 10%;">
-      {{ content }}
-    </div>
+  <div class="container" style="margin-bottom: 10%;">
+    {{ content }}
   </div>
 
   {% include foot.html %}

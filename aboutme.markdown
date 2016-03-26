@@ -1,23 +1,24 @@
 ---
 title: About me
+subtitle: Who I am; what I do
 weight: 2
 icon: fa-info-circle
 ---
 
-I am currently a freelance software developer working as part of 
+I am currently a freelance software developer working as part of
 [YoungPilots.vn](http://youngpilots.vn/), living in Taipei, Taiwan. I
-specialise in backend development, mobile app development, and am attempting 
-to get into some newer front-end web development with the fancy new JS 
+specialise in backend development, mobile app development, and am attempting
+to get into some newer front-end web development with the fancy new JS
 frameworks, such as React and Angular.
-At YoungPilots, we are currently looking to expand from freelance work into a 
-fully-fledged startup, working on our own ideas. At the moment, we are very 
-much in a pre-development stage, getting our ideas organised and looking for 
+At YoungPilots, we are currently looking to expand from freelance work into a
+fully-fledged startup, working on our own ideas. At the moment, we are very
+much in a pre-development stage, getting our ideas organised and looking for
 more diversity to add to our team.
 
 Previously, I was a student doing my Honours Degree[^1] of Bachelor of Computer Science at Monash University, Melbourne,
 Australia. My research topic was big data processing in realtime, using newer
-technologies, such as [Storm](https://storm.apache.org/), [Spark Streaming](https://spark.apache.org/streaming/), and [Samza](https://samza.apache.org). 
-I graduated with the award of first class honours, and my graduate thesis is 
+technologies, such as [Storm](https://storm.apache.org/), [Spark Streaming](https://spark.apache.org/streaming/), and [Samza](https://samza.apache.org).
+I graduated with the award of first class honours, and my graduate thesis is
 [publicly available](https://github.com/poltak/honours-thesis/raw/master/thesis.pdf), on GitHub, for those who may be interested.
 During my undergraduate degree, I majored in Systems Development, which involves a lot of the coursework from the
 Bachelor of Software Engineering degree at Monash.

@@ -1,5 +1,6 @@
 ---
-title: Enabling 1920 x 1200 HiDPI Resolution on the 13" Retina MacBook Pro
+title: Enabling 1920x1200 Resolution
+subtitle: on the 13" Retina MacBook Pro
 ---
 
 Upon purchasing my new 13" Retina MacBook Pro late last year, I was disappointed at finding the highest supported

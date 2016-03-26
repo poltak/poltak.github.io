@@ -1,5 +1,6 @@
 ---
-title: Home
+title: poltak.github.io
+subtitle: A site about me
 weight: 1
 icon: fa-home
 ---
@@ -36,7 +37,7 @@ The entire source for this site can be found in my site's [GitHub repo][1].
 Feel free to criticize my code, send PRs, etc. Very new to web development, so open to suggestions.
 
 <p class="container">
-  <a class="btn btn-sm btn-primary" href="https://github.com/poltak/poltak.github.io/issues/new" title="Leave feedback using GitHub" target="_blank">
+  <a class="btn btn-sm btn-info" href="https://github.com/poltak/poltak.github.io/issues/new" title="Leave feedback using GitHub" target="_blank">
     <i class="fa fa-comments"></i> Leave me feedback
   </a>
 </p>
