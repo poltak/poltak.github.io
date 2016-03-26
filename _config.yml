@@ -29,7 +29,8 @@ defaults:
 exclude: [
           docs/,
           lib/,
-          scripts/
+          scripts/,
+          search.json
          ]
 include: [
           .htaccess

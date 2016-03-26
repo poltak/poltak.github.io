@@ -1,6 +1,8 @@
 ---
 title: Enabling 1920x1200 Resolution
 subtitle: on the 13" Retina MacBook Pro
+category: tech
+tags: [os x, mac, macbook, tech]
 ---
 
 Upon purchasing my new 13" Retina MacBook Pro late last year, I was disappointed at finding the highest supported

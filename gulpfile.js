@@ -2,6 +2,8 @@
 var gulp        = require('gulp');
 var cache       = require('gulp-cache');
 var concat      = require('gulp-concat');
+var sourcemaps  = require('gulp-sourcemaps');
+
 
 // Constants
 var CSS_FILES_INPUT_PATH    = 'assets/css/src/**/*.+(scss|css)';
@@ -34,8 +36,10 @@ gulp.task('js', function() {
   var uglify = require('gulp-uglify');
 
   return gulp.src(JS_FILES_INPUT_PATH)
+             .pipe( sourcemaps.init() )
              .pipe( uglify() )
              .pipe( concat(FINAL_JS_FILE) )
+             .pipe( sourcemaps.write() )
              .pipe( gulp.dest(JS_FILES_OUTPUT_PATH) );
 });
 
