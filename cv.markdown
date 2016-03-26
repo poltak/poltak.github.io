@@ -3,6 +3,47 @@ title: Curriculum vitae
 weight: 3
 subtitle: Want more detail?
 icon: fa-book
+languages:
+  - C
+  - Java (EE, SE)
+  - JavaScript (ES2015, JSX)
+  - Python
+  - Shell (bash, zsh, sh)
+  - Lisp (Scheme, Clojure)
+  - Swift
+  - Lua
+  - MiniZinc (CP)
+  - C#
+  - Ruby
+  - Perl
+  - XSLT
+  - Prolog
+  - PL/SQL
+platforms:
+  - Android
+  - iOS
+  - Node.js
+  - Meteor
+  - React
+  - Express
+  - Ionic
+  - .NET
+  - SDL
+  - jQuery
+  - MPI
+  - VCS (git, svn, hg)
+  - Jekyll
+databases:
+  - Postgres
+  - MySQL
+  - Oracle
+  - JDBC
+  - Hadoop (Pig, Hive)
+  - Spark Streaming
+  - Storm
+  - Samza
+  - MongoDB
+
 ---
 
 _Please note that a LaTeX compiled PDF version of my resume is available [here]({{ site.baseurl }}/assets/pdf/resume_tex.pdf)._
@@ -17,15 +58,27 @@ _Please note that a LaTeX compiled PDF version of my resume is available [here](
 
 #### Programming Languages:
 
- `C` `Java (EE, SE)` `JavaScript (ES2015, JSX)` `Python` `Shell (bash, zsh, sh)` `Lisp (Scheme, Clojure)` `Swift` `Lua` `MiniZinc (CP)` `C#` `Ruby` `Perl` `XSLT` `Prolog` `PL/SQL`
+<div class="small">
+  {% for language in page.languages %}
+    <code class="highlighter-rouge">{{ language }}</code>
+  {% endfor %}
+ </div>
 
 #### Frameworks/Platforms:
 
-`Android` `iOS` `Node.js` `Meteor` `React` `Express` `Ionic` `.NET` `SDL` `jQuery` `MPI` `VCS (git, svn, hg)` `Jekyll`
+<div class="small">
+  {% for platform in page.platforms%}
+    <code class="highlighter-rouge">{{ platform }}</code>
+  {% endfor %}
+ </div>
 
 #### Databases/Processing frameworks:
 
-`Postgres` `MySQL` `Oracle` `JDBC` `Hadoop (Pig, Hive)` `Spark Streaming` `Storm` `Samza` `MongoDB`
+<div class="small">
+  {% for db in page.databases %}
+    <code class="highlighter-rouge">{{ db }}</code>
+  {% endfor %}
+ </div>
 
 ### Work Experience
 
