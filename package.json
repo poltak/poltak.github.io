@@ -1,13 +1,22 @@
 {
   "name": "poltak-blog",
-  "version": "0.1.0",
+  "version": "2.0.0",
+  "description": "A personal blog using GitHub pages.",
+  "author": "Jonathan Poltak Samosir",
+  "private": true,
   "devDependencies": {
-    "grunt": "~0.4.5",
-    "grunt-contrib-concat": "^0.5.0",
-    "grunt-contrib-uglify": "^0.6.0"
+    "gulp": "^3.9.1",
+    "gulp-autoprefixer": "^3.1.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-cssnano": "^2.1.1",
+    "gulp-postcss": "^6.1.0",
+    "gulp-sass": "^2.2.0",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-uglify": "^1.5.3",
+    "precss": "^1.4.0"
   },
-  "dependencies": {
-    "grunt-contrib-imagemin": "^0.9.4",
-    "grunt-contrib-watch": "^0.6.1"
+  "scripts": {
+    "start": "jekyll serve",
+    "build": "gulp"
   }
 }
