@@ -58,7 +58,7 @@ _Please note that a LaTeX compiled PDF version of my resume is available [here](
 
 #### Programming Languages:
 
-<div class="small">
+<div class="code-list">
   {% for language in page.languages %}
     <code class="highlighter-rouge">{{ language }}</code>
   {% endfor %}
@@ -66,7 +66,7 @@ _Please note that a LaTeX compiled PDF version of my resume is available [here](
 
 #### Frameworks/Platforms:
 
-<div class="small">
+<div class="code-list">
   {% for platform in page.platforms%}
     <code class="highlighter-rouge">{{ platform }}</code>
   {% endfor %}
@@ -74,7 +74,7 @@ _Please note that a LaTeX compiled PDF version of my resume is available [here](
 
 #### Databases/Processing frameworks:
 
-<div class="small">
+<div class="code-list">
   {% for db in page.databases %}
     <code class="highlighter-rouge">{{ db }}</code>
   {% endfor %}
@@ -115,7 +115,7 @@ _Please note that a LaTeX compiled PDF version of my resume is available [here](
 ### Education
 
 <div class="table-responsive">
-<table class="table table-bordered table-hover table-striped">
+<table class="table table-bordered table-hover table-striped small">
   <thead>
     <tr>
       <th>Degree</th>

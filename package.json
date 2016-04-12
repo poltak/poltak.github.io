@@ -20,5 +20,5 @@
   "scripts": {
     "start": "jekyll serve",
     "build": "gulp"
-  },
+  }
 }
