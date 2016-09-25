@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  {% include head.html %}
+  <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/node_modules/jekyll-blog-search/lib/app.css">
+  <script src="{{ site.baseurl }}/node_modules/jekyll-blog-search/lib/app.js"></script>
+  <script id="input" type="application/json">
+  [
+    {% for post in site.posts %}
+      {
+        "title"     : "{{ post.title | escape }}",
+        "subtitle"  : "{{ post.subtitle | escape }}",
+        "category"  : "{{ post.category }}",
+        "tags"      : "{{ post.tags | array_to_sentence_string }}",
+        "url"       : "{{ site.baseurl }}{{ post.url }}",
+        "date"      : "{{ post.date | date_to_string }}"
+      } {% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  ]
+  </script>
+  <script>
+    var searchAtts = ['title', 'subtitle', 'category', 'tags', 'date'];
+    require('initialize').default(JSON.parse(document.getElementById('input').innerHTML), searchAtts);
+  </script>
+</head>
+
+<body>
+  {% include navbar.html %}
+
+  {% include header.html %}
+
+  <div id="#jekyll-blog-search" class="container" style="margin-bottom: 10%;">
+  </div>
+
+  {% include foot.html %}
+  {% include javascripts.html %}
+
+</body>
+</html>

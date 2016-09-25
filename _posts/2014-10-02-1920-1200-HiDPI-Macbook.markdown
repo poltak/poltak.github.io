@@ -1,6 +1,6 @@
 ---
 title: Enabling 1920x1200 Resolution
-subtitle: on the 13" Retina MacBook Pro
+subtitle: on the 13 inch Retina MacBook Pro
 category: tech
 tags: [os x, mac, macbook, tech]
 ---
