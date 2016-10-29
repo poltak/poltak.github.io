@@ -22,6 +22,6 @@
     "build": "gulp"
   },
   "dependencies": {
-    "jekyll-blog-search": "^0.1.0"
+    "jekyll-blog-search": "^0.2.0"
   }
 }
