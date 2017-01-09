@@ -5,3 +5,4 @@ node_modules
 *.swp
 .DS_Store
 npm-debug.log
+/.jekyll-metadata
