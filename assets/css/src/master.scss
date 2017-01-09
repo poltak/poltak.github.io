@@ -1,26 +1,59 @@
+@import './media-query-mixins';
 $pimary-colour: #666;
 $secondary-colour: #a0a4ab;
 
 body {
   font-family: 'Helvetica';
-  font-size: 18px;
-  line-height: 2;
+  font-size: 1.8em;
+
+  @include for-phone-only {
+    font-size: 1.6em;
+  }
+}
+
+ul {
+  line-height: 1.8em;
 }
 
 p {
-  line-height: 2.5;
+  line-height: 2em;
   text-align: justify;
+}
+
+.feedback-btn {
+  @include for-phone-only {
+    display: flex;
+    justify-content: center;
+  }
+}
+
+footer {
+  @include for-phone-only {
+    padding: 0;
+  }
+
+  > .footer-container {
+    @include for-phone-only {
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 35px;
+    }
+  }
 }
 
 .footnotes {
   color: $secondary-colour;
-  font-size: 14px;
+  font-size: 0.8em;
 }
 
 code {
-  font-size: 70%;
+  font-size: 0.8em;
 }
 
 .intro-header {
   box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+
+  @include for-phone-only {
+    margin-bottom: 0;
+  }
 }
