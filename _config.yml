@@ -11,6 +11,7 @@ highlighter: rouge
 detach: false
 port: 4000
 host: 127.0.0.1
+incremental: true
 
 defaults:
   -
