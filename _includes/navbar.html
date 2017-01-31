@@ -14,7 +14,7 @@
 
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="navbar-collapse collapse">
-    {% assign pages = site.pages | sort:"weight" %}
+    {% assign pages = site.html_pages | sort:"weight" %}
       <ul class="nav navbar-nav navbar-right">
         {% for p in pages %}
           <li {% if p.url == page.url %}class="active"{% endif %} >
