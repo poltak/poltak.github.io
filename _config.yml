@@ -3,6 +3,10 @@ name: Jonathan Poltak Samosir's Blog
 timezone: Asia/Jakarta
 encoding: utf-8
 
+# Plugins
+gems:
+  - jekyll-sitemap
+
 # Conversion
 markdown: kramdown
 highlighter: rouge
