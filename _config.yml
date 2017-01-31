@@ -3,9 +3,23 @@ name: Jonathan Poltak Samosir's Blog
 timezone: Asia/Jakarta
 encoding: utf-8
 
+# Meta info
+title: Jonathan Poltak Samosir's Blog
+description: A small personal site and blog
+author: poltak_
+twitter:
+username: poltak_
+social:
+name: Jonathan Poltak Samosir
+links:
+  - https://github.com/poltak
+  - https://twitter.com/poltak_
+  - https://www.linkedin.com/in/jsamosir
+
 # Plugins
 gems:
   - jekyll-sitemap
+  - jekyll-seo-tag
 
 # Conversion
 markdown: kramdown
