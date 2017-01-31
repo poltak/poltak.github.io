@@ -35,7 +35,13 @@ exclude: [
           docs/,
           lib/,
           scripts/,
-          search.json
+          search.json,
+          Gemfile,
+          Gemfile.lock,
+          package.json,
+          README.markdown,
+          yarn.lock,
+          gulpfile.js
          ]
 include: [
           .htaccess
