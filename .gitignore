@@ -5,4 +5,7 @@ node_modules
 *.swp
 .DS_Store
 npm-debug.log
-/.jekyll-metadata
+.jekyll-metadata
+.asset-cache
+.sass-cache
+.bundle
