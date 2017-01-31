@@ -1,10 +1,11 @@
-@import './media-query-mixins';
+@import 'media-query-mixins';
+
 $pimary-colour: #666;
 $secondary-colour: #a0a4ab;
 
 body {
   font-family: 'Helvetica';
-  font-size: 1.8em;
+  font-size: 3.8em;
 
   @include for-phone-only {
     font-size: 1.6em;
