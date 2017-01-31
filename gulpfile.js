@@ -2,7 +2,6 @@
 const gulp = require('gulp');
 const cache = require('gulp-cache');
 const concat = require('gulp-concat');
-const sourcemaps = require('gulp-sourcemaps');
 
 // CSS Stuff
 const sass = require('gulp-sass');
@@ -44,10 +43,8 @@ gulp.task('css', () => gulp.src(config.css.input)
 
 // Task to handle concat and minifcation of JS
 gulp.task('js', () => gulp.src(config.js.input)
-  .pipe(sourcemaps.init())
   .pipe(uglify())
   .pipe(concat(config.js.bundle))
-  .pipe(sourcemaps.write())
   .pipe(gulp.dest(config.js.output)));
 
 // Task to handle compressing of images
