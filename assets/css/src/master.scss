@@ -96,6 +96,24 @@ code {
   }
 }
 
+// Phone overrides for jekyll-blog-search view component
+@include for-phone-only {
+  .jekyll-blog-search {
+    &__item {
+      &__title {
+        font-size: 1.4em !important;
+      }
+      &__subtitle {
+        font-size: 1em !important;
+      }
+      &__date {
+        font-size: 0.8em !important;
+        margin: 0 !important;
+      }
+    }
+  }
+}
+
 // Normalise first child's top margin (it's handled by the header above content)
 .container > :first-child {
   margin-top: 50px !important;
