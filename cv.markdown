@@ -46,7 +46,10 @@ databases:
 
 ---
 
-_Please note that a LaTeX compiled PDF version of my resume is available [here]({{ site.baseurl }}/assets/pdf/resume_tex.pdf)._
+<p class="page-note">
+  Please note that a LaTeX compiled PDF version of my resume is available
+  <a href="{{ site.baseurl }}/assets/pdf/resume_tex.pdf">here</a>.
+</p>
 
 # Jonathan Poltak Samosir 林旭明
 

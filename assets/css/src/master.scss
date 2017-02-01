@@ -37,6 +37,13 @@ p {
   }
 }
 
+.page-note {
+  font-style: italic;
+  font-size: 0.8em;
+  margin: 0 5%;
+  color: rgba(0,0,0,0.6);
+}
+
 footer {
   @include for-phone-only {
     padding: 0;
