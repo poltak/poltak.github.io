@@ -1,6 +1,7 @@
 @import './media-query-mixins';
 $pimary-colour: #666;
 $secondary-colour: #a0a4ab;
+$header-height-mobile: 225px;
 
 body {
   font-family: 'Helvetica';
@@ -14,12 +15,29 @@ ul {
 p {
   line-height: 2em;
   text-align: justify;
+
+  @include for-phone-only {
+    line-height: 1.6em;
+  }
+}
+
+@include for-phone-only {
+  h2 {
+    font-size: 25px;
+  }
+  h1 {
+    font-size: 30px;
+  }
 }
 
 .site-heading {
+  @include for-phone-only {
+    height: $header-height-mobile;
+  }
+
   &__title {
     @include for-phone-only {
-      font-size: 3em !important;
+      font-size: 2.5em !important;
     }
   }
 
