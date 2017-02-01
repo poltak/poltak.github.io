@@ -89,6 +89,13 @@ code {
   margin-bottom: 0;
 }
 
+// Nav overflows on tablet portrait
+@include for-tablet-portrait-only {
+  .nav > li > a {
+    font-size: 9px !important;
+  }
+}
+
 // Normalise first child's top margin (it's handled by the header above content)
 .container > :first-child {
   margin-top: 50px !important;
