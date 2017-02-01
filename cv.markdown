@@ -89,26 +89,26 @@ databases:
   - Left after a few great months to follow decision to focus on own ventures
   - Technologies worked with: `React` `Redux` `Webpack` `Draft.js` `Sass`
 
-* [YoungPilots.vn](http://youngpilots.vn/) : lead developer (June 2015 - present)
-  - Web development shop based out of Ho Chi Minh City (Saigon), Vietnam
-  - Looking to expand into fully-fledged startup working on our own ideas
-  - Technologies worked with: `Postgres` `NodeJS` `ExpressJS` `React` `Meteor` `MongoDB`
+* [YoungPilots.vn](http://youngpilots.vn/) : lead full-stack developer (June 2015 - present)
+  - Web development shop based out of Hanoi, Vietnam
+  - Currently working on our own ideas
+  - Technologies worked with: `GraphQL + Apollo` `React` `Postgres` `TypeScript` `Node` `Express` `Sequelize`
 
-* Sportistics : CTO, lead developer (July 2015 - present)
+* Sportistics : CTO, lead full-stack developer (July 2015 - present)
   - Startup developing a sports betting social network app based out of Taipei, Taiwan
-  - Currently in development, nearing release
-  - Technologies worked with: `Meteor` `Ionic` `MongoDB` `Python` `Cordova` `ES2015`
+  - Currently [released and evolving](http://which-team.com/)
+  - Technologies worked with: `Meteor` `Docker` `Ionic` `MongoDB` `Laravel` `Python` `Cordova` `ES2015`
 
-* Monash University : teaching associate in the Faculty of Information Technology (July 2014 - July 2015)
+* Monash University : teaching associate in Faculty of Information Technology (July 2014 - July 2015)
   - Taught [second-year undergraduate level topics](http://www.infotech.monash.edu.au/units/archive/fit2070.html) on operating systems and computer architecture
   - Taught first year undergraduate introductory programming to software engineering and computer science students
   - Marking of interim assignments and final exams also included in the role
 
 ### Personal Project Involvement
 
-* [poltak/brightsparqe-web](http://github.com/poltak/brightsparqe-web) : Website for the Bright Sparqe charity based in Melbourne, Australia.
+* [Bright Sparqe](https://www.brightsparqe.org) : Website for the Bright Sparqe charity based in Melbourne, Australia.
     - Working to alleviating the issue of homelessness in Australia
-    - Lead backend designer and programmer
+    - Lead backend dev
 * [apache/incubator-samza](http://github.com/apache/incubator-samza) : LinkedIn&#39;s distributed stream processing framework, live at [Apache incubator](https://samza.incubator.apache.org)
     - Contributed new subsystem that allows streaming of file contents
     - Major documentation contributor
