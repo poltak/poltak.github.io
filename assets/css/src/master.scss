@@ -4,11 +4,7 @@ $secondary-colour: #a0a4ab;
 
 body {
   font-family: 'Helvetica';
-  font-size: 1.8em;
-
-  @include for-phone-only {
-    font-size: 1.6em;
-  }
+  font-size: 1.6em;
 }
 
 ul {
