@@ -30,6 +30,10 @@ p {
   }
 }
 
+.table-responsive {
+  margin: 20px 0;
+}
+
 .site-heading {
   @include for-phone-only {
     height: $header-height-mobile;
