@@ -4,40 +4,38 @@ weight: 3
 subtitle: Want more detail?
 icon: fa-book
 languages:
+  - JavaScript (ES2017, JSX)
+  - TypeScript
   - C
   - Java (EE, SE)
-  - JavaScript (ES2015, JSX)
+  - PHP
   - Python
   - Shell (bash, zsh, sh)
   - Lisp (Scheme, Clojure)
-  - Swift
   - Lua
-  - MiniZinc (CP)
   - C#
-  - Ruby
   - Perl
   - XSLT
   - Prolog
-  - PL/SQL
 platforms:
-  - Android
-  - iOS
-  - Node.js
-  - Meteor
   - React
+  - Vue
+  - Cordova
+  - Webpack
+  - Node
+  - Redux
+  - Meteor
+  - Laravel
+  - October CMS
+  - Jekyll
   - Express
   - Ionic
-  - .NET
-  - SDL
-  - jQuery
+  - GraphQL + Apollo
   - MPI
-  - VCS (git, svn, hg)
-  - Jekyll
 databases:
   - Postgres
-  - MySQL
+  - MySQL/MariaDB
   - Oracle
-  - JDBC
   - Hadoop (Pig, Hive)
   - Spark Streaming
   - Storm
@@ -57,7 +55,7 @@ databases:
 {% include contact-table.html %}
 </div>
 
-### Technical Skills
+### Technologies Experience
 
 #### Programming Languages:
 
