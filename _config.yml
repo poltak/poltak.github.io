@@ -49,6 +49,7 @@ exclude: [
           docs/,
           lib/,
           scripts/,
+          node_modules/,
           search.json,
           Gemfile,
           Gemfile.lock,
