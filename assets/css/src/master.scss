@@ -62,8 +62,14 @@ code {
 
 .intro-header {
   box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+  margin-bottom: 0;
+}
+
+// Normalise first child's top margin (it's handled by the header above content)
+.container > :first-child {
+  margin-top: 50px !important;
 
   @include for-phone-only {
-    margin-bottom: 0;
+    margin-top: 30px !important;
   }
 }
