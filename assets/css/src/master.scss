@@ -20,6 +20,20 @@ p {
   text-align: justify;
 }
 
+.site-heading {
+  &__title {
+    @include for-phone-only {
+      font-size: 3em !important;
+    }
+  }
+
+  &__subtitle, &__separator {
+    @include for-phone-only {
+      display: none !important;
+    }
+  }
+}
+
 .feedback-btn {
   @include for-phone-only {
     display: flex;
