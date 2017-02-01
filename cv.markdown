@@ -83,6 +83,12 @@ databases:
 
 ### Work Experience
 
+* [Prezly](https://www.prezly.com/) : frontend developer (July 2016 - October 2016)
+  - Full-time remote work with Belgian story management startup, Prezly
+  - Worked solely on frontend in a small team of programmers
+  - Left after a few great months to follow decision to focus on own ventures
+  - Technologies worked with: `React` `Redux` `Webpack` `Draft.js` `Sass`
+
 * [YoungPilots.vn](http://youngpilots.vn/) : lead developer (June 2015 - present)
   - Web development shop based out of Ho Chi Minh City (Saigon), Vietnam
   - Looking to expand into fully-fledged startup working on our own ideas
