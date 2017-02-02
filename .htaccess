@@ -1,14 +1,24 @@
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^([^\.]+)$ $1.html [NC,L]
-<IfModule mod_expires.c>
-    ExpiresActive On
 
-    <FilesMatch \.(css|js|jpg|png)$>
-        ExpiresDefault "access plus 1 year"
-    </FilesMatch>
-</IfModule>
+# Cache-Control 1 year for image files
+<filesMatch ".(jpg|jpeg|png|gif|ico)$">
+    Header set Cache-Control "max-age=31536000, public"
+</filesMatch>
+
+# Cache-Control 1 month for css and js
+<filesMatch ".(css|js)$">
+    Header set Cache-Control "max-age=2628000, public"
+</filesMatch>
+
+# Turn-off ETags
+FileETag none
+
+# UTF-8 encode everything
 AddDefaultCharset UTF-8
+
+# Enforce HTTPS
 <IfModule mod_rewrite.c>
     RewriteCond %{HTTP:X-Forwarded-Proto} !=https
     RewriteCond %{HTTPS} !=on
