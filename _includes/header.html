@@ -1,5 +1,5 @@
 <!-- The page header component -->
-<header class="intro-header" style="background-color: #666;">
+<header class="intro-header" style="background-image: url('{{ site.baseurl }}/{% if page.header-img %}{{ page.header-img }}{% else %}{{ site.header-img }}{% endif %}')">
   <div class="container">
     <div class="site-heading">
       <h1 class="site-heading__title">{{ page.title }}</h1>
