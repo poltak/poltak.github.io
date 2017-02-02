@@ -51,10 +51,8 @@ databases:
   <a href="{{ site.baseurl }}/assets/pdf/resume_tex.pdf">here</a>.
 </p>
 
-# Jonathan Poltak Samosir 林旭明
-
-<div class="table-responsive">
-{% include contact-table.html %}
+<div class="contact-card-container" style="padding: 20px 0">
+{% include contact-card.html %}
 </div>
 
 ### Technologies Experience
