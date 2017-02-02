@@ -46,6 +46,7 @@
     font-size: 0.9em;
 
     @include for-phone-only {
+      min-height: 250px;
       justify-content: space-around;
     }
   }
