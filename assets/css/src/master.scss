@@ -1,38 +1,5 @@
+@import './variables';
 @import './media-query-mixins';
-@import './contact-card';
-
-// TODO: Decompose this file
-
-$pimary-colour: #666;
-$secondary-colour: #a0a4ab;
-$header-height-mobile: 225px;
-
-body {
-  font-family: 'Helvetica';
-  font-size: 1.6em;
-}
-
-ul {
-  line-height: 1.8em;
-}
-
-p {
-  line-height: 2em;
-  text-align: justify;
-
-  @include for-phone-only {
-    line-height: 1.6em;
-  }
-}
-
-@include for-phone-only {
-  h2 {
-    font-size: 25px;
-  }
-  h1 {
-    font-size: 30px;
-  }
-}
 
 .table-responsive {
   margin: 20px 0;
@@ -70,25 +37,8 @@ p {
   color: rgba(0,0,0,0.6);
 }
 
-footer {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  height: 90px;
-  border-top: 1px solid rgba(0,0,0,0.1);
-  background: rgba(0,0,0,0.01);
-
-  > .copyright {
-    margin: 10px 10px 0;
-  }
-}
-
 .footnotes {
   color: $secondary-colour;
-  font-size: 0.8em;
-}
-
-code {
   font-size: 0.8em;
 }
 
