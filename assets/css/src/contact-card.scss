@@ -1,0 +1,52 @@
+.contact-card-container {
+  display: flex;
+  justify-content: center;
+}
+
+.contact-card {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px;
+  width: 50%;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.1);
+
+  &__avatar {
+    flex: 1;
+    margin-right: 10px;
+
+    > img {
+      border-radius: 50%;
+      border: 2px solid rgba(0,0,0,0.2);
+    }
+  }
+
+  &__name {
+    font-size: 1.4em;
+    margin-top: 0;
+  }
+
+  &__table {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    font-size: 0.9em;
+  }
+
+  &__row {
+    display: flex;
+    flex-direction: row;
+  }
+
+  &__key {
+    flex: 1 1 10%;
+  }
+
+  &__value {
+    flex: 4;
+    color: rgba(51, 122, 183, 0.6);
+  }
+
+}

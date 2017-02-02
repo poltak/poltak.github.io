@@ -20,6 +20,7 @@ links:
 gems:
   - jekyll-sitemap
   - jekyll-seo-tag
+  - jekyll-avatar
 
 # Conversion
 markdown: kramdown
