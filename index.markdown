@@ -9,12 +9,12 @@ icon: fa-home
 
 ## What is this site?
 
-This site is an online space for myself (Jonathan Poltak Samosir 林旭明) to:
+This site is an online space for myself to:
 
-- blog about my research
+- occasionally write about things I find interesting
 - keep an online version of my resume updated
 - talk a little bit about myself (for those who are interested)
-- play around with web technologies (when I actually have spare time)
+- play around with static site technologies, when I have spare time
 
 
 ## Technologies used
@@ -24,19 +24,19 @@ This site was created with the assistance of the following technologies:
 - [GitHub Pages][2] (free hosting and version control)
 - [Jekyll][3] (site management and static HTML generation)
 - [Twitter Bootstrap][4] (to make it look like I know what I am doing with design)
+- [Clean Blog Jekyll-Bootstrap theme][10]
 - [Font Awesome][5] (to get those cute little icons)
-- [Markdown][6] (so I can write in everyone's favourite mark-up language)
+- [Markdown][6] (so I can write content in everyone's favourite mark-up language)
 - [Disqus][7] (powers comments of the blog section of my site)
-- [InstantClick][8] (for preloading of links)
-- [Simple-Jekyll-Search][9] (for indexing my blog posts with a basic search bar)
-- [Grunt][10] (for the automating of site build related tasks)
+- [Simple-Jekyll-Search][8] (for indexing my blog posts with a basic search bar)
+- [Gulp][9] (for a simple asset build chain)
 
 
 ## Open source
 
 The entire source for this site can be found in my site's [GitHub repo][1].
 
-Feel free to criticize my code, send PRs, etc. Very new to web development, so open to suggestions.
+Feel free to criticize my code, send PRs, etc. Still learning everyday, so open to suggestions.
 
 <p class="feedback-btn">
   <a class="btn btn-sm btn-info" href="https://github.com/poltak/poltak.github.io/issues/new" title="Leave feedback using GitHub" target="_blank">
@@ -53,6 +53,6 @@ Feel free to criticize my code, send PRs, etc. Very new to web development, so o
 [5]: http://fortawesome.github.io/Font-Awesome/               "Font Awesome Homepage"
 [6]: http://daringfireball.net/projects/markdown/             "Markdown Website"
 [7]: https://disqus.com                                       "Disqus Homepage"
-[8]: http://instantclick.io                                   "InstantClick Homepage"
-[9]: https://github.com/christian-fei/Simple-Jekyll-Search    "Simple-Jekyll-Search Website"
-[10]: http://gruntjs.com/                                     "Grunt Website"
+[8]: https://github.com/christian-fei/Simple-Jekyll-Search    "Simple-Jekyll-Search Website"
+[9]: http://gulpjs.com                                        "Gulp Website"
+[10]: https://github.com/BlackrockDigital/startbootstrap-clean-blog-jekyll "Clean Blog Jekyll-Bootstrap Theme"
