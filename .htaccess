@@ -1,6 +1,13 @@
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^([^\.]+)$ $1.html [NC,L]
+<IfModule mod_expires.c>
+    ExpiresActive On
+
+    <FilesMatch \.(css|js|jpg|png)$>
+        ExpiresDefault "access plus 1 year"
+    </FilesMatch>
+</IfModule>
 AddDefaultCharset UTF-8
 <IfModule mod_rewrite.c>
     RewriteCond %{HTTP:X-Forwarded-Proto} !=https
