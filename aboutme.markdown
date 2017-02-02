@@ -7,34 +7,50 @@ weight: 2
 icon: fa-info-circle
 ---
 
-I am currently a software developer working on some projects, one launched ([WhichTeam](http://which-team.com/)), living in Danang, Vietnam. I
-specialise in backend development, mobile app development, and am more recently working with a lot of newer front-end web technologies, such as React, redux, and webpack.
+## Who am I?
 
-I have been working on WhichTeam for almost a year now, and recently been working on a newer project SkillUp, which is an educational technology.
+I am an Australian software developer, currently living in Danang, Vietnam. I work in a number of technologies,
+mainly focused around web/mobile-app and static website development. I also dabble in backend programming and devops
+in a number of projects I work on.
+
+I have recently been working on [the WhichTeam App](http://which-team.com/), which I co-founded in 2015. WhichTeam provides
+an online space for football fans to discuss and vote on upcoming match results. We are mainly targetting the French audience,
+but have significantly sized groups of users in African countries, South East Asian countries, and other European countries.
+More recently, I have been planning a new venture, _testmate_, which is an educational technology aimed at the Vietnamese
+audience.
+
+Apart from sitting in front of my laptop, I spend a lot of the time exploring the beautiful central Vietnamese countryside
+on my motorbike. If you're ever in the area, feel free to contact me. I also spend a lot of time reading (mainly fiction)
+and studying (mainly languages).
 
 Previously, I was a student doing my Honours Degree[^1] of Bachelor of Computer Science at Monash University, Melbourne,
 Australia. My research topic was big data processing in realtime, using newer
 technologies, such as [Storm](https://storm.apache.org/), [Spark Streaming](https://spark.apache.org/streaming/), and [Samza](https://samza.apache.org).
 I graduated with the award of first class honours, and my graduate thesis is
-[publicly available](https://github.com/poltak/honours-thesis/raw/master/thesis.pdf), on GitHub, for those who may be interested.
+[publicly available on GitHub](https://github.com/poltak/honours-thesis/raw/master/thesis.pdf), in draft, for those who may be interested.
 
-I also recently managed to publish [an article](http://www.sciencedirect.com/science/article/pii/S1877050916307116) in [Procedia Computer Science](http://www.journals.elsevier.com/procedia-computer-science) based upon my thesis work. This was presented at the International Conference on Computational Science (ICCS) in San Diego, this year.
+I also recently managed to publish [an article](http://www.sciencedirect.com/science/article/pii/S1877050916307116) in
+[Procedia Computer Science](http://www.journals.elsevier.com/procedia-computer-science) based upon my thesis work.
+This was presented at the International Conference on Computational Science (ICCS) in San Diego, this year.
 
 During my undergraduate degree, I majored in Systems Development, which involves a lot of the coursework from the
 Bachelor of Software Engineering degree at Monash.
 
 ## Research interests
 
-My research interests are in the area of big data processing and handling. Currently, we are at a stage where we are
-generating an exponentially large amount of data at a faster rate than technology can keep up with. What this means
-practically is that it is infeasible to store all this data. Instead, a hot topic in big data is realtime processing of
-streams of incoming data. I was previously researching better methods of processing this incoming data in realtime, and
-also finding the best ways of processing those data depending on their characteristics.
+My research interests are in the area of big data processing and handling. As an undergrad and postgrad research student,
+my research was all concerned with big data processing, but more specifically real-time processing. I worked at applying
+real-time processing concepts using technologies available to different use-cases in the domains of health-care (USA) and
+the railway industry (Aus).
+
+At the time this was a relatively new area of study and the technologies (Spark, Storm, Samza)
+were very immature. Much more progress has been made in the last few years since then, however I am no longer following
+a path in academia. Maybe one day...
 
 ## Human language interests
 
-Apart from the fields of computer science and software engineering, my academic interests include human languages and
-world history, both particularly in the East and South East Asian regions. Human languages I have studied include:
+Apart from the fields of computer science and software engineering, one of my major interests is human languages.
+Languages that I have studied seriously:
 
 - Mandarin (tertiary study)
 - Japanese (high school study)
@@ -42,25 +58,26 @@ world history, both particularly in the East and South East Asian regions. Human
 - Cantonese (informal study)
 - Vietnamese (informal study)
 
+Vietnamese is the language that currently I am focusing a lot of my time into, as I live in Vietnam. I have lived in
+Vietnam since November 2015, spending most of my time in central Vietnam and a few months in the north. I am studying
+Vietnamese focusing on the northern accent and vocab, and it is a huge degree more difficult than any other language
+that I have studied. That being said, I am making progress (very slowly in comparison to other languages, like Mandarin).
 
-Mandarin is the language that currently I am focussing a lot of my time into. From November 2014 to March 2015, I lived
-in Taipei, Taiwan (Republic of China) for further intensive Chinese language study
-at the [Mandarin Training Center][1] at [National Taiwan Normal University][2].
+From November 2014 to March 2015, and then from July to November, I lived in Taipei, Taiwan (Republic of China) for
+intensive Chinese language study at the [Mandarin Training Center][1] at [National Taiwan Normal University][2]. Within
+about 3 months, I was having conversations in Mandarin with people I met in the streets of Taipei. This course is highly
+recommended for anyone interested in the Mandarin language, however was quite serious.
 
-I am currently using [Skritter][4] on my iPhone to learn to read, write, and recognise both Simplified and Traditional
-Chinese characters. [Pleco][5] is my go to Chinese dictionary, which integrates well into Skritter.
+I like to use a software to attempt to mitigate the boredom that comes from the more repetitive parts of language learning.
+For vocab memorisation, I find [Anki][10] to be fantastic. I keep personal deck of Vietnamese words which I add to whenever
+I learn something new ([available here][11]). [Memrise][12] is a similar tool with user-created content, but I find has a less-than-ideal
+flashcard testing algorithm and worse content (but there is some good stuff!). Of course, while many people hate it because
+they don't _get_ the silly sample sentences, I find [Duolingo][13] a pretty fun way to be introduced to new vocab, sentence
+structures, and grammar (if they have your target language).
 
-I also plan to find some time in the near future to sit down and learn the Korean writing system, [Hangul][3]. Although I have
-no experience with the spoken language, I find the premise behind the writing system fascinating and it seems to be very
-logical in comparison to the Chinese wrting system, [Hanzi][7], and the Japanese writing systems
-of [Hiragana][8] and [Katakana][9] (in fact, there
-is no real difference behind the mechanisms underlying those two writing systems).
-
-For anyone interested in learning more about Chinese language and culture, I suggest diving deep into the history of the
-region with Laszlo Montgomery's riveting [China History Podcast][6].
-
-
-
+[Skritter][4] is great for learners of Mandarin and Japanese to practice reading, writing, and recognising both Simplified
+and Traditional Chinese characters on your smart phone. I used it for a while, but ended my subscription recently as I don't have enough time
+to study Chinese at present. [Pleco][5] is my go to Chinese dictionary, which integrates well with Skritter.
 
 
 [^1]: For those unaware, honours in Australia is essentially an extension of an undergraduate bachelors degree with a major focus on research. Honours students are expected to produce a thesis containing the results of their research over the period of a year. Often, students and their honours supervisors will attempt to get their theses published in academic journals and/or conferences.
@@ -75,3 +92,7 @@ region with Laszlo Montgomery's riveting [China History Podcast][6].
 [7]: https://en.wikipedia.org/wiki/Hanzi                                  "Wikipedia: Hanzi"
 [8]: https://en.wikipedia.org/wiki/Hiragana                               "Wikipedia: Hiragana"
 [9]: https://en.wikipedia.org/wiki/Katakana                               "Wikipedia: Katakana"
+[10]: https://ankiweb.net                                                 "AnkiWeb"
+[11]: https://ankiweb.net/shared/info/144766298                           "Vietnamese Anki Deck"
+[12]: http://www.memrise.com                                              "Memrise"
+[13]: https://www.duolingo.com                                            "Duolingo"
