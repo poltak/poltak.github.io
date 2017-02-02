@@ -1,6 +1,8 @@
 ---
 title: About me
 subtitle: Who I am; what I do
+description: About me page. Who I am; what I do
+header-img: assets/img/build/aboutme.jpg
 weight: 2
 icon: fa-info-circle
 ---

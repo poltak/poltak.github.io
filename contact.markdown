@@ -1,7 +1,9 @@
 ---
 title: Contact
-weight: 5
 subtitle: How can you contact me?
+description: How can you contact me?
+header-img: assets/img/build/contact.jpg
+weight: 5
 icon: fa-phone
 ---
 

@@ -1,6 +1,8 @@
 ---
 title: poltak.github.io
 subtitle: A site about me
+description: The home page
+header-img: assets/img/build/index.jpg
 weight: 1
 icon: fa-home
 ---

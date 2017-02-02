@@ -1,7 +1,9 @@
 ---
 title: Curriculum vitae
-weight: 3
 subtitle: Want more detail?
+description: My skills and work experience
+header-img: assets/img/build/cv.jpg
+weight: 3
 icon: fa-book
 languages:
   - JavaScript (ES2017, JSX)
