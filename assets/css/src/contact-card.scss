@@ -2,7 +2,7 @@
 @import './media-query-mixins';
 
 $row-height: 20px;
-$card-width: 480px;
+$card-width: 520px;
 $card-padding: 10px;
 $card-font-size: 0.9em;
 $card-table-phone-height: 250px;
@@ -21,6 +21,7 @@ $card-table-phone-height: 250px;
   width: $card-width;
   border-radius: 10px;
   border: 1px solid rgba($shadow-color, 0.1);
+  font-family: $sans-serif-font;
 
   @include for-phone-only {
     flex-direction: column;

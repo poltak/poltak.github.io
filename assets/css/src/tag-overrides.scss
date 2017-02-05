@@ -1,13 +1,28 @@
 @import './variables';
 @import './media-query-mixins';
 
-a {
-  color: $link-color-trans;
+body {
+  font-family: $serif-font;
+  font-size: $font-size;
+  -webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
-body {
-  font-family: $font;
-  font-size: $font-size;
+// Override theme weight of subheading (looks bad so weak with smoothing)
+.site-heading > .subheading {
+  font-weight: 400 !important; // Def: 300
+}
+
+// Put sans-serif variation font on all headers
+$headers: h5 h4 h3 h2 h1;
+@each $header in $headers {
+  #{$header} {
+    font-family: $sans-serif-font
+  }
+}
+
+a {
+  color: $link-color;
 }
 
 ul {
