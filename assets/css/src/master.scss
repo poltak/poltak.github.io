@@ -6,7 +6,11 @@
 }
 
 .site-heading {
+  // Line everything up and center nicely on mobile
   @include for-phone-only {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     height: $header-height-mobile;
   }
 
@@ -16,6 +20,7 @@
     }
   }
 
+  // Just show the main heading on mobile
   &__subtitle, &__separator {
     @include for-phone-only {
       display: none !important;
@@ -38,7 +43,7 @@
 }
 
 .footnotes {
-  color: $secondary-colour;
+  color: $secondary-color;
   font-size: 0.8em;
 }
 
@@ -47,6 +52,10 @@
   margin-bottom: 0;
   // Most of image content is just below 50% vertical position
   background-position: 100% 60%;
+
+  &--post {
+    background: $primary-color;
+  }
 
   // Put a transparent background over the image to handle lighter images on the white text
   > .container {
