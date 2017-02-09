@@ -28,7 +28,7 @@
   }
 }
 
-.feedback-btn {
+.feedback-btn-container {
   @include for-phone-only {
     display: flex;
     justify-content: center;

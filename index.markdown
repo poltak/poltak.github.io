@@ -7,6 +7,9 @@ weight: 1
 icon: fa-home
 ---
 
+{::options parse_block_html="true" /}
+
+<section>
 ## What is this site?
 
 This site is an online space for myself to:
@@ -15,8 +18,9 @@ This site is an online space for myself to:
 - keep an online version of my resume updated
 - talk a little bit about myself (for those who are interested)
 - play around with static site technologies, when I have spare time
+</section>
 
-
+<section>
 ## Technologies used
 
 This site was created with the assistance of the following technologies:
@@ -30,19 +34,21 @@ This site was created with the assistance of the following technologies:
 - [Disqus][7] (powers comments of the blog section of my site)
 - [Simple-Jekyll-Search][8] (for indexing my blog posts with a basic search bar)
 - [Gulp][9] (for a simple asset build chain)
+</section>
 
-
+<section>
 ## Open source
 
 The entire source for this site can be found in my site's [GitHub repo][1].
 
 Feel free to criticize my code, send PRs, etc. Still learning everyday, so open to suggestions.
+</section>
 
-<p class="feedback-btn">
-  <a class="btn btn-sm btn-info" href="https://github.com/poltak/poltak.github.io/issues/new" title="Leave feedback using GitHub" target="_blank">
+<div class="feedback-btn-container">
+  <button class="btn btn-sm btn-info" href="https://github.com/poltak/poltak.github.io/issues/new" title="Leave feedback using GitHub" target="_blank">
     <i class="fa fa-comments"></i> Leave me feedback
-  </a>
-</p>
+  </button>
+</div>
 
 
 
