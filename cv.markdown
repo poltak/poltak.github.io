@@ -63,7 +63,7 @@ databases:
   {% for language in page.languages %}
     <code class="highlighter-rouge">{{ language }}</code>
   {% endfor %}
- </div>
+</div>
 
 #### Frameworks/Platforms:
 
@@ -71,7 +71,7 @@ databases:
   {% for platform in page.platforms%}
     <code class="highlighter-rouge">{{ platform }}</code>
   {% endfor %}
- </div>
+</div>
 
 #### Databases/Processing frameworks:
 
@@ -79,8 +79,11 @@ databases:
   {% for db in page.databases %}
     <code class="highlighter-rouge">{{ db }}</code>
   {% endfor %}
- </div>
+</div>
 
+{::options parse_block_html="true" /}
+
+<section>
 ### Work Experience
 
 * [Prezly](https://www.prezly.com/) : frontend developer (July 2016 - October 2016)
@@ -103,7 +106,9 @@ databases:
   - Taught [second-year undergraduate level topics](http://www.infotech.monash.edu.au/units/archive/fit2070.html) on operating systems and computer architecture
   - Taught first year undergraduate introductory programming to software engineering and computer science students
   - Marking of interim assignments and final exams also included in the role
+</section>
 
+<section>
 ### Personal Project Involvement
 
 * [Bright Sparqe](https://www.brightsparqe.org) : Website for the Bright Sparqe charity based in Melbourne, Australia.
@@ -117,8 +122,9 @@ databases:
 * [caskroom/homebrew-cask](http://github.com/caskroom/homebrew-cask) : A package manager for Mac applications distributed as binaries
     - Major contributor of new packages
     - Maintainer of several existing packages
+</section>
 
-
+<section>
 ### Education
 
 <div class="table-responsive">
@@ -157,7 +163,9 @@ databases:
   </tbody>
 </table>
 </div>
+</section>
 
+<section>
 ### Academic Achievements
 
 * First class honours (highest award in undergraduate research)
@@ -186,9 +194,11 @@ databases:
 * Undergraduate Research Assistant, Qualcomm Institute, UCSD, San Diego, California, USA (Jan. 2014 – Mar. 2014)
     - Worked on components of research project [SenseHealth](https://portal.futuregrid.org/projects/383), a platform to enable personalised healthcare.
     - Technologies worked with: `Java` `Scala` `Samza` `MPI` `Hadoop YARN` `Apache Kafka`
+</section>
 
-
+<section>
 ### Extra Curricular Awards
 
 * Personally invited to participate in Cisco Live 2015 Melbourne hackathon for Cisco IoT technologies - team came fourth overall.
 * Contestant in Codehire Cup Australia 2013 (Java competitor) - made it through all rounds to the finale in Sydney.
+</section>

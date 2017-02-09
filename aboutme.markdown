@@ -7,6 +7,9 @@ weight: 2
 icon: fa-info-circle
 ---
 
+{::options parse_block_html="true" /}
+
+<section>
 ## Who am I?
 
 I am an Australian software developer, currently living in Danang, Vietnam. I work in a number of technologies,
@@ -35,7 +38,9 @@ This was presented at the International Conference on Computational Science (ICC
 
 During my undergraduate degree, I majored in Systems Development, which involves a lot of the coursework from the
 Bachelor of Software Engineering degree at Monash.
+</section>
 
+<section>
 ## Research interests
 
 My research interests are in the area of big data processing and handling. As an undergrad and postgrad research student,
@@ -46,7 +51,9 @@ the railway industry (Aus).
 At the time this was a relatively new area of study and the technologies (Spark, Storm, Samza)
 were very immature. Much more progress has been made in the last few years since then, however I am no longer following
 a path in academia. Maybe one day...
+</section>
 
+<section>
 ## Human language interests
 
 Apart from the fields of computer science and software engineering, one of my major interests is human languages.
@@ -78,6 +85,7 @@ structures, and grammar (if they have your target language).
 [Skritter][4] is great for learners of Mandarin and Japanese to practice reading, writing, and recognising both Simplified
 and Traditional Chinese characters on your smart phone. I used it for a while, but ended my subscription recently as I don't have enough time
 to study Chinese at present. [Pleco][5] is my go to Chinese dictionary, which integrates well with Skritter.
+</section>
 
 
 [^1]: For those unaware, honours in Australia is essentially an extension of an undergraduate bachelors degree with a major focus on research. Honours students are expected to produce a thesis containing the results of their research over the period of a year. Often, students and their honours supervisors will attempt to get their theses published in academic journals and/or conferences.
