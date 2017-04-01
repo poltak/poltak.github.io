@@ -32,6 +32,7 @@ This site was created with the assistance of the following technologies:
 - [Font Awesome][5] (to get those cute little icons)
 - [Markdown][6] (so I can write content in everyone's favourite mark-up language)
 - [Disqus][7] (powers comments of the blog section of my site)
+- [Vue.js][11] (powers reactive blog search component)
 - [Simple-Jekyll-Search][8] (for indexing my blog posts with a basic search bar)
 - [Gulp][9] (for a simple asset build chain)
 </section>
@@ -62,3 +63,4 @@ Feel free to criticize my code, send PRs, etc. Still learning everyday, so open 
 [8]: https://github.com/christian-fei/Simple-Jekyll-Search    "Simple-Jekyll-Search Website"
 [9]: http://gulpjs.com                                        "Gulp Website"
 [10]: https://github.com/BlackrockDigital/startbootstrap-clean-blog-jekyll "Clean Blog Jekyll-Bootstrap Theme"
+[11]: https://vuejs.org                                       "Vue.js Website"
