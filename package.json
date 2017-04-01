@@ -18,12 +18,9 @@
     "precss": "^1.4.0"
   },
   "scripts": {
-    "start": "npm run build-blog-search && jekyll serve",
-    "build": "npm run build-blog-search && gulp js css images",
-    "dev": "npm run build-blog-search && gulp",
-    "build-blog-search": "cp node_modules/jekyll-blog-search/lib/app.js assets/js/build/jekyll-blog-search.min.js"
+    "start": "jekyll serve",
+    "build": "gulp js css images",
+    "dev": "gulp"
   },
-  "dependencies": {
-    "jekyll-blog-search": "^0.2.0"
-  }
+  "dependencies": {}
 }
