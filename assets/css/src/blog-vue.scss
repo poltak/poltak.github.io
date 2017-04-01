@@ -1,9 +1,6 @@
 @import './variables';
 @import './media-query-mixins';
 
-$search-width: 50%;
-$list-width: 60%;
-
 .blog-vue {
   display: flex;
   flex-direction: column;
@@ -12,8 +9,12 @@ $list-width: 60%;
 
   &__search-form {
     position: relative;
-    width: $search-width;
+    width: 50%;
     margin-bottom: 15px;
+
+    @include for-phone-only {
+      width: 100%;
+    }
   }
 
   &__search-icon {
@@ -39,7 +40,11 @@ $list-width: 60%;
   }
 
   &__list {
-    width: $list-width;
+    width: 60%;
+
+    @include for-phone-only {
+      width: 100%;
+    }
   }
 
   &__item {
