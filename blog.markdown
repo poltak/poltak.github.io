@@ -30,6 +30,7 @@ layout: "pages"
       </a>
     </li>
   </ul>
+  <p class="blog-vue__empty" v-if="noPostsFound">Couldn't find any matching posts...</p>
 </div>
 {% endraw %}
 
@@ -60,6 +61,8 @@ layout: "pages"
       strMatchesSearch(post.category);
 
     this.filteredPosts = this.allPosts.filter(filterFn);
+    // Set empty state if no posts found
+    this.noPostsFound = this.filteredPosts.length === 0;
   }
 
   // Grab blog posts data from jekyll then format for display
@@ -77,6 +80,7 @@ layout: "pages"
       filteredPosts: postsData,
       allPosts: postsData,
       searchVal: '',
+      noPostsFound: false,
     },
     methods: {
       handleSearchChange: debounce(handleSearchChange, 100),

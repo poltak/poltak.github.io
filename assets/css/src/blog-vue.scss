@@ -7,6 +7,11 @@
   align-items: center;
   margin: 25px 0;
 
+  &__empty {
+    color: $secondary-color;
+    font-family: $sans-serif-font;
+  }
+
   &__search-form {
     position: relative;
     width: 50%;
