@@ -16,7 +16,7 @@ layout: "pages"
 {% endif %}
 
 {% raw %}
-<div id="blog-vue" class="blog-vue">
+<div id="blog-search-vue" class="blog-vue">
   <form class="blog-vue__search-form">
     <i class="blog-vue__search-icon fa fa-search"></i>
     <input class="blog-vue__search-input" type="text" placeholder="Search posts..." v-model="searchVal" />
@@ -34,20 +34,57 @@ layout: "pages"
 {% endraw %}
 
 <script>
+  // Grabs just `DD Mmm YYYY` from UTC string
   const formatDateString = date => date.toUTCString().substring(5, 16);
+  /*
+   * Taken from @griffinmichl:
+   * https://medium.com/@griffinmichl/implementing-debounce-in-javascript-eab51a12311e
+   */
+  const debounce = (func, wait) => {
+    let timeout;
+    return function(...args) {
+      const context = this;
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(context, args), wait);
+    };
+  };
 
+  // The search filtering function (no validation; great code!)
+  function handleSearchChange() {
+    // Helper functions to handle matching against search term
+    const strMatchesSearch = str => str.toLowerCase().includes(this.searchVal.toLowerCase());
+    const arrMatchesSearch = arr => arr.map(strMatchesSearch).reduce((a, b) => a && b);
+    // Main filter function containing the post filtering code
+    const filterFn = post => strMatchesSearch(post.title) ||
+      strMatchesSearch(post.subtitle) || arrMatchesSearch(post.tags) ||
+      strMatchesSearch(post.category);
+
+    this.filteredPosts = this.allPosts.filter(filterFn);
+  }
+
+  // Grab blog posts data from jekyll then format for display
   const posts = {{ site.posts | jsonify }}
-  const postsData = posts.map(({ title, subtitle, url, date }) => ({
-    title, subtitle, url,
-    date: formatDateString(new Date(date)),
+  const postsData = posts.map(post => ({
+    title: post.title, subtitle: post.subtitle, url: post.url,
+    category: post.category, tags: post.tags,
+    date: formatDateString(new Date(post.date)),
   }));
 
-  const blogVue = new Vue({
-    el: '#blog-vue',
+  // Vue instance
+  const blogSearchVue = new Vue({
+    el: '#blog-search-vue',
     data: {
       filteredPosts: postsData,
       allPosts: postsData,
       searchVal: '',
+    },
+    methods: {
+      handleSearchChange: debounce(handleSearchChange, 100),
+    },
+    watch: {
+      searchVal() {
+        this.handleSearchChange(); // Call search handler method wheneve search state changes
+      },
     },
   });
 </script>
