@@ -36,7 +36,7 @@ layout: "pages"
 
 <script>
   /*
-   * Taken from @griffinmichl:
+   * Debounce function taken from @griffinmichl:
    * https://medium.com/@griffinmichl/implementing-debounce-in-javascript-eab51a12311e
    */
   const debounce = (func, wait) => {
