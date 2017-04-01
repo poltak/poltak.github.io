@@ -35,8 +35,6 @@ layout: "pages"
 {% endraw %}
 
 <script>
-  // Grabs just `DD Mmm YYYY` from UTC string, after parsing jekyll date string
-  const formatDateString = dateStr => new Date(dateStr.slice(0, 10)).toUTCString().slice(5, 16);
   /*
    * Taken from @griffinmichl:
    * https://medium.com/@griffinmichl/implementing-debounce-in-javascript-eab51a12311e
@@ -54,10 +52,9 @@ layout: "pages"
   function handleSearchChange() {
     // Helper functions to handle matching against search term
     const strMatchesSearch = str => str.toLowerCase().includes(this.searchVal.toLowerCase());
-    const arrMatchesSearch = arr => arr.map(strMatchesSearch).reduce((a, b) => a && b);
     // Main filter function containing the post filtering code
     const filterFn = post => strMatchesSearch(post.title) ||
-      strMatchesSearch(post.subtitle) || arrMatchesSearch(post.tags) ||
+      strMatchesSearch(post.subtitle) || strMatchesSearch(post.tags) ||
       strMatchesSearch(post.category);
 
     this.filteredPosts = this.allPosts.filter(filterFn);
@@ -65,20 +62,26 @@ layout: "pages"
     this.noPostsFound = this.filteredPosts.length === 0;
   }
 
-  // Grab blog posts data from jekyll then format for display
-  const posts = {{ site.posts | jsonify }}
-  const postsData = posts.map(post => ({
-    title: post.title, subtitle: post.subtitle, url: post.url,
-    category: post.category, tags: post.tags,
-    date: formatDateString(post.date),
-  }));
+  // Grab blog posts data from jekyll then format for display (jekyll pre-renders this data)
+  const posts = [
+    {% for post in site.posts %}
+      {
+        "title"     : "{{ post.title | escape }}",
+        "subtitle"  : "{{ post.subtitle | escape }}",
+        "category"  : "{{ post.category }}",
+        "tags"      : "{{ post.tags | array_to_sentence_string }}",
+        "url"       : "{{ site.baseurl }}{{ post.url }}",
+        "date"      : "{{ post.date | date_to_string }}"
+      } {% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  ];
 
   // Vue instance
   const blogSearchVue = new Vue({
     el: '#blog-search-vue',
     data: {
-      filteredPosts: postsData,
-      allPosts: postsData,
+      filteredPosts: posts,
+      allPosts: posts,
       searchVal: '',
       noPostsFound: false,
     },
