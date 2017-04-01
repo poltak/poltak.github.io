@@ -34,8 +34,8 @@ layout: "pages"
 {% endraw %}
 
 <script>
-  // Grabs just `DD Mmm YYYY` from UTC string
-  const formatDateString = date => date.toUTCString().substring(5, 16);
+  // Grabs just `DD Mmm YYYY` from UTC string, after parsing jekyll date string
+  const formatDateString = dateStr => new Date(dateStr.slice(0, 10)).toUTCString().slice(5, 16);
   /*
    * Taken from @griffinmichl:
    * https://medium.com/@griffinmichl/implementing-debounce-in-javascript-eab51a12311e
@@ -67,7 +67,7 @@ layout: "pages"
   const postsData = posts.map(post => ({
     title: post.title, subtitle: post.subtitle, url: post.url,
     category: post.category, tags: post.tags,
-    date: formatDateString(new Date(post.date)),
+    date: formatDateString(post.date),
   }));
 
   // Vue instance
