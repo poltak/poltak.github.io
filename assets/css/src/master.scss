@@ -65,10 +65,30 @@
   }
 }
 
-// Nav overflows on tablet portrait
-@include for-tablet-portrait-only {
-  .nav > li > a {
-    font-size: 9px !important;
+.navbar-brand {
+  height: 60px;
+
+  &:focus, &:hover {
+    background: rgba($primary-color, 0.2) !important;
+    outline: none;
+  }
+
+  @include for-phone-only {
+    height: 50px;
+  }
+}
+
+.nav > li {
+  & > a {
+    &:focus, &:hover {
+      background: rgba($primary-color, 0.2) !important;
+      outline: none;
+    }
+
+    // Nav overflows on tablet portrait
+    @include for-tablet-portrait-only {
+      font-size: 9px !important;
+    }
   }
 }
 
