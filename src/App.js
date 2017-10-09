@@ -1,26 +1,38 @@
 import React from "react";
-import { Router, Route, Switch, Redirect, Link } from "react-static";
+import PropTypes from "prop-types";
+import { Route, Switch, Redirect, getRouteProps } from "react-static";
 //
-import Home from "containers/Home";
-import About from "containers/About";
-import Blog from "containers/Blog";
+import SiteHeader from "components/SiteHeader";
+import NavLink from "components/NavLink";
+import routes from "./routes";
 
-export default () => (
-  <Router>
-    <div>
-      <nav>
-        <Link to="/">Home</Link>
-        <Link to="/about/">About</Link>
-        <Link to="/blog/">Blog</Link>
-      </nav>
-      <div className="content">
-        <Switch>
-          <Route exact path="/" component={Home} />
-          <Route path="/about" component={About} />
-          <Route path="/blog" component={Blog} />
-          <Redirect to="/" />
-        </Switch>
-      </div>
-    </div>
-  </Router>
+const App = ({ title, subtitle, rank }) => (
+  <div className="page">
+    <SiteHeader mainText={title} subText={subtitle}>
+      {routes.map(({ path, name }, i) => (
+        <NavLink key={i} to={path} isActive={i === rank}>
+          {name}
+        </NavLink>
+      ))}
+    </SiteHeader>
+    <main>
+      <Switch>
+        {[
+          ...routes.map(({ name, ...props }, i) => (
+            <Route key={i} {...props} />
+          )),
+          <Redirect key={routes.length} to="/" />,
+        ]}
+      </Switch>
+    </main>
+    <footer>Copyright me</footer>
+  </div>
 );
+
+App.propTypes = {
+  title: PropTypes.string.isRequired,
+  subtitle: PropTypes.string.isRequired,
+  rank: PropTypes.number.isRequired,
+};
+
+export default getRouteProps(App);

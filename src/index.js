@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { AppContainer } from "react-hot-loader";
+import { Router } from "react-static";
 
 // Your top level component
 import App from "./App";
@@ -13,7 +14,9 @@ if (typeof document !== "undefined") {
   const render = Comp => {
     ReactDOM.hydrate(
       <AppContainer>
-        <Comp />
+        <Router>
+          <Comp />
+        </Router>
       </AppContainer>,
       document.getElementById("root"),
     );
