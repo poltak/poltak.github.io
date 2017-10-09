@@ -1,32 +1,32 @@
-import axios from "axios";
 import React, { Component } from "react";
 
 export default {
-  getRoutes: async () => {
-    const { data: posts } = await axios.get(
-      "https://jsonplaceholder.typicode.com/posts",
-    );
-    return [
-      {
-        path: "/",
-      },
-      {
-        path: "/about",
-      },
-      {
-        path: "/blog",
-        getProps: () => ({
-          posts,
-        }),
-        children: posts.map(post => ({
-          path: `/post/${post.id}`,
-          getProps: () => ({
-            post,
-          }),
-        })),
-      },
-    ];
-  },
+  getRoutes: () => [
+    {
+      path: "/",
+      getProps: () => ({
+        title: "poltak.github.io",
+        subtitle: "A site about me",
+        rank: 0,
+      }),
+    },
+    {
+      path: "/about",
+      getProps: () => ({
+        title: "About me",
+        subtitle: "Who I am; what I do",
+        rank: 1,
+      }),
+    },
+    {
+      path: "/blog",
+      getProps: () => ({
+        title: "Blog posts",
+        subtitle: "What do I write about?",
+        rank: 2,
+      }),
+    },
+  ],
   Html: class CustomHtml extends Component {
     render() {
       const { Html, Head, Body, children } = this.props;
