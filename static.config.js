@@ -1,18 +1,20 @@
-import axios from 'axios'
-import React, { Component } from 'react'
+import axios from "axios";
+import React, { Component } from "react";
 
 export default {
   getRoutes: async () => {
-    const { data: posts } = await axios.get('https://jsonplaceholder.typicode.com/posts')
+    const { data: posts } = await axios.get(
+      "https://jsonplaceholder.typicode.com/posts",
+    );
     return [
       {
-        path: '/',
+        path: "/",
       },
       {
-        path: '/about',
+        path: "/about",
       },
       {
-        path: '/blog',
+        path: "/blog",
         getProps: () => ({
           posts,
         }),
@@ -23,20 +25,23 @@ export default {
           }),
         })),
       },
-    ]
+    ];
   },
   Html: class CustomHtml extends Component {
-    render () {
-      const { Html, Head, Body, children } = this.props
+    render() {
+      const { Html, Head, Body, children } = this.props;
       return (
         <Html lang="en-US">
           <Head>
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
+            <meta
+              name="viewport"
+              content="width=device-width, initial-scale=1"
+            />
             <link rel="stylesheet" href="/app.css" />
           </Head>
           <Body>{children}</Body>
         </Html>
-      )
+      );
     }
   },
-}
+};

@@ -1,9 +1,9 @@
-import React from 'react'
-import { Router, Route, Switch, Redirect, Link } from 'react-static'
+import React from "react";
+import { Router, Route, Switch, Redirect, Link } from "react-static";
 //
-import Home from 'containers/Home'
-import About from 'containers/About'
-import Blog from 'containers/Blog'
+import Home from "containers/Home";
+import About from "containers/About";
+import Blog from "containers/Blog";
 
 export default () => (
   <Router>
@@ -23,4 +23,4 @@ export default () => (
       </div>
     </div>
   </Router>
-)
+);

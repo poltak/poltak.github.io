@@ -1,0 +1,12 @@
+{
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/old-site": true,
+    "**/dist": true
+  },
+  "stylelint.enable": true,
+  "eslint.enable": true,
+  "editor.formatOnSave": true,
+  "prettier.trailingComma": "all",
+  "prettier.cssEnable": ["css"]
+}
