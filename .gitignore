@@ -1,0 +1,15 @@
+_site
+node_modules
+*.swp
+.DS_Store
+npm-debug.log
+.jekyll-metadata
+.asset-cache
+.sass-cache
+.bundle
+/.env
+old-site
+.asset-cache
+.sass-cache
+.bundle
+dist/
