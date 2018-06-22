@@ -1,26 +1,56 @@
 {
-  "name": "poltak-blog",
-  "version": "2.1.0",
-  "description": "A personal blog using GitHub pages.",
-  "author": "Jonathan Poltak Samosir",
-  "private": true,
-  "devDependencies": {
-    "gulp": "^3.9.1",
-    "gulp-autoprefixer": "^3.1.0",
-    "gulp-cache": "^0.4.3",
-    "gulp-concat": "^2.6.0",
-    "gulp-cssnano": "^2.1.1",
-    "gulp-imagemin": "^3.1.1",
-    "gulp-postcss": "^6.1.0",
-    "gulp-sass": "^2.2.0",
-    "gulp-sourcemaps": "^1.6.0",
-    "gulp-uglify": "^1.5.3",
-    "precss": "^1.4.0"
-  },
-  "scripts": {
-    "start": "jekyll serve",
-    "build": "gulp js css images",
-    "dev": "gulp"
-  },
-  "dependencies": {}
+    "name": "@poltak/poltak.github.io",
+    "version": "2.0.0",
+    "description": "Personal site",
+    "main": "index.js",
+    "scripts": {
+        "build": "node dev-server",
+        "build:watch": "npm run build:clean && webpack --watch --mode=development --hot=true",
+        "build:clean": "rimraf ./dist",
+        "lint": "tslint src/**/*.ts"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/poltak/poltak.github.io.git"
+    },
+    "author": "Jonathan Poltak Samosir",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/poltak/poltak.github.io/issues"
+    },
+    "homepage": "https://poltak.github.io",
+    "devDependencies": {
+        "@types/webpack-env": "^1.13.6",
+        "css-loader": "^0.28.11",
+        "express": "^4.16.3",
+        "file-loader": "^1.1.11",
+        "fork-ts-checker-webpack-plugin": "^0.4.1",
+        "html-webpack-plugin": "^3.2.0",
+        "mini-css-extract-plugin": "^0.4.0",
+        "optimize-css-assets-webpack-plugin": "^4.0.2",
+        "postcss-loader": "^2.1.5",
+        "prettier": "^1.13.5",
+        "rimraf": "^2.6.2",
+        "style-loader": "^0.21.0",
+        "stylelint": "^9.3.0",
+        "stylelint-config-standard": "^18.2.0",
+        "stylelint-webpack-plugin": "^0.10.5",
+        "ts-loader": "^4.3.0",
+        "tslint": "^5.10.0",
+        "tslint-config-prettier": "^1.13.0",
+        "tslint-config-standard": "^7.0.0",
+        "typescript": "^2.8.4",
+        "uglifyjs-webpack-plugin": "^1.2.6",
+        "url-loader": "^1.0.1",
+        "webpack": "^4.10.2",
+        "webpack-build-notifier": "^0.1.27",
+        "webpack-cli": "^2.1.4",
+        "webpack-dev-middleware": "^3.1.3",
+        "webpack-dev-server": "^3.1.4",
+        "webpack-hot-middleware": "^2.22.2"
+    },
+    "dependencies": {
+        "preact": "^8.2.9",
+        "preact-router": "^2.6.1"
+    }
 }

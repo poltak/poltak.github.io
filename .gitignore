@@ -7,4 +7,9 @@ npm-debug.log
 .asset-cache
 .sass-cache
 .bundle
-/.env
+.env
+old-site
+.asset-cache
+.sass-cache
+.bundle
+dist/
