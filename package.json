@@ -1,26 +1,29 @@
 {
-  "name": "poltak-blog",
-  "version": "2.1.0",
-  "description": "A personal blog using GitHub pages.",
+  "name": "poltak-site",
+  "version": "3.0.0",
+  "description": "A personal blog using Gatsby.",
   "author": "Jonathan Poltak Samosir",
+  "license": "MIT",
   "private": true,
-  "devDependencies": {
-    "gulp": "^3.9.1",
-    "gulp-autoprefixer": "^3.1.0",
-    "gulp-cache": "^0.4.3",
-    "gulp-concat": "^2.6.0",
-    "gulp-cssnano": "^2.1.1",
-    "gulp-imagemin": "^3.1.1",
-    "gulp-postcss": "^6.1.0",
-    "gulp-sass": "^2.2.0",
-    "gulp-sourcemaps": "^1.6.0",
-    "gulp-uglify": "^1.5.3",
-    "precss": "^1.4.0"
-  },
   "scripts": {
-    "start": "jekyll serve",
-    "build": "gulp js css images",
-    "dev": "gulp"
+    "develop": "gatsby develop",
+    "start": "npm run develop",
+    "build": "gatsby build",
+    "serve": "gatsby serve"
   },
-  "dependencies": {}
+  "dependencies": {
+    "gatsby": "^2.0.33",
+    "gatsby-link": "^2.0.7",
+    "gatsby-plugin-typography": "^2.2.2",
+    "gatsby-react-router-scroll": "^2.0.2",
+    "react": "^16.5.1",
+    "react-dom": "^16.5.1",
+    "react-typography": "^0.16.18",
+    "typography": "^0.16.18",
+    "typography-theme-moraga": "^0.16.18"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.2.0"
+  }
 }
