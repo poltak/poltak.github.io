@@ -8,3 +8,5 @@ npm-debug.log
 .sass-cache
 .bundle
 /.env
+.cache/
+public/
