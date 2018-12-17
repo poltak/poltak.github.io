@@ -3,7 +3,7 @@ import React from "react"
 import { MainLayout } from '../layouts'
 
 const IndexPage = () => (
-  <MainLayout headerText="Richard Hamming on Luck">
+  <MainLayout headerText="poltak.github.io">
     <p>
       From Richard Hamming’s classic and must-read talk, “
       <a href="http://www.cs.virginia.edu/~robins/YouAndYourResearch.html">

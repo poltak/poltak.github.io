@@ -3,7 +3,7 @@ import React from "react"
 import { MainLayout } from '../layouts'
 
 const CVPage = () => (
-  <MainLayout headerText="Richard Hamming on Luck">
+  <MainLayout headerText="Curriculum vitae">
     <React.Fragment>
       <p>
         From Richard Hamming’s classic and must-read talk, “

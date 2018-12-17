@@ -3,7 +3,7 @@ import React from "react"
 import { MainLayout } from '../layouts'
 
 const BlogPage = () => (
-  <MainLayout headerText="Richard Hamming on Luck">
+  <MainLayout headerText="Blog posts">
     <React.Fragment>
       <p>
         From Richard Hamming’s classic and must-read talk, “

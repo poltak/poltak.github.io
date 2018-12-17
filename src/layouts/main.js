@@ -1,12 +1,13 @@
 import React from "react"
 
-import { Header, Footer } from '../components'
+import { Header, Footer, Nav } from '../components'
 import styles from './main.module.css'
 
 const MainLayout = ({ headerText, children }) => (
   <div className={styles.main}>
       <Header>
         {headerText}
+        <Nav />
       </Header>
 
       {children}
