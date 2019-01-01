@@ -13,6 +13,7 @@ const Nav = ({ pages }) => (
                         pages {
                             name
                             link
+                            icon
                         }
                     }
                 }
@@ -21,8 +22,8 @@ const Nav = ({ pages }) => (
         render={data => (
             <nav>
                 <ul className={styles.pageLinks}>
-                    {data.site.siteMetadata.pages.map(page => (
-                        <NavItem {...page} />
+                    {data.site.siteMetadata.pages.map((page, i) => (
+                        <NavItem key={i} {...page} />
                     ))}
                 </ul>
             </nav>

@@ -1,9 +1,13 @@
 import React from 'react'
 import { Link } from 'gatsby'
 
-const NavItem = ({ name, link }) => (
+import FAIcon from './fa-icon'
+
+const NavItem = ({ name, link, icon }) => (
     <li>
-        <Link to={link}>{name}</Link>
+        <Link to={link}>
+            <FAIcon name={icon} /> {name}
+        </Link>
     </li>
 )
 

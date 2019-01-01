@@ -5,22 +5,27 @@ module.exports = {
             {
                 name: 'poltak.github.io',
                 link: '/',
+                icon: 'home',
             },
             {
                 name: 'About Me',
                 link: '/about',
+                icon: 'info-circle',
             },
             {
                 name: 'Curriculum Vitae',
                 link: '/cv',
+                icon: 'book',
             },
             {
                 name: 'Blog Posts',
                 link: '/blog',
+                icon: 'bullhorn',
             },
             {
                 name: 'Contact',
                 link: '/contact',
+                icon: 'phone',
             },
         ],
     },
