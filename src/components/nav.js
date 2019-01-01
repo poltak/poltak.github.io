@@ -2,6 +2,7 @@ import React from "react"
 import { StaticQuery, graphql } from 'gatsby'
 
 import NavItem from './nav-item'
+import styles from './nav.module.css'
 
 const Nav = ({ pages }) => (
     <StaticQuery
@@ -19,7 +20,7 @@ const Nav = ({ pages }) => (
         `}
         render={data => (
             <nav>
-                <ul>
+                <ul className={styles.pageLinks}>
                     {data.site.siteMetadata.pages
                         .map(page => <NavItem {...page} />)}
                 </ul>
