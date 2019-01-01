@@ -8,6 +8,7 @@ const MainLayout = ({
   subHeaderText,
   backgroundImgSrc,
   children,
+  calcYear = () => new Date().getFullYear(),
 }) => (
   <div className={styles.main}>
       <Nav />
@@ -18,7 +19,7 @@ const MainLayout = ({
       {children}
 
       <Footer>
-        This website's content are © 2019 Jonathan Poltak Samosir
+        This website's content are ©{calcYear()} Jonathan Poltak Samosir
       </Footer>
   </div>
 )
