@@ -2,8 +2,13 @@ import React from 'react'
 
 import { MainLayout } from '../layouts'
 
-const IndexPage = () => (
-    <MainLayout headerText="poltak.github.io" subHeaderText="A site about me">
+const IndexPage = props => (
+    <MainLayout
+        headerText="poltak.github.io"
+        subHeaderText="A site about me"
+        title="poltak.github.io"
+        {...props}
+    >
         <p>
             From Richard Hamming’s classic and must-read talk, “
             <a href="http://www.cs.virginia.edu/~robins/YouAndYourResearch.html">

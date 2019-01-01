@@ -2,8 +2,13 @@ import React from 'react'
 
 import { MainLayout } from '../layouts'
 
-const AboutPage = () => (
-    <MainLayout headerText="About me" subHeaderText="Who I am; what I do">
+const AboutPage = props => (
+    <MainLayout
+        headerText="About me"
+        subHeaderText="Who I am; what I do"
+        title="About me"
+        {...props}
+    >
         <p>
             From Richard Hamming’s classic and must-read talk, “
             <a href="http://www.cs.virginia.edu/~robins/YouAndYourResearch.html">

@@ -2,8 +2,13 @@ import React from 'react'
 
 import { MainLayout } from '../layouts'
 
-const ContactPage = () => (
-    <MainLayout headerText="Contact" subHeaderText="Where can you find me?">
+const ContactPage = props => (
+    <MainLayout
+        headerText="Contact"
+        subHeaderText="Where can you find me?"
+        title="Contact"
+        {...props}
+    >
         <p>
             From Richard Hamming’s classic and must-read talk, “
             <a href="http://www.cs.virginia.edu/~robins/YouAndYourResearch.html">

@@ -1,6 +1,9 @@
 module.exports = {
     siteMetadata: {
+        url: 'https://poltak.github.io',
         title: 'poltak.github.io',
+        twitter: 'poltak_',
+        ogImgPath: '/favicon.ico',
         pages: [
             {
                 name: 'poltak.github.io',
@@ -30,6 +33,7 @@ module.exports = {
         ],
     },
     plugins: [
+        'gatsby-plugin-react-helmet',
         {
             resolve: `gatsby-plugin-typography`,
             options: {

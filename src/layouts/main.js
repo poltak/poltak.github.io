@@ -1,11 +1,12 @@
 import React from 'react'
 import loadScript from 'simple-load-script'
 
-import { Header, Footer, Nav } from '../components'
+import { Header, Footer, Nav, Head } from '../components'
 import styles from './main.module.css'
 
 class MainLayout extends React.Component {
     static defaultProps = {
+        calcYear: () => new Date().getFullYear(),
         extScripts: [
             'https://use.fontawesome.com/releases/v5.6.3/js/solid.js',
             'https://use.fontawesome.com/releases/v5.6.3/js/fontawesome.js',
@@ -31,28 +32,29 @@ class MainLayout extends React.Component {
     }
 
     render() {
-        const {
-            headerText,
-            subHeaderText,
-            backgroundImgSrc,
-            children,
-            calcYear = () => new Date().getFullYear(),
-        } = this.props
-
         return (
-            <div className={styles.main}>
-                <Nav />
-                <Header subText={subHeaderText} imgSrc={backgroundImgSrc}>
-                    {headerText}
-                </Header>
+            <React.Fragment>
+                <Head
+                    pathname={this.props.location.pathname}
+                    title={this.props.title}
+                />
+                <div className={styles.main}>
+                    <Nav />
+                    <Header
+                        subText={this.props.subHeaderText}
+                        imgSrc={this.props.backgroundImgSrc}
+                    >
+                        {this.props.headerText}
+                    </Header>
 
-                {children}
+                    {this.props.children}
 
-                <Footer>
-                    This website's content are ©{calcYear()} Jonathan Poltak
-                    Samosir
-                </Footer>
-            </div>
+                    <Footer>
+                        This website's content are ©{this.props.calcYear()}{' '}
+                        Jonathan Poltak Samosir
+                    </Footer>
+                </div>
+            </React.Fragment>
         )
     }
 }
