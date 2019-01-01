@@ -3,8 +3,10 @@ import React from "react"
 import { MainLayout } from '../layouts'
 
 const BlogPage = () => (
-  <MainLayout headerText="Blog posts">
-    <React.Fragment>
+  <MainLayout
+    headerText="Blog posts"
+    subHeaderText="What do I write about?"
+  >
       <p>
         From Richard Hamming’s classic and must-read talk, “
         <a href="http://www.cs.virginia.edu/~robins/YouAndYourResearch.html">
@@ -23,7 +25,6 @@ const BlogPage = () => (
           </em>
         </p>
       </blockquote>
-    </React.Fragment>
   </MainLayout>
 )
 

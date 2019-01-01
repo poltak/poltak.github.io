@@ -3,7 +3,10 @@ import React from "react"
 import { MainLayout } from '../layouts'
 
 const IndexPage = () => (
-  <MainLayout headerText="poltak.github.io">
+  <MainLayout
+    headerText="poltak.github.io"
+    subHeaderText="A site about me"
+  >
     <p>
       From Richard Hamming’s classic and must-read talk, “
       <a href="http://www.cs.virginia.edu/~robins/YouAndYourResearch.html">

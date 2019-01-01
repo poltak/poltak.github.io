@@ -3,8 +3,10 @@ import React from "react"
 import { MainLayout } from '../layouts'
 
 const CVPage = () => (
-  <MainLayout headerText="Curriculum vitae">
-    <React.Fragment>
+  <MainLayout
+    headerText="Curriculum vitae"
+    subHeaderText="Want more detail?"
+  >
       <p>
         From Richard Hamming’s classic and must-read talk, “
         <a href="http://www.cs.virginia.edu/~robins/YouAndYourResearch.html">
@@ -23,7 +25,6 @@ const CVPage = () => (
           </em>
         </p>
       </blockquote>
-    </React.Fragment>
   </MainLayout>
 )
 
