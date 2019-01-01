@@ -1,11 +1,9 @@
-import React from "react"
+import React from 'react'
 import { Link } from 'gatsby'
 
 const NavItem = ({ name, link }) => (
     <li>
-        <Link to={link}>
-            {name}
-        </Link>
+        <Link to={link}>{name}</Link>
     </li>
 )
 
