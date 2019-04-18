@@ -1,6 +1,7 @@
 import 'semantic-ui-css/semantic.min.css'
 import React from 'react'
 import loadScript from 'simple-load-script'
+import { Container } from 'semantic-ui-react'
 
 import { scripts } from '../static/external'
 import { Header, Footer, Nav, Head } from '../components'
@@ -46,7 +47,13 @@ class MainLayout extends React.Component {
                         {this.props.headerText}
                     </Header>
 
-                    {this.props.children}
+                    <Container
+                        className={styles.mainContainer}
+                        text
+                        textAlign="justified"
+                    >
+                        {this.props.children}
+                    </Container>
 
                     <Footer>
                         This website's content are ©{this.props.calcYear()}{' '}
