@@ -8,7 +8,12 @@ class NavItem extends React.PureComponent {
         name: propTypes.string.isRequired,
         href: propTypes.string.isRequired,
         icon: propTypes.string.isRequired,
+        location: propTypes.any.isRequired,
         header: propTypes.bool,
+    }
+
+    get isActive() {
+        return this.props.location.pathname === this.props.href
     }
 
     handleClick = e => navigate(this.props.href)
@@ -19,6 +24,7 @@ class NavItem extends React.PureComponent {
                 onClick={this.handleClick}
                 name={this.props.name}
                 header={this.props.header}
+                active={this.isActive}
             >
                 <Icon name={this.props.icon} /> {this.props.name}
             </Menu.Item>

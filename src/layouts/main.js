@@ -39,7 +39,7 @@ class MainLayout extends React.Component {
                     title={this.props.title}
                 />
                 <div className={styles.main}>
-                    <Nav />
+                    <Nav {...this.props} />
                     <Header
                         subText={this.props.subHeaderText}
                         imgSrc={this.props.backgroundImgSrc}
