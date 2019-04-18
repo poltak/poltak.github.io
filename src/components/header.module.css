@@ -10,9 +10,6 @@
     margin-bottom: 0.56rem;
 }
 
-.subText {
-}
-
-.separator {
-    padding: 0 1em;
+.divider {
+    width: 50%;
 }
