@@ -1,16 +1,15 @@
+import 'semantic-ui-css/semantic.min.css'
 import React from 'react'
 import loadScript from 'simple-load-script'
 
+import { scripts } from '../static/external'
 import { Header, Footer, Nav, Head } from '../components'
 import styles from './main.module.css'
 
 class MainLayout extends React.Component {
     static defaultProps = {
         calcYear: () => new Date().getFullYear(),
-        extScripts: [
-            'https://use.fontawesome.com/releases/v5.6.3/js/solid.js',
-            'https://use.fontawesome.com/releases/v5.6.3/js/fontawesome.js',
-        ],
+        extScripts: scripts,
     }
 
     state = {
@@ -33,7 +32,7 @@ class MainLayout extends React.Component {
 
     render() {
         return (
-            <React.Fragment>
+            <>
                 <Head
                     pathname={this.props.location.pathname}
                     title={this.props.title}
@@ -54,7 +53,7 @@ class MainLayout extends React.Component {
                         Jonathan Poltak Samosir
                     </Footer>
                 </div>
-            </React.Fragment>
+            </>
         )
     }
 }
