@@ -1,11 +1,12 @@
 import React from 'react'
-import { Container } from 'semantic-ui-react'
+import { Container, Divider } from 'semantic-ui-react'
 
 import styles from './footer.module.css'
 
 const Footer = ({ children, ...props }) => (
     <footer className={styles.footer} {...props}>
-        <Container text>
+        <Divider />
+        <Container text textAlign="right">
             <p>{children}</p>
         </Container>
     </footer>

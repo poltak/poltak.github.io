@@ -1,8 +1,20 @@
 .main {
+    position: relative;
+    min-height: 90vh;
     margin: 3rem auto;
     max-width: 900px;
 }
 
-.mainContainer {
-    margin-top: 5em;
+@media (max-width: 768px) {
+    .main {
+        margin: 0 auto;
+    }
+}
+
+.container {
+    padding-bottom: 5rem;
+}
+
+.contentContainer {
+    margin-top: 5rem;
 }

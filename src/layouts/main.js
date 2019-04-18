@@ -39,21 +39,23 @@ class MainLayout extends React.Component {
                     title={this.props.title}
                 />
                 <div className={styles.main}>
-                    <Nav {...this.props} />
-                    <Header
-                        subText={this.props.subHeaderText}
-                        imgSrc={this.props.backgroundImgSrc}
-                    >
-                        {this.props.headerText}
-                    </Header>
+                    <div className={styles.container}>
+                        <Nav {...this.props} />
+                        <Header
+                            subText={this.props.subHeaderText}
+                            imgSrc={this.props.backgroundImgSrc}
+                        >
+                            {this.props.headerText}
+                        </Header>
 
-                    <Container
-                        className={styles.mainContainer}
-                        text
-                        textAlign="justified"
-                    >
-                        {this.props.children}
-                    </Container>
+                        <Container
+                            className={styles.contentContainer}
+                            text
+                            textAlign="justified"
+                        >
+                            {this.props.children}
+                        </Container>
+                    </div>
 
                     <Footer>
                         This website's content are ©{this.props.calcYear()}{' '}
