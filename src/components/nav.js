@@ -1,8 +1,8 @@
 import React from 'react'
 import { StaticQuery, graphql } from 'gatsby'
+import { Menu } from 'semantic-ui-react'
 
 import NavItem from './nav-item'
-import styles from './nav.module.css'
 
 const Nav = ({ pages }) => (
     <StaticQuery
@@ -12,22 +12,25 @@ const Nav = ({ pages }) => (
                     siteMetadata {
                         pages {
                             name
-                            link
+                            href
                             icon
+                            header
                         }
                     }
                 }
             }
         `}
-        render={data => (
-            <nav>
-                <ul className={styles.pageLinks}>
-                    {data.site.siteMetadata.pages.map((page, i) => (
+        render={data => {
+            const { pages } = data.site.siteMetadata
+
+            return (
+                <Menu stackable fluid widths={pages.length}>
+                    {pages.map((page, i) => (
                         <NavItem key={i} {...page} />
                     ))}
-                </ul>
-            </nav>
-        )}
+                </Menu>
+            )
+        }}
     />
 )
 

@@ -7,27 +7,28 @@ module.exports = {
         pages: [
             {
                 name: 'poltak.github.io',
-                link: '/',
+                href: '/',
                 icon: 'home',
+                header: true,
             },
             {
                 name: 'About Me',
-                link: '/about',
-                icon: 'info-circle',
+                href: '/about',
+                icon: 'info circle',
             },
             {
                 name: 'Curriculum Vitae',
-                link: '/cv',
+                href: '/cv',
                 icon: 'book',
             },
             {
                 name: 'Blog Posts',
-                link: '/blog',
+                href: '/blog',
                 icon: 'bullhorn',
             },
             {
                 name: 'Contact',
-                link: '/contact',
+                href: '/contact',
                 icon: 'phone',
             },
         ],
