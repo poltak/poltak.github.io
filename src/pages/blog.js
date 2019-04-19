@@ -1,12 +1,14 @@
 import React from 'react'
 
 import { MainLayout } from '../layouts'
+import img from '../img/thap.jpg'
 
 const BlogPage = props => (
     <MainLayout
         headerText="Blog posts"
         subHeaderText="What do I write about?"
         title="Blog posts"
+        backgroundImgSrc={img}
         {...props}
     >
         <p>

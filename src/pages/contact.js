@@ -1,12 +1,14 @@
 import React from 'react'
 
 import { MainLayout } from '../layouts'
+import img from '../img/tra.jpg'
 
 const ContactPage = props => (
     <MainLayout
         headerText="Contact"
         subHeaderText="Where can you find me?"
         title="Contact"
+        backgroundImgSrc={img}
         {...props}
     >
         <p>

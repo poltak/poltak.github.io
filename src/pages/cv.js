@@ -1,12 +1,14 @@
 import React from 'react'
 
 import { MainLayout } from '../layouts'
+import img from '../img/canhdong.jpg'
 
 const CVPage = props => (
     <MainLayout
         headerText="Curriculum vitae"
         subHeaderText="Want more detail?"
         title="Curriculum vitae"
+        backgroundImgSrc={img}
         {...props}
     >
         <p>

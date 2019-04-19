@@ -1,5 +1,6 @@
 import 'semantic-ui-css/semantic.min.css'
 import React from 'react'
+import propTypes from 'prop-types'
 import loadScript from 'simple-load-script'
 import { Container } from 'semantic-ui-react'
 
@@ -8,9 +9,19 @@ import { Header, Footer, Nav, Head } from '../components'
 import styles from './main.module.css'
 
 class MainLayout extends React.Component {
+    static propTypes = {
+        backgroundImgSrc: propTypes.string.isRequired,
+        title: propTypes.string.isRequired,
+        headerText: propTypes.string.isRequired,
+        subHeaderText: propTypes.string.isRequired,
+        calcYear: propTypes.func,
+        extScripts: propTypes.arrayOf(propTypes.string),
+    }
+
     static defaultProps = {
         calcYear: () => new Date().getFullYear(),
         extScripts: scripts,
+        requireImg: require,
     }
 
     state = {

@@ -3,12 +3,14 @@ import { Header, List, Button, Icon } from 'semantic-ui-react'
 import { Link } from 'gatsby'
 
 import { MainLayout } from '../layouts'
+import img from '../img/bien.jpg'
 
 const IndexPage = props => (
     <MainLayout
         headerText="poltak.github.io"
         subHeaderText="A site about me"
         title="poltak.github.io"
+        backgroundImgSrc={img}
         {...props}
     >
         <Header as="h2">What is this site?</Header>
