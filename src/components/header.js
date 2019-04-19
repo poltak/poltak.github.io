@@ -1,5 +1,5 @@
 import React from 'react'
-import { Header, Divider, Image } from 'semantic-ui-react'
+import { Header, Image } from 'semantic-ui-react'
 
 import styles from './header.module.css'
 
@@ -11,7 +11,6 @@ const HeaderComp = ({ children, subText, imgSrc, ...props }) => (
         </Header>
         {subText && (
             <>
-                <Divider className={styles.divider} />
                 <Header as="h2" className={styles.subText}>
                     {subText}
                 </Header>
