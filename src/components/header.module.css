@@ -7,6 +7,18 @@
     height: 500px;
 }
 
+@media (max-width: 768px) {
+    .container {
+        height: 450px;
+    }
+}
+
+@media (max-width: 450px) {
+    .container {
+        height: 250px;
+    }
+}
+
 .img {
     position: absolute !important;
     z-index: -1;
