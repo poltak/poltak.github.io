@@ -1,0 +1,42 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 520px;
+    padding: 1em;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.containerCentered {
+    margin: 0 auto;
+}
+
+.avatarImg {
+    flex: 1;
+    border-radius: 50%;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    margin-bottom: 0;
+}
+
+.infoContainer {
+    flex: 2.5;
+    display: flex;
+    flex-direction: column;
+    padding-left: 1em;
+}
+
+.infoRow {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.infoRowValue {
+    /* TODO: Find better way to position this. */
+    width: 14em;
+}
+
+.name {
+    font-size: 1.4rem;
+}
