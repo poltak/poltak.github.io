@@ -1,8 +1,12 @@
 module.exports = {
     siteMetadata: {
         url: 'https://poltak.github.io',
+        email: 'jonathan.samosir@gmail.com',
+        name: 'Jonathan Poltak Samosir',
         title: 'poltak.github.io',
         twitter: 'poltak_',
+        github: 'poltak',
+        linkedIn: 'jsamosir',
         ogImgPath: '/favicon.ico',
         pages: [
             {

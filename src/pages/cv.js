@@ -2,6 +2,7 @@ import React from 'react'
 
 import { MainLayout } from '../layouts'
 import img from '../img/canhdong.jpg'
+import { ContactCard } from '../components/contact-card-container'
 
 const CVPage = props => (
     <MainLayout
@@ -11,6 +12,7 @@ const CVPage = props => (
         backgroundImgSrc={img}
         {...props}
     >
+        <ContactCard centered />
         <p>
             From Richard Hamming’s classic and must-read talk, “
             <a href="http://www.cs.virginia.edu/~robins/YouAndYourResearch.html">
