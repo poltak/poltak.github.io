@@ -21,7 +21,6 @@ class MainLayout extends React.Component {
     static defaultProps = {
         calcYear: () => new Date().getFullYear(),
         extScripts: scripts,
-        requireImg: require,
     }
 
     state = {
