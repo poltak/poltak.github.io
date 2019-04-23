@@ -1,7 +1,7 @@
 import React from 'react'
+import { graphql } from 'gatsby'
 
-import { MainLayout } from '../layouts'
-import img from '../img/canhdong.jpg'
+import MainLayout, { imageSelector } from '../layouts/main'
 import { ContactCard } from '../components/contact-card-container'
 
 const CVPage = props => (
@@ -9,7 +9,7 @@ const CVPage = props => (
         headerText="Curriculum vitae"
         subHeaderText="Want more detail?"
         title="Curriculum vitae"
-        backgroundImgSrc={img}
+        backgroundImgSrc={imageSelector(props.data)}
         {...props}
     >
         <ContactCard centered />
@@ -35,3 +35,11 @@ const CVPage = props => (
 )
 
 export default CVPage
+
+export const query = graphql`
+    query {
+        file(relativePath: { eq: "canhdong.jpg" }) {
+            ...HeaderImageFragment
+        }
+    }
+`

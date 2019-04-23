@@ -1,11 +1,12 @@
 import React from 'react'
-import { Header, Image } from 'semantic-ui-react'
+import Img from 'gatsby-image'
+import { Header } from 'semantic-ui-react'
 
 import styles from './header.module.css'
 
-const HeaderComp = ({ children, subText, imgSrc, ...props }) => (
+export default ({ children, subText, imgSrc, ...props }) => (
     <header className={styles.container} {...props}>
-        <Image className={styles.img} src={imgSrc} />
+        <Img className={styles.img} fixed={imgSrc} />
         <Header as="h1" className={styles.headerText}>
             {children}
         </Header>
@@ -18,5 +19,3 @@ const HeaderComp = ({ children, subText, imgSrc, ...props }) => (
         )}
     </header>
 )
-
-export { HeaderComp as Header }

@@ -1,16 +1,15 @@
 import React from 'react'
-import { Link } from 'gatsby'
+import { Link, graphql } from 'gatsby'
 import { Header } from 'semantic-ui-react'
 
-import { MainLayout } from '../layouts'
-import img from '../img/cachep.jpg'
+import MainLayout, { imageSelector } from '../layouts/main'
 
 const AboutPage = props => (
     <MainLayout
         headerText="About me"
         subHeaderText="Who I am; what I do"
         title="About me"
-        backgroundImgSrc={img}
+        backgroundImgSrc={imageSelector(props.data)}
         {...props}
     >
         <Header as="h2">Who am I?</Header>
@@ -71,3 +70,11 @@ const AboutPage = props => (
 )
 
 export default AboutPage
+
+export const query = graphql`
+    query {
+        file(relativePath: { eq: "cachep.jpg" }) {
+            ...HeaderImageFragment
+        }
+    }
+`

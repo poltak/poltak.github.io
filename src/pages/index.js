@@ -1,16 +1,15 @@
 import React from 'react'
 import { Header, List, Button, Icon } from 'semantic-ui-react'
-import { Link } from 'gatsby'
+import { Link, graphql } from 'gatsby'
 
-import { MainLayout } from '../layouts'
-import img from '../img/bien.jpg'
+import MainLayout, { imageSelector } from '../layouts/main'
 
 const IndexPage = props => (
     <MainLayout
         headerText="poltak.github.io"
         subHeaderText="A site about me"
         title="poltak.github.io"
-        backgroundImgSrc={img}
+        backgroundImgSrc={imageSelector(props.data)}
         {...props}
     >
         <Header as="h2">What is this site?</Header>
@@ -76,3 +75,11 @@ const IndexPage = props => (
 )
 
 export default IndexPage
+
+export const query = graphql`
+    query {
+        file(relativePath: { eq: "bien.jpg" }) {
+            ...HeaderImageFragment
+        }
+    }
+`

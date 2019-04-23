@@ -7,10 +7,11 @@ import { Container } from 'semantic-ui-react'
 import { scripts } from '../static/external'
 import { Header, Footer, Nav, Head } from '../components'
 import styles from './main.module.css'
+import { graphql } from 'gatsby'
 
 class MainLayout extends React.Component {
     static propTypes = {
-        backgroundImgSrc: propTypes.string.isRequired,
+        backgroundImgSrc: propTypes.object.isRequired,
         title: propTypes.string.isRequired,
         headerText: propTypes.string.isRequired,
         subHeaderText: propTypes.string.isRequired,
@@ -78,3 +79,15 @@ class MainLayout extends React.Component {
 }
 
 export default MainLayout
+
+export const headerImageFragment = graphql`
+    fragment HeaderImageFragment on File {
+        childImageSharp {
+            fixed(width: 900, height: 500) {
+                ...GatsbyImageSharpFixed
+            }
+        }
+    }
+`
+
+export const imageSelector = data => data.file.childImageSharp.fixed

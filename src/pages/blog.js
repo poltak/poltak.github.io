@@ -1,14 +1,14 @@
 import React from 'react'
+import { graphql } from 'gatsby'
 
-import { MainLayout } from '../layouts'
-import img from '../img/thap.jpg'
+import MainLayout, { imageSelector } from '../layouts/main'
 
 const BlogPage = props => (
     <MainLayout
         headerText="Blog posts"
         subHeaderText="What do I write about?"
         title="Blog posts"
-        backgroundImgSrc={img}
+        backgroundImgSrc={imageSelector(props.data)}
         {...props}
     >
         <p>
@@ -33,3 +33,11 @@ const BlogPage = props => (
 )
 
 export default BlogPage
+
+export const query = graphql`
+    query {
+        file(relativePath: { eq: "thap.jpg" }) {
+            ...HeaderImageFragment
+        }
+    }
+`

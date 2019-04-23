@@ -1,14 +1,14 @@
 import React from 'react'
+import { graphql } from 'gatsby'
 
-import { MainLayout } from '../layouts'
-import img from '../img/tra.jpg'
+import MainLayout, { imageSelector } from '../layouts/main'
 
 const ContactPage = props => (
     <MainLayout
         headerText="Contact"
         subHeaderText="Where can you find me?"
         title="Contact"
-        backgroundImgSrc={img}
+        backgroundImgSrc={imageSelector(props.data)}
         {...props}
     >
         <p>
@@ -33,3 +33,11 @@ const ContactPage = props => (
 )
 
 export default ContactPage
+
+export const query = graphql`
+    query {
+        file(relativePath: { eq: "tra.jpg" }) {
+            ...HeaderImageFragment
+        }
+    }
+`

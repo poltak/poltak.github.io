@@ -1,3 +1,5 @@
+const path = require('path')
+
 module.exports = {
     siteMetadata: {
         url: 'https://poltak.github.io',
@@ -37,5 +39,16 @@ module.exports = {
             },
         ],
     },
-    plugins: ['gatsby-plugin-react-helmet'],
+    plugins: [
+        'gatsby-plugin-react-helmet',
+        {
+            resolve: `gatsby-source-filesystem`,
+            options: {
+                name: `images`,
+                path: path.join(__dirname, `src`, `img`),
+            },
+        },
+        `gatsby-plugin-sharp`,
+        `gatsby-transformer-sharp`,
+    ],
 }
