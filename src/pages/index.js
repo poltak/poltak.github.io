@@ -1,6 +1,6 @@
 import React from 'react'
 import { Header, List, Button, Icon } from 'semantic-ui-react'
-import { Link, graphql } from 'gatsby'
+import { graphql } from 'gatsby'
 
 import MainLayout, { imageSelector } from '../layouts/main'
 
@@ -34,27 +34,22 @@ const IndexPage = props => (
         </p>
         <List bulleted>
             <List.Item>
-                <Link to="https://pages.github.com">GitHub Pages</Link> - free
+                <a href="https://pages.github.com">GitHub Pages</a> - free
                 hosting and version control
             </List.Item>
             <List.Item>
-                <Link to="https://www.gatsbyjs.org/">GatsbyJS</Link> - allows me
-                to write my site in React and handles the static site build
-                process
+                <a href="https://www.gatsbyjs.org/">GatsbyJS</a> - allows me to
+                write my site in React and handles the static site build process
             </List.Item>
             <List.Item>
-                <Link to="https://react.semantic-ui.com/">
-                    Semantic UI React
-                </Link>{' '}
-                - very nice UI framework with React integration
+                <a href="https://react.semantic-ui.com/">Semantic UI React</a> -
+                very nice UI framework with React integration
             </List.Item>
         </List>
         <Header as="h2">Open source</Header>
         <p>
             The source code for this site can be found in my site’s{' '}
-            <Link to="https://github.com/poltak/poltak.github.io">
-                GitHub repo
-            </Link>
+            <a href="https://github.com/poltak/poltak.github.io">GitHub repo</a>
             .
         </p>
         <p>

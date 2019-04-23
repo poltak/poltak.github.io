@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, graphql } from 'gatsby'
+import { graphql } from 'gatsby'
 import { Header } from 'semantic-ui-react'
 
 import MainLayout, { imageSelector } from '../layouts/main'
@@ -35,9 +35,9 @@ const AboutPage = props => (
         <p>
             I started studying Mandarin at Monash University in Melbourne,
             before continuing at the
-            <Link to="https://en.wikipedia.org/wiki/Mandarin_Training_Center">
+            <a href="https://en.wikipedia.org/wiki/Mandarin_Training_Center">
                 Mandarin Training Center
-            </Link>
+            </a>
             at National Taiwan Normal University (師範大學) in Taipei in 2014. I
             continue to study on my own now, and have also studied Vietnamese by
             myself since I began in 2015. Living in Vietnam means I have ample
