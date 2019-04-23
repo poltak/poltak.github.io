@@ -26,6 +26,7 @@ ContactCardInfoRow.propTypes = {
 
 export class ContactCard extends React.PureComponent {
     static propTypes = {
+        className: propTypes.string,
         name: propTypes.string.isRequired,
         email: propTypes.string.isRequired,
         linkedIn: propTypes.string.isRequired,
@@ -56,7 +57,7 @@ export class ContactCard extends React.PureComponent {
     render() {
         return (
             <div
-                className={cx(styles.container, {
+                className={cx(styles.container, this.props.className, {
                     [styles.containerCentered]: this.props.centered,
                 })}
             >
