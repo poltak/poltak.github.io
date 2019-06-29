@@ -68,10 +68,7 @@ class MainLayout extends React.Component {
                         </Container>
                     </div>
 
-                    <Footer>
-                        This website's content are ©{this.props.calcYear()}{' '}
-                        Jonathan Poltak Samosir
-                    </Footer>
+                    <Footer>I hope you enjoyed my website!</Footer>
                 </div>
             </>
         )
