@@ -2,6 +2,7 @@ import React from 'react'
 import { graphql } from 'gatsby'
 
 import MainLayout, { imageSelector } from '../layouts/main'
+import { ComingSoon } from '../components/coming-soon'
 
 const BlogPage = props => (
     <MainLayout
@@ -11,24 +12,7 @@ const BlogPage = props => (
         backgroundImgSrc={imageSelector(props.data)}
         {...props}
     >
-        <p>
-            From Richard Hamming’s classic and must-read talk, “
-            <a href="http://www.cs.virginia.edu/~robins/YouAndYourResearch.html">
-                You and Your Research
-            </a>
-            ”.
-        </p>
-        <blockquote>
-            <p>
-                There is indeed an element of luck, and no, there isn’t. The
-                prepared mind sooner or later finds something important and does
-                it. So yes, it is luck.{' '}
-                <em>
-                    The particular thing you do is luck, but that you do
-                    something is not.
-                </em>
-            </p>
-        </blockquote>
+        <ComingSoon />
     </MainLayout>
 )
 
