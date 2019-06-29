@@ -18,11 +18,6 @@ module.exports = {
                 header: true,
             },
             {
-                name: 'About Me',
-                href: '/about',
-                icon: 'info circle',
-            },
-            {
                 name: 'Curriculum Vitae',
                 href: '/cv',
                 icon: 'book',
