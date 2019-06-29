@@ -2,7 +2,6 @@ import React from 'react'
 import { graphql } from 'gatsby'
 
 import MainLayout, { imageSelector } from '../layouts/main'
-import { ContactCard } from '../components/contact-card-container'
 import { ComingSoon } from '../components/coming-soon'
 
 const CVPage = props => (
@@ -13,7 +12,6 @@ const CVPage = props => (
         backgroundImgSrc={imageSelector(props.data)}
         {...props}
     >
-        <ContactCard centered />
         <ComingSoon />
     </MainLayout>
 )
