@@ -10,6 +10,7 @@
     "start": "npm run develop",
     "build": "gatsby build",
     "format": "prettier --config prettier.config.js --write '**/*.{ts,js,tsx,jsx,css}'",
+    "deploy": "gatsby build && gh-pages -d public -b master",
     "serve": "gatsby serve"
   },
   "dependencies": {
@@ -33,6 +34,7 @@
   "devDependencies": {
     "@babel/core": "^7.4.5",
     "@babel/preset-env": "^7.4.5",
+    "gh-pages": "^2.0.1",
     "prettier": "^1.18.2"
   }
 }
