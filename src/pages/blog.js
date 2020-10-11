@@ -2,7 +2,19 @@ import React from 'react'
 import { graphql } from 'gatsby'
 
 import MainLayout, { imageSelector } from '../layouts/main'
-import { ComingSoon } from '../components/coming-soon'
+import { BlogPostLink, BlogPostList } from '../components/blog-post-link'
+
+const shouldShowPost = post => !!post.node.frontmatter.date
+
+const renderFilteredPostLinks = (
+    { allMarkdownRemark: { edges } },
+    filterPredicate,
+) =>
+    edges
+        .filter(filterPredicate)
+        .map(edge => (
+            <BlogPostLink key={edge.node.id} {...edge.node.frontmatter} />
+        ))
 
 const BlogPage = props => (
     <MainLayout
@@ -12,7 +24,10 @@ const BlogPage = props => (
         backgroundImgSrc={imageSelector(props.data)}
         {...props}
     >
-        <ComingSoon />
+        <BlogPostList>
+            {' '}
+            {renderFilteredPostLinks(props.data, shouldShowPost)}
+        </BlogPostList>
     </MainLayout>
 )
 
@@ -20,6 +35,19 @@ export default BlogPage
 
 export const query = graphql`
     query {
+        allMarkdownRemark(sort: { order: DESC, fields: [frontmatter___date] }) {
+            edges {
+                node {
+                    id
+                    excerpt(pruneLength: 150)
+                    frontmatter {
+                        date(formatString: "MMMM DD, YYYY")
+                        slug
+                        title
+                    }
+                }
+            }
+        }
         file(relativePath: { eq: "thap.jpg" }) {
             ...HeaderImageFragment
         }

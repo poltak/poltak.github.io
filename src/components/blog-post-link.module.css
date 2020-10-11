@@ -1,0 +1,17 @@
+.container {
+}
+
+.item {
+    margin: 1em 0;
+    cursor: pointer;
+}
+
+.item:hover {
+    color: blue;
+}
+
+.title {
+}
+
+.date {
+}
