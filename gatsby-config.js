@@ -43,7 +43,15 @@ module.exports = {
                 path: path.join(__dirname, `src`, `img`),
             },
         },
+        {
+            resolve: `gatsby-source-filesystem`,
+            options: {
+                path: `${__dirname}/src/blog-posts`,
+                name: `blog-posts`,
+            },
+        },
         `gatsby-plugin-sharp`,
         `gatsby-transformer-sharp`,
+        `gatsby-transformer-remark`,
     ],
 }

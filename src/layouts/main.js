@@ -15,11 +15,13 @@ class MainLayout extends React.Component {
         title: propTypes.string.isRequired,
         headerText: propTypes.string.isRequired,
         subHeaderText: propTypes.string.isRequired,
+        location: propTypes.object,
         calcYear: propTypes.func,
         extScripts: propTypes.arrayOf(propTypes.string),
     }
 
     static defaultProps = {
+        location: window.location,
         calcYear: () => new Date().getFullYear(),
         extScripts: scripts,
     }
