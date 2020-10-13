@@ -21,7 +21,6 @@ class MainLayout extends React.Component {
     }
 
     static defaultProps = {
-        location: window.location,
         calcYear: () => new Date().getFullYear(),
         extScripts: scripts,
     }

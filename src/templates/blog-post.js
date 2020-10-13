@@ -9,12 +9,14 @@ export default function BlogPostTemplate({
         markdownRemark: { frontmatter, html },
         ...data
     },
+    ...props
 }) {
     return (
         <MainLayout
             title={frontmatter.title}
             headerText={frontmatter.title}
             backgroundImgSrc={imageSelector(data)}
+            {...props}
         >
             <div className={styles.container}>
                 <div className={styles.post}>
