@@ -32,6 +32,7 @@ export class ContactCard extends React.PureComponent {
         linkedIn: propTypes.string.isRequired,
         github: propTypes.string.isRequired,
         twitter: propTypes.string.isRequired,
+        goodreads: propTypes.string.isRequired,
         centered: propTypes.bool,
     }
 
@@ -48,6 +49,10 @@ export class ContactCard extends React.PureComponent {
 
     get twitterHref() {
         return `https://www.twitter.com/${this.props.twitter}`
+    }
+
+    get goodreadsHref() {
+        return `https://goodreads.com/${this.props.goodreads}`
     }
 
     get emailHref() {
@@ -87,6 +92,12 @@ export class ContactCard extends React.PureComponent {
                         title="Twitter"
                         value={this.props.twitter}
                         href={this.twitterHref}
+                    />
+                    <ContactCardInfoRow
+                        icon="book"
+                        title="Goodreads"
+                        value={this.props.goodreads}
+                        href={this.goodreadsHref}
                     />
                 </div>
             </div>

@@ -5,6 +5,7 @@ export const useContactData = () => {
         query SiteContactQuery {
             site {
                 siteMetadata {
+                    goodreads
                     linkedIn
                     twitter
                     github

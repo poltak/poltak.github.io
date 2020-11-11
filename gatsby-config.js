@@ -8,6 +8,7 @@ module.exports = {
         title: 'poltak.github.io',
         twitter: 'poltak_',
         github: 'poltak',
+        goodreads: 'poltak',
         linkedIn: 'jsamosir',
         ogImgPath: '/favicon.ico',
         pages: [
