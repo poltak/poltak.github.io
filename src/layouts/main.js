@@ -5,7 +5,7 @@ import loadScript from 'simple-load-script'
 import { Container } from 'semantic-ui-react'
 
 import { scripts } from '../static/external'
-import { Header, Footer, Nav, Head } from '../components'
+import { Header, Nav, Head } from '../components'
 import styles from './main.module.css'
 import { graphql } from 'gatsby'
 
@@ -68,8 +68,6 @@ class MainLayout extends React.Component {
                             {this.props.children}
                         </Container>
                     </div>
-
-                    <Footer>I hope you enjoyed my website!</Footer>
                 </div>
             </>
         )
