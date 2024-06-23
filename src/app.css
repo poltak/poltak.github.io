@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.site {
+    display: grid;
+    grid-template-columns: [first] 1fr [padding-left] 200px [split] 5fr [padding-right] 1fr [last];
+    grid-template-rows: [first] 1fr [content-top] 5fr [content-bottom] 1fr [last];
+}
