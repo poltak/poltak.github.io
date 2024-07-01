@@ -5,9 +5,9 @@
 
 <div class="nav-area nav-split">
     <nav class="nav-bar">
-        <a class="nav-link" href="/">About</a>
         <a class="nav-link" href="/cv">CV</a>
-        <a class="nav-link" href="/contact">Contact me</a>
+        <a class="nav-link" href="/">About</a>
+        <a class="nav-link" href="/contact">Contact</a>
     </nav>
     <!-- <div class="nav-split"></div> -->
 </div>
@@ -18,9 +18,11 @@
 
 <style>
     .nav-area {
+        display: flex;
+        justify-content: flex-end;
         grid-column: padding-left / split;
         grid-row: content-top / content-bottom;
-        padding-right: 1rem;
+        padding-right: 2.5rem;
     }
 
     .content-area {
@@ -38,10 +40,17 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        height: 100%;
+        align-items: flex-end;
+        width: 50%;
     }
 
     .nav-link {
         text-align: right;
+        margin: 0.4rem 0;
+        padding: 0.6rem 1rem;
+
+        &:hover {
+            text-decoration: underline;
+        }
     }
 </style>
