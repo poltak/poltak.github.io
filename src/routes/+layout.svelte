@@ -5,8 +5,8 @@
 
 <div class="nav-area nav-split">
     <nav class="nav-bar">
-        <a class="nav-link" href="/cv">CV</a>
         <a class="nav-link" href="/">About</a>
+        <a class="nav-link" href="/cv">Résumé</a>
         <a class="nav-link" href="/contact">Contact</a>
     </nav>
     <!-- <div class="nav-split"></div> -->
@@ -48,6 +48,8 @@
         text-align: right;
         margin: 0.4rem 0;
         padding: 0.6rem 1rem;
+        text-decoration: none;
+        color: #000;
 
         &:hover {
             text-decoration: underline;
