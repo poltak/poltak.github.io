@@ -1,13 +1,13 @@
 <script>
-    export const prerender = true
     import '../app.css'
+    import { base } from '$app/paths'
 </script>
 
 <div class="nav-area nav-split">
     <nav class="nav-bar">
-        <a class="nav-link" href="/">About</a>
-        <a class="nav-link" href="/cv">Résumé</a>
-        <a class="nav-link" href="/contact">Contact</a>
+        <a class="nav-link" href="{base}/">About</a>
+        <a class="nav-link" href="{base}/cv">Résumé</a>
+        <a class="nav-link" href="{base}/contact">Contact</a>
     </nav>
     <!-- <div class="nav-split"></div> -->
 </div>
