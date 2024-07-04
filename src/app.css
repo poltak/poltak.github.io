@@ -12,6 +12,10 @@
         display: flex;
         flex-direction: column;
     }
+
+    @media screen and (max-width: 1024px) {
+        grid-template-columns: [first] 3rem [padding-left] 150px [split] 5fr [padding-right] 1fr [last];
+    }
 }
 
 ul {
