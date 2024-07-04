@@ -23,17 +23,31 @@
         grid-column: padding-left / split;
         grid-row: content-top / content-bottom;
         padding-right: 2.5rem;
+
+        @media screen and (max-width: 768px) {
+            padding-right: unset;
+        }
     }
 
     .content-area {
         grid-column: split / padding-right;
         grid-row: content-top / content-bottom;
         padding: 2rem 5rem;
+
+        @media screen and (max-width: 768px) {
+            padding: 2rem 1rem;
+        }
     }
 
     .nav-split {
         border-right: 1px solid #000;
         height: 500px;
+
+        @media screen and (max-width: 768px) {
+            border-bottom: 1px solid #000;
+            border-right: unset;
+            height: unset;
+        }
     }
 
     .nav-bar {
@@ -42,6 +56,12 @@
         justify-content: center;
         align-items: flex-end;
         width: 50%;
+
+        @media screen and (max-width: 768px) {
+            flex-direction: row;
+            align-items: center;
+            width: 100%;
+        }
     }
 
     .nav-link {
