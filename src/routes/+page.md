@@ -9,5 +9,6 @@ Fast forward to now, and I’ve got almost 10 years of professional experience a
 <style>
 p {
     line-height: 2rem;
+    text-align: justify;
 }
 </style>
