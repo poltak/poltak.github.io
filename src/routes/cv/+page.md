@@ -132,6 +132,8 @@ Bachelor of Computer Science (First Class Honours): _2010 - 2015_
 
 </summary>
 
+<div class="skill-lists">
+
 -   Web:
     -   Web Extension APIs
     -   Chrome Manifest v3
@@ -153,6 +155,8 @@ Bachelor of Computer Science (First Class Honours): _2010 - 2015_
     -   API design
     -   Scalable code architecture
 
+</div>
+
 <br />
 </details>
 
@@ -163,10 +167,14 @@ Bachelor of Computer Science (First Class Honours): _2010 - 2015_
 
 </summary>
 
+<div class="skill-lists">
+
 -   English: native
 -   Vietnamese: conversational
 -   Indonesian: conversational
 -   Mandarin: elementary
+
+</div>
 
 </details>
 </details>
@@ -176,11 +184,21 @@ Bachelor of Computer Science (First Class Honours): _2010 - 2015_
         display: inline-block;
     }
 
-    details > summary ~ :not(ul) {
+    details > summary ~ * {
         margin-left: 2rem;
 
         @media screen and (max-width: 768px) {
             margin-left: 1rem;
         }
+    }
+
+    .skill-lists > ul {
+        margin-top: 0.5rem;
+        margin-left: 0;
+    }
+
+    h4 {
+        margin-top: 0.5rem;
+        margin-bottom: 0;
     }
 </style>
