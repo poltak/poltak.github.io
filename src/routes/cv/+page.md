@@ -1,6 +1,16 @@
+<details open>
+<summary>
+
 ## Work experience
 
+</summary>
+
+<details open>
+<summary>
+
 ### [Memex](https://memex.garden/)
+
+</summary>
 
 Software for organizing, recalling, sharing, and collaboration with your online knowledge.
 
@@ -15,8 +25,14 @@ _**Platforms:** Web extension, iOS + Android app (React Native), web app_
 -   Learning the importance of testing.
 
 <br />
+</details>
+
+<details open>
+<summary>
 
 ### [Rocket Launcher](https://timotiousprime.itch.io/rocket-launcher)
+
+</summary>
 
 Browser-based "edutainment" game to teach kids fraction addition in a fun setting. Developed as an entry into the 2021 Odin Project Game Jam.
 
@@ -29,8 +45,14 @@ Frontend Web Developer / Game Designer: _2021_
 -   Achieving 3rd place out of 37 entries in the competition.
 
 <br />
+</details>
+
+<details open>
+<summary>
 
 ### Prezly
+
+</summary>
 
 CRM software for PR teams.
 
@@ -43,8 +65,14 @@ Frontend Web Developer: _2016_
 -   Learning how to use Draft.js to build a highly customizable text editor.
 
 <br />
+</details>
+
+<details open>
+<summary>
 
 ### Sportistics WhichTeam
+
+</summary>
 
 Mobile app for sharing and discussing football tips.
 
@@ -59,10 +87,22 @@ _**Platforms:** iOS + Android app (Cordova + MeteorJS)_
 -   Having to constantly learn new tech to be able to solve different problems that came up.
 
 <br />
+</details>
+</details>
+
+<details open>
+<summary>
 
 ## Education
 
+</summary>
+
+<details open>
+<summary>
+
 ### Monash University
+
+</summary>
 
 Bachelor of Computer Science (First Class Honours): _2010 - 2015_
 
@@ -75,10 +115,22 @@ Bachelor of Computer Science (First Class Honours): _2010 - 2015_
 -   Getting a paper published based on the work I did as part of my final Honours year research thesis.
 
 <br />
+</details>
+</details>
+
+<details open>
+<summary>
 
 ## Skills
 
+</summary>
+
+<details open>
+<summary>
+
 ### Tools and Technologies
+
+</summary>
 
 -   Web:
     -   Web Extension APIs
@@ -102,10 +154,33 @@ Bachelor of Computer Science (First Class Honours): _2010 - 2015_
     -   Scalable code architecture
 
 <br />
+</details>
+
+<details open>
+<summary>
 
 ### Languages
+
+</summary>
 
 -   English: native
 -   Vietnamese: conversational
 -   Indonesian: conversational
 -   Mandarin: elementary
+
+</details>
+</details>
+
+<style>
+    h2, h3, h4 {
+        display: inline-block;
+    }
+
+    details > summary ~ :not(ul) {
+        margin-left: 2rem;
+
+        @media screen and (max-width: 768px) {
+            margin-left: 1rem;
+        }
+    }
+</style>
