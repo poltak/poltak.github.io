@@ -8,6 +8,51 @@
 <details open>
 <summary>
 
+### [Space/Time](https://findspacetime.com)
+
+<br />
+</summary>
+
+A service to notify you when your travel plans overlap with friends and associates in your communities.
+
+Full-Stack Web+Mobile Developer: _2024 - now_
+
+_**Platforms:** iOS + Android (React Native), web app_
+
+#### Highlights
+
+-   Going from nothing to a working app in 2 weeks.
+-   Learning how to use Supabase after years of using Firebase.
+
+<br />
+</details>
+
+<details open>
+<summary>
+
+### [WalkyTalky](https://walkytalky.app)
+
+<br />
+</summary>
+
+iOS app for automating the processes of summarizing and retrieving information from your audio recordings.
+
+iOS Developer: _2024 - now_
+
+_**Platforms:** iOS_
+
+#### Highlights
+
+-   Learning how to build a native iOS app in a new language (Swift).
+-   Going from nothing to a working app in 4 weeks.
+-   Designing the app to store everything locally, to avoid needing a server.
+
+<br />
+</details>
+
+<details open>
+<summary>
+
 ### [Memex](https://memex.garden/)
 
 </summary>
@@ -16,13 +61,13 @@ Software for organizing, recalling, sharing, and collaboration with your online 
 
 Full-Stack Web+Mobile Developer: _2017 - now_
 
-_**Platforms:** Web extension, iOS + Android app (React Native), web app_
+_**Platforms:** Web extension, iOS + Android (React Native), web app_
 
 #### Highlights
 
 -   Working and coordinating in a fully remote team, with members located over 4 different continents.
 -   Managing a large codebase with a large amount of TypeScript code shared, running over 5 different platforms: iOS, Android, browser, Node, Firebase, Cloudflare.
--   Learning the importance of testing.
+-   Learning the importance of automated testing.
 
 <br />
 </details>
