@@ -23,9 +23,13 @@
         grid-column: padding-left / split;
         grid-row: content-top / content-bottom;
         padding-right: 2.5rem;
+        position: sticky;
+        top: 0;
 
         @media screen and (max-width: 768px) {
-            padding-right: unset;
+            position: static;
+            padding-right: 0;
+            padding-bottom: 1rem;
         }
     }
 
@@ -37,30 +41,39 @@
         @media screen and (max-width: 768px) {
             padding: 2rem 1rem;
         }
+
+        @media screen and (max-width: 1024px) {
+            padding: 2rem 2rem;
+        }
     }
 
     .nav-split {
         border-right: 1px solid #000;
-        height: 500px;
+        height: fit-content;
 
         @media screen and (max-width: 768px) {
             border-bottom: 1px solid #000;
-            border-right: unset;
-            height: unset;
+            border-right: none;
         }
     }
 
     .nav-bar {
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: flex-start;
         align-items: flex-end;
-        width: 50%;
+        padding-top: 2rem;
+        width: max-content;
+        min-height: 21vh;
 
         @media screen and (max-width: 768px) {
             flex-direction: row;
+            justify-content: center;
             align-items: center;
             width: 100%;
+            padding-top: 1rem;
+            gap: 1rem;
+            min-height: unset;
         }
     }
 
@@ -70,9 +83,15 @@
         padding: 0.6rem 1rem;
         text-decoration: none;
         color: #000;
+        transition: color 0.2s ease;
 
         &:hover {
             text-decoration: underline;
+            color: #666;
+        }
+
+        @media screen and (max-width: 768px) {
+            margin: 0;
         }
     }
 </style>
