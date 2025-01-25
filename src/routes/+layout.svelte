@@ -1,9 +1,42 @@
-<script>
+<script lang="ts">
     import '../app.css'
     import { base } from '$app/paths'
+    import { onMount } from 'svelte'
+    import Sun from '$lib/components/icons/Sun.svelte'
+    import Moon from '$lib/components/icons/Moon.svelte'
+
+    let darkMode = $state(true)
+
+    onMount(() => {
+        // Check for saved theme preference or system preference
+        const savedTheme = localStorage.getItem('theme')
+        if (
+            savedTheme === 'dark' ||
+            (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        ) {
+            darkMode = true
+            document.documentElement.classList.add('dark')
+        } else {
+            darkMode = false
+            document.documentElement.classList.remove('dark')
+        }
+    })
+
+    function toggleTheme() {
+        darkMode = !darkMode
+        localStorage.setItem('theme', darkMode ? 'dark' : 'light')
+        document.documentElement.classList.toggle('dark')
+    }
 </script>
 
 <div class="nav-area nav-split">
+    <button class="theme-toggle" onclick={toggleTheme} aria-label="Toggle theme">
+        {#if darkMode}
+            <Moon />
+        {:else}
+            <Sun />
+        {/if}
+    </button>
     <nav class="nav-bar">
         <a class="nav-link" href="{base}/">About</a>
         <a class="nav-link" href="{base}/cv">Résumé</a>
@@ -48,11 +81,11 @@
     }
 
     .nav-split {
-        border-right: 1px solid #000;
+        border-right: 1px solid var(--border-color);
         height: fit-content;
 
         @media screen and (max-width: 768px) {
-            border-bottom: 1px solid #000;
+            border-bottom: 1px solid var(--border-color);
             border-right: none;
         }
     }
@@ -82,7 +115,7 @@
         margin: 0.4rem 0;
         padding: 0.6rem 1rem;
         text-decoration: none;
-        color: #000;
+        color: var(--text-color);
         transition: color 0.2s ease;
 
         &:hover {
@@ -93,5 +126,38 @@
         @media screen and (max-width: 768px) {
             margin: 0;
         }
+    }
+
+    .theme-toggle {
+        position: fixed;
+        top: 1rem;
+        right: 1rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: all 0.2s ease;
+        color: var(--text-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .theme-toggle:hover {
+        background-color: var(--hover-bg);
+        transform: rotate(12deg);
+    }
+
+    :global(.dark) {
+        --text-color: #fff;
+        --bg-color: #1a1a1a;
+        --hover-bg: rgba(255, 255, 255, 0.1);
+        --border-color: #444;
+    }
+
+    :global(body) {
+        background-color: var(--bg-color);
+        color: var(--text-color);
     }
 </style>
