@@ -1,6 +1,7 @@
 <script lang="ts">
     import { onMount } from 'svelte'
     import { EBookStore } from '$lib/stores/ebook.svelte'
+    import SpeedReader from '$lib/components/SpeedReader.svelte'
 
     let ebookStore = new EBookStore()
     let fileInput: HTMLInputElement
@@ -94,7 +95,7 @@
     {#if currentBook}
         <div class="reader-section">
             <h2>Currently Reading: {currentBook.title}</h2>
-            <!-- TODO: Reader implementation -->
+            <SpeedReader book={currentBook} />
         </div>
     {/if}
 </div>
