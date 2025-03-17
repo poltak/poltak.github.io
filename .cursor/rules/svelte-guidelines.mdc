@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Svelte guidelines
+
+- You will use Svelte 5 syntax features, like runes, not Svelte 4.
+- You will write SvelteKit code assuming this project is to be run as a static site. i.e., no server backend. Hence the use of `@sveltejs/adapter-static` as the SvelteKit adapter.
