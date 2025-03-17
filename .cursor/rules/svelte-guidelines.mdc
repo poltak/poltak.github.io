@@ -6,5 +6,6 @@ alwaysApply: true
 
 # Svelte guidelines
 
-- You will use Svelte 5 syntax features, like runes, not Svelte 4.
+- You will use Svelte 5 syntax features, like runes and event properties, not Svelte 4 syntax, like event directives.
 - You will write SvelteKit code assuming this project is to be run as a static site. i.e., no server backend. Hence the use of `@sveltejs/adapter-static` as the SvelteKit adapter.
+- All script tags should be in Typescript language, rather than plain JS.
