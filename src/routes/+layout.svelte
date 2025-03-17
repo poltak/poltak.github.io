@@ -6,6 +6,7 @@
     import Moon from '$lib/components/icons/Moon.svelte'
 
     let darkMode = $state(true)
+    let { children } = $props()
 
     onMount(() => {
         // Check for saved theme preference or system preference
@@ -46,7 +47,7 @@
 </div>
 
 <div class="content-area">
-    <slot></slot>
+    {@render children?.()}
 </div>
 
 <style>
