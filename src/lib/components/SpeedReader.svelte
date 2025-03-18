@@ -21,6 +21,18 @@
     })
 
     let isAtEnd = $derived(currentWordIndex >= words.length)
+    let remainingMinsToRead = $derived((words.length - currentWordIndex + 1) / wordsPerMinute)
+
+    function renderMinsAndSecs(minsTotal: number): string {
+        let numOfMins = Math.floor(minsTotal)
+        let remainder = minsTotal - numOfMins
+
+        let str = ``
+        if (numOfMins > 0) {
+            str += `${numOfMins}m `
+        }
+        return `${str}${Math.round(remainder * 60)}s`
+    }
 
     // Track book changes
     $effect(() => {
@@ -212,6 +224,9 @@
                             Chapter {chapterProgress.current} of {chapterProgress.total}: {currentChapter.title}
                             <br />
                             Word {currentWordIndex + 1} of {words.length}
+                        </div>
+                        <div class="location-info">
+                            Time remaining: {renderMinsAndSecs(remainingMinsToRead)}
                         </div>
                     {/if}
                 {:else}
