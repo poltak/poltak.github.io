@@ -1,6 +1,13 @@
 import { ZipReader, BlobReader, TextWriter, type Entry } from '@zip.js/zip.js'
 import type { EBook } from '$lib/stores/ebook.svelte'
 
+/**
+ * Encodes following RFC 3986, which includes some characters that are not encoded by default (e.g., parens).
+ */
+function fixedEncodeURIComponent(str: string): string {
+    return encodeURIComponent(str).replace(/[!'()*]/g, (c) => '%' + c.charCodeAt(0).toString(16))
+}
+
 export interface EpubMetadata {
     title: string
     creator: string
@@ -339,7 +346,7 @@ export class EBookParser {
     }
 
     private async readFileContent(path: string): Promise<string> {
-        const entry = this.entries.find((e) => e.filename === path)
+        const entry = this.entries.find((e) => fixedEncodeURIComponent(e.filename) === path)
         if (!entry?.getData) return ''
 
         const text = await entry.getData(new TextWriter())
