@@ -29,16 +29,16 @@ The script can process individual files, multiple files, directories, or a combi
 
 ```bash
 # Process a single file
-python rag.py path/to/document.pdf
+./rag.py path/to/document.pdf
 
 # Process multiple files
-python rag.py path/to/document1.pdf path/to/document2.pdf
+./rag.py path/to/document1.pdf path/to/document2.pdf
 
 # Process an entire directory (including subdirectories)
-python rag.py path/to/documents/
+./rag.py path/to/documents/
 
 # Process a mix of files and directories
-python rag.py path/to/document1.pdf path/to/documents/ path/to/document2.pdf
+./rag.py path/to/document1.pdf path/to/documents/ path/to/document2.pdf
 ```
 
 The script currently supports the following file types:
