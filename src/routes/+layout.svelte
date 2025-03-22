@@ -42,7 +42,7 @@
         <a class="nav-link" href="{base}/">About</a>
         <a class="nav-link" href="{base}/cv">Résumé</a>
         <a class="nav-link" href="{base}/contact">Contact</a>
-        <a class="nav-link" href="{base}/fun">Fun</a>
+        <a class="nav-link" href="{base}/playground">Playground</a>
     </nav>
     <!-- <div class="nav-split"></div> -->
 </div>
@@ -156,10 +156,15 @@
         --bg-color: #1a1a1a;
         --hover-bg: rgba(255, 255, 255, 0.1);
         --border-color: #444;
+        --link-color: #fff;
     }
 
     :global(body) {
         background-color: var(--bg-color);
         color: var(--text-color);
+
+        a {
+            color: var(--link-color) !important;
+        }
     }
 </style>
