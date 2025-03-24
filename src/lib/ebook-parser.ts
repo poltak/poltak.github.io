@@ -399,4 +399,40 @@ export class EBookParser {
             this.zipReader = null
         }
     }
+
+    /**
+     * Extracts metadata from an EPUB file without performing full initialization.
+     */
+    static async extractMetadata(file: File): Promise<EpubMetadata | null> {
+        const parser = new EBookParser({
+            id: '',
+            title: '',
+            author: '',
+            file,
+            uploadDate: new Date(),
+        })
+        const zipReader = new ZipReader(new BlobReader(file))
+
+        try {
+            parser.zipReader = zipReader
+            parser.entries = await zipReader.getEntries()
+            await parser.parseContainer()
+
+            const opfEntry = parser.entries.find((entry) => entry.filename === parser.opfPath)
+            if (!opfEntry?.getData) throw new Error('No valid OPF file found')
+
+            const opfText = await opfEntry.getData(new TextWriter())
+            const opfDoc = new DOMParser().parseFromString(opfText, 'text/xml')
+
+            const metadataEl = opfDoc.querySelector('metadata')
+            if (!metadataEl) throw new Error('No metadata found in OPF')
+
+            return parser.extractMetadata(metadataEl)
+        } catch (err) {
+            console.error('Error extracting metadata:', err)
+            return null
+        } finally {
+            await zipReader.close()
+        }
+    }
 }

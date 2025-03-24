@@ -1,3 +1,5 @@
+import { EBookParser } from '$lib/ebook-parser'
+
 export interface EBook {
     id: string
     title: string
@@ -42,10 +44,12 @@ export class EBookStore {
         await this.#ensureInitialized()
 
         const id = crypto.randomUUID()
+        const metadata = await EBookParser.extractMetadata(file)
+
         const book: EBook = {
             id,
-            title: file.name.replace('.epub', ''), // TODO: extract this from epub metadata
-            author: 'Unknown', // TODO: extract this from epub metadata
+            title: metadata?.title || file.name.replace('.epub', ''),
+            author: metadata?.creator || 'Unknown',
             file: file,
             uploadDate: new Date(),
         }
