@@ -1,0 +1,9 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Typescript Guidelines
+
+- Use the nullish coalescing operator (??) over the logical OR operator (||) for most cases of falling back to default or backup values.
