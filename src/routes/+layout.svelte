@@ -2,8 +2,7 @@
     import '../app.css'
     import { base } from '$app/paths'
     import { onMount } from 'svelte'
-    import Sun from '$lib/components/icons/Sun.svelte'
-    import Moon from '$lib/components/icons/Moon.svelte'
+    import Icon from '$lib/components/icons/Icon.svelte'
 
     let darkMode = $state(true)
     let { children } = $props()
@@ -33,9 +32,9 @@
 <div class="nav-area nav-split">
     <button class="theme-toggle" onclick={toggleTheme} aria-label="Toggle theme">
         {#if darkMode}
-            <Moon />
+            <Icon name="moon" />
         {:else}
-            <Sun />
+            <Icon name="sun" />
         {/if}
     </button>
     <nav class="nav-bar">
