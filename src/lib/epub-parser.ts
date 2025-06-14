@@ -324,8 +324,8 @@ export class EpubParser {
         // Clean up title
         title = title
             .replace(/^\d+\.\s*/, '') // Remove leading numbers
-            .replace(/^Chapter\s*\d*\s*/i, '') // Remove "Chapter" prefix
-            .replace(/^Section\s*\d*\s*/i, '') // Remove "Section" prefix
+            .replace(/^Chapter\s+\d+\s*/i, '') // Remove "Chapter" prefix only when followed by a number
+            .replace(/^Section\s+\d+\s*/i, '') // Remove "Section" prefix only when followed by a number
             .trim()
 
         // Extract body text, removing script and style elements
