@@ -15,6 +15,8 @@
         | 'moon'
         | 'sun'
         | 'x'
+        | 'trash-2'
+        | 'arrow-left'
 
     export let name: IconName
     export let size: number = 20
@@ -97,5 +99,13 @@
     {:else if name === 'x'}
         <line x1="18" y1="6" x2="6" y2="18" />
         <line x1="6" y1="6" x2="18" y2="18" />
+    {:else if name === 'trash-2'}
+        <polyline points="3,6 5,6 21,6" />
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+        <line x1="10" y1="11" x2="10" y2="17" />
+        <line x1="14" y1="11" x2="14" y2="17" />
+    {:else if name === 'arrow-left'}
+        <line x1="19" y1="12" x2="5" y2="12" />
+        <polyline points="12,19 5,12 12,5" />
     {/if}
 </svg>

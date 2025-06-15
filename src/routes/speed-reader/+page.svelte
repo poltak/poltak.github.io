@@ -1,10 +1,12 @@
 <script lang="ts">
     import { EpubParser, type EpubData, type TableOfContents } from '$lib/epub-parser'
+    import { epubStorage, type StoredBook, type ReadingProgress } from '$lib/storage/epub-storage'
     import Icon from '$lib/components/icons/Icon.svelte'
     import { onMount } from 'svelte'
 
     let fileInput = $state<HTMLInputElement>()
     let epubData = $state<EpubData | null>(null)
+    let currentBookId = $state<string | null>(null)
     let isLoading = $state(false)
     let errorMessage = $state('')
     let isPlaying = $state(false)
@@ -12,6 +14,10 @@
     let currentWordIndex = $state(0)
     let allWords = $state<string[]>([])
     let readingInterval = $state<number | null>(null)
+    let storedBooks = $state<StoredBook[]>([])
+    let showLibrary = $state(true)
+    let isLoadingLibrary = $state(false)
+    let bookProgresses = $state<Map<string, ReadingProgress>>(new Map())
 
     const currentWord = $derived(
         allWords[currentWordIndex] ?? (isPlaying ? '' : 'Press play to start'),
@@ -31,6 +37,39 @@
 
     const parser = new EpubParser()
 
+    // Auto-save progress every 10 seconds while reading
+    let progressSaveInterval: number | null = null
+
+    onMount(async () => {
+        try {
+            await epubStorage.init()
+            await loadLibrary()
+        } catch (error) {
+            console.error('Failed to initialize storage:', error)
+        }
+    })
+
+    async function loadLibrary() {
+        isLoadingLibrary = true
+        try {
+            storedBooks = await epubStorage.getBooks()
+
+            // Load progress for each book
+            const progressMap = new Map<string, ReadingProgress>()
+            for (const book of storedBooks) {
+                const progress = await epubStorage.getProgress(book.id)
+                if (progress) {
+                    progressMap.set(book.id, progress)
+                }
+            }
+            bookProgresses = progressMap
+        } catch (error) {
+            console.error('Failed to load library:', error)
+        } finally {
+            isLoadingLibrary = false
+        }
+    }
+
     async function handleFileUpload() {
         const file = fileInput?.files?.[0]
         if (!file) return
@@ -49,13 +88,73 @@
             // Split all text into words for speed reading
             allWords = epubData.allText.split(/\s+/).filter((word) => word.trim().length > 0)
 
+            // Save the book to storage
+            currentBookId = await epubStorage.saveBook(epubData, allWords.length)
+
             currentWordIndex = 0
+            showLibrary = false
+            await loadLibrary() // Refresh library
         } catch (error) {
             console.error('Error parsing EPUB:', error)
             errorMessage = `Error parsing EPUB: ${error instanceof Error ? error.message : 'Unknown error'}`
             epubData = null
         } finally {
             isLoading = false
+        }
+    }
+
+    async function openStoredBook(book: StoredBook) {
+        isLoading = true
+        try {
+            epubData = book.epubData
+            currentBookId = book.id
+            allWords = epubData.allText.split(/\s+/).filter((word) => word.trim().length > 0)
+
+            // Load saved progress
+            const progress = await epubStorage.getProgress(book.id)
+            if (progress) {
+                currentWordIndex = progress.currentWordIndex
+                wordsPerMinute = progress.wordsPerMinute
+            } else {
+                currentWordIndex = 0
+            }
+
+            await epubStorage.updateLastReadDate(book.id)
+            showLibrary = false
+            await loadLibrary() // Refresh library
+        } catch (error) {
+            console.error('Error opening book:', error)
+            errorMessage = `Error opening book: ${error instanceof Error ? error.message : 'Unknown error'}`
+        } finally {
+            isLoading = false
+        }
+    }
+
+    async function deleteStoredBook(bookId: string, event: Event) {
+        event.stopPropagation() // Prevent opening the book
+        try {
+            await epubStorage.deleteBook(bookId)
+            await loadLibrary()
+        } catch (error) {
+            console.error('Error deleting book:', error)
+        }
+    }
+
+    async function saveProgress() {
+        if (!currentBookId || allWords.length === 0) return
+
+        const progress: ReadingProgress = {
+            bookId: currentBookId,
+            currentWordIndex,
+            wordsPerMinute,
+            lastReadDate: new Date(),
+            progressPercentage: (currentWordIndex / allWords.length) * 100,
+        }
+
+        try {
+            await epubStorage.saveProgress(progress)
+        } catch (error) {
+            console.error('Error saving progress:', error)
         }
     }
 
@@ -71,6 +170,12 @@
         if (allWords.length === 0) return
         isPlaying = true
         updateReadingSpeed()
+
+        // Start auto-save interval
+        if (progressSaveInterval) {
+            clearInterval(progressSaveInterval)
+        }
+        progressSaveInterval = setInterval(saveProgress, 10000) // Save every 10 seconds
     }
 
     function pauseReading() {
@@ -79,6 +184,13 @@
             clearInterval(readingInterval)
             readingInterval = null
         }
+
+        // Stop auto-save interval and save current progress
+        if (progressSaveInterval) {
+            clearInterval(progressSaveInterval)
+            progressSaveInterval = null
+        }
+        saveProgress()
     }
 
     function updateReadingSpeed() {
@@ -104,6 +216,7 @@
     function resetReading() {
         pauseReading()
         currentWordIndex = 0
+        saveProgress() // Save the reset position
     }
 
     function navigateToChapter(wordStartIndex: number) {
@@ -125,12 +238,25 @@
         }
     }
 
+    function backToLibrary() {
+        pauseReading()
+        epubData = null
+        currentBookId = null
+        allWords = []
+        currentWordIndex = 0
+        showLibrary = true
+    }
+
     // Effect for cleanup only
     $effect(() => {
         return () => {
             if (readingInterval) {
                 clearInterval(readingInterval)
                 readingInterval = null
+            }
+            if (progressSaveInterval) {
+                clearInterval(progressSaveInterval)
+                progressSaveInterval = null
             }
         }
     })
@@ -143,69 +269,182 @@
 
 <main class="bg-gray-50 text-gray-800">
     <div class="container mx-auto max-w-7xl">
-        {#if !epubData}
-            <div class="flex min-h-screen items-center justify-center p-4">
-                <div
-                    class="w-full max-w-lg rounded-2xl border border-gray-200/60 bg-white/80 p-8 shadow-xl backdrop-blur-sm"
-                >
+        {#if showLibrary}
+            <div class="min-h-screen p-4">
+                <div class="mx-auto max-w-4xl">
+                    <!-- Header -->
                     <div class="mb-8 text-center">
                         <div
                             class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"
                         >
                             <Icon name="book" size={32} className="text-white" />
                         </div>
-                        <h2 class="mb-3 text-3xl font-bold text-gray-800">Upload an EPUB file</h2>
-                        <p class="text-gray-600">Select your book and start speed reading</p>
+                        <h1 class="mb-3 text-4xl font-bold text-gray-800">EPUB Speed Reader</h1>
+                        <p class="text-gray-600">Your personal library of speed-readable books</p>
                     </div>
 
-                    <div class="space-y-6">
-                        <div class="relative">
-                            <input
-                                bind:this={fileInput}
-                                type="file"
-                                accept=".epub"
-                                onchange={handleFileUpload}
-                                class="w-full rounded-xl border-2 border-dashed border-gray-300 p-6 text-center transition-all hover:border-indigo-400 hover:bg-indigo-50/50 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 focus:outline-none"
-                            />
-                            <div
-                                class="pointer-events-none absolute inset-0 flex items-center justify-center"
-                            >
-                                <div class="text-center text-gray-500">
-                                    <Icon name="upload-cloud" size={32} className="mx-auto mb-2" />
-                                    <span class="text-sm font-medium"
-                                        >Drop your EPUB file here or click to browse</span
-                                    >
+                    <!-- Upload Section -->
+                    <div class="mb-8">
+                        <div
+                            class="rounded-2xl border border-gray-200/60 bg-white/80 p-6 shadow-xl backdrop-blur-sm"
+                        >
+                            <div class="relative">
+                                <input
+                                    bind:this={fileInput}
+                                    type="file"
+                                    accept=".epub"
+                                    onchange={handleFileUpload}
+                                    class="w-full rounded-xl border-2 border-dashed border-gray-300 p-6 text-center transition-all hover:border-indigo-400 hover:bg-indigo-50/50 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 focus:outline-none"
+                                />
+                                <div
+                                    class="pointer-events-none absolute inset-0 flex items-center justify-center"
+                                >
+                                    <div class="text-center text-gray-500">
+                                        <Icon
+                                            name="upload-cloud"
+                                            size={32}
+                                            className="mx-auto mb-2"
+                                        />
+                                        <span class="text-sm font-medium"
+                                            >Add a new EPUB file to your library</span
+                                        >
+                                    </div>
                                 </div>
+                            </div>
+
+                            {#if isLoading}
+                                <div class="mt-4 flex items-center justify-center py-6">
+                                    <div class="flex items-center space-x-3">
+                                        <div
+                                            class="h-6 w-6 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600"
+                                        ></div>
+                                        <span class="font-medium text-gray-700"
+                                            >Adding to library...</span
+                                        >
+                                    </div>
+                                </div>
+                            {/if}
+
+                            {#if errorMessage}
+                                <div
+                                    class="mt-4 flex items-start space-x-3 rounded-xl border border-red-200 bg-red-50 p-4"
+                                >
+                                    <Icon
+                                        name="alert-circle"
+                                        size={20}
+                                        className="mt-0.5 flex-shrink-0 text-red-500"
+                                    />
+                                    <div>
+                                        <h4 class="font-medium text-red-800">Error</h4>
+                                        <p class="mt-1 text-sm text-red-700">{errorMessage}</p>
+                                    </div>
+                                </div>
+                            {/if}
+                        </div>
+                    </div>
+
+                    <!-- Library -->
+                    {#if isLoadingLibrary}
+                        <div class="flex items-center justify-center py-12">
+                            <div class="flex items-center space-x-3">
+                                <div
+                                    class="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600"
+                                ></div>
+                                <span class="font-medium text-gray-700">Loading library...</span>
                             </div>
                         </div>
-
-                        {#if isLoading}
-                            <div class="flex items-center justify-center py-12">
-                                <div class="flex items-center space-x-3">
+                    {:else if storedBooks.length === 0}
+                        <div class="py-12 text-center">
+                            <Icon name="book" size={48} className="mx-auto mb-4 text-gray-400" />
+                            <h3 class="mb-2 text-xl font-semibold text-gray-700">No books yet</h3>
+                            <p class="text-gray-500">Upload your first EPUB file to get started</p>
+                        </div>
+                    {:else}
+                        <div>
+                            <h2 class="mb-4 text-2xl font-bold text-gray-800">
+                                Your Library ({storedBooks.length} books)
+                            </h2>
+                            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                {#each storedBooks as book (book.id)}
+                                    {@const progress = bookProgresses.get(book.id)}
+                                    {@const progressPercentage =
+                                        progress && book.totalWords > 0
+                                            ? Math.round(
+                                                  (progress.currentWordIndex / book.totalWords) *
+                                                      100,
+                                              )
+                                            : 0}
                                     <div
-                                        class="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600"
-                                    ></div>
-                                    <span class="font-medium text-gray-700">Parsing EPUB...</span>
-                                </div>
-                            </div>
-                        {/if}
+                                        class="group relative cursor-pointer rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md"
+                                        onclick={() => openStoredBook(book)}
+                                    >
+                                        <div class="mb-4">
+                                            <h3 class="line-clamp-2 font-semibold text-gray-800">
+                                                {book.title}
+                                            </h3>
+                                            {#if book.author}
+                                                <p class="mt-1 text-sm text-gray-600">
+                                                    by {book.author}
+                                                </p>
+                                            {/if}
+                                        </div>
 
-                        {#if errorMessage}
-                            <div
-                                class="flex items-start space-x-3 rounded-xl border border-red-200 bg-red-50 p-4"
-                            >
-                                <Icon
-                                    name="alert-circle"
-                                    size={20}
-                                    className="mt-0.5 flex-shrink-0 text-red-500"
-                                />
-                                <div>
-                                    <h4 class="font-medium text-red-800">Error parsing EPUB</h4>
-                                    <p class="mt-1 text-sm text-red-700">{errorMessage}</p>
-                                </div>
+                                        <div class="mb-4">
+                                            <div
+                                                class="mb-1 flex justify-between text-xs text-gray-500"
+                                            >
+                                                <span>Progress</span>
+                                                <span>{progressPercentage}%</span>
+                                            </div>
+                                            <div class="h-2 rounded-full bg-gray-200">
+                                                <div
+                                                    class="h-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all"
+                                                    style="width: {progressPercentage}%"
+                                                ></div>
+                                            </div>
+                                        </div>
+
+                                        <div
+                                            class="flex items-center justify-between text-xs text-gray-500"
+                                        >
+                                            <span>{book.totalWords.toLocaleString()} words</span>
+                                            <span>
+                                                {new Date(book.lastReadDate).toLocaleDateString()}
+                                            </span>
+                                        </div>
+
+                                        <!-- Progress indicator badge -->
+                                        {#if progressPercentage > 0}
+                                            <div class="absolute top-2 left-2">
+                                                {#if progressPercentage >= 100}
+                                                    <div
+                                                        class="rounded-full bg-green-500 px-2 py-1 text-xs font-semibold text-white"
+                                                    >
+                                                        Complete
+                                                    </div>
+                                                {:else}
+                                                    <div
+                                                        class="rounded-full bg-indigo-500 px-2 py-1 text-xs font-semibold text-white"
+                                                    >
+                                                        {progressPercentage}%
+                                                    </div>
+                                                {/if}
+                                            </div>
+                                        {/if}
+
+                                        <!-- Delete button -->
+                                        <button
+                                            onclick={(e) => deleteStoredBook(book.id, e)}
+                                            class="absolute top-2 right-2 rounded-full bg-red-500 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-600"
+                                            title="Delete book"
+                                        >
+                                            <Icon name="trash-2" size={12} />
+                                        </button>
+                                    </div>
+                                {/each}
                             </div>
-                        {/if}
-                    </div>
+                        </div>
+                    {/if}
                 </div>
             </div>
         {:else}
@@ -312,7 +551,7 @@
                 </div>
 
                 <!-- Table of Contents below the reader -->
-                {#if epubData.tableOfContents.length > 1}
+                {#if epubData && epubData.tableOfContents.length > 1}
                     <div class="mt-12 w-full max-w-2xl">
                         <h3 class="mb-4 flex items-center gap-2 text-lg font-bold text-gray-800">
                             <Icon name="menu" size={20} className="text-indigo-500" />
@@ -360,17 +599,14 @@
                     </div>
                 {/if}
 
-                <!-- New Book Button -->
+                <!-- Back to Library Button -->
                 <div class="mt-8 w-full max-w-2xl">
                     <button
-                        onclick={() => {
-                            epubData = null
-                            resetReading()
-                        }}
+                        onclick={backToLibrary}
                         class="flex w-full items-center justify-center space-x-2 rounded-xl bg-gray-100 px-4 py-3 text-gray-700 transition-colors hover:bg-gray-200"
                     >
-                        <Icon name="upload" size={16} />
-                        <span>New Book</span>
+                        <Icon name="arrow-left" size={16} />
+                        <span>Back to Library</span>
                     </button>
                 </div>
             </div>
