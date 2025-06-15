@@ -14,6 +14,7 @@
         | 'upload-cloud'
         | 'moon'
         | 'sun'
+        | 'x'
 
     export let name: IconName
     export let size: number = 20
@@ -93,5 +94,8 @@
         <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
     {:else if name === 'sun'}
         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    {:else if name === 'x'}
+        <line x1="18" y1="6" x2="6" y2="18" />
+        <line x1="6" y1="6" x2="18" y2="18" />
     {/if}
 </svg>
