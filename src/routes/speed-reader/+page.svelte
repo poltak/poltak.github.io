@@ -19,9 +19,40 @@
     let isLoadingLibrary = $state(false)
     let bookProgresses = $state<Map<string, ReadingProgress>>(new Map())
 
+    // Number of surrounding words to show on each side
+    let surroundingWordsCount = $state(3)
+
+    // Punctuation pause multipliers
+    let periodMultiplier = $state(3)
+    let commaMultiplier = $state(2)
+    let semicolonMultiplier = $state(2.5)
+    let exclamationMultiplier = $state(3)
+
+    // Extra settings panel visibility
+    let showExtraSettings = $state(false)
+
     const currentWord = $derived(
         allWords[currentWordIndex] ?? (isPlaying ? '' : 'Press play to start'),
     )
+
+    const surroundingWords = $derived.by(() => {
+        if (allWords.length === 0) {
+            return {
+                before: [],
+                current: isPlaying ? '' : 'Press play to start',
+                after: [],
+            }
+        }
+
+        const startIndex = Math.max(0, currentWordIndex - surroundingWordsCount)
+        const endIndex = Math.min(allWords.length - 1, currentWordIndex + surroundingWordsCount)
+
+        const before = allWords.slice(startIndex, currentWordIndex)
+        const current = allWords[currentWordIndex] || ''
+        const after = allWords.slice(currentWordIndex + 1, endIndex + 1)
+
+        return { before, current, after }
+    })
     const progressPercentage = $derived(
         allWords.length > 0 ? (currentWordIndex / allWords.length) * 100 : 0,
     )
@@ -181,7 +212,7 @@
     function pauseReading() {
         isPlaying = false
         if (readingInterval) {
-            clearInterval(readingInterval)
+            clearTimeout(readingInterval)
             readingInterval = null
         }
 
@@ -193,24 +224,46 @@
         saveProgress()
     }
 
+    function getPuncturationMultiplier(word: string): number {
+        // Check for punctuation at the end of the word
+        const lastChar = word.slice(-1)
+        if (lastChar === '.') return periodMultiplier
+        if (lastChar === ',') return commaMultiplier
+        if (lastChar === ';' || lastChar === ':') return semicolonMultiplier
+        if (lastChar === '!' || lastChar === '?') return exclamationMultiplier
+        return 1 // No punctuation: normal speed
+    }
+
+    function scheduleNextWord() {
+        if (currentWordIndex >= allWords.length - 1) {
+            pauseReading()
+            return
+        }
+
+        // Get the current word to check for punctuation
+        const currentWordText = allWords[currentWordIndex] || ''
+        const multiplier = getPuncturationMultiplier(currentWordText)
+
+        // Calculate interval in milliseconds with punctuation pause
+        const baseIntervalMs = Math.max(60000 / wordsPerMinute, 50) // Minimum 50ms interval
+        const actualIntervalMs = baseIntervalMs * multiplier
+
+        readingInterval = setTimeout(() => {
+            if (!isPlaying) return // Safety check in case reading was paused
+            currentWordIndex++
+            scheduleNextWord() // Schedule the next word
+        }, actualIntervalMs)
+    }
+
     function updateReadingSpeed() {
         if (readingInterval) {
-            clearInterval(readingInterval)
+            clearTimeout(readingInterval)
             readingInterval = null
         }
 
         if (!isPlaying) return
 
-        // Calculate interval in milliseconds
-        const intervalMs = Math.max(60000 / wordsPerMinute, 50) // Minimum 50ms interval
-
-        readingInterval = setInterval(() => {
-            if (currentWordIndex >= allWords.length - 1) {
-                pauseReading()
-                return
-            }
-            currentWordIndex++
-        }, intervalMs)
+        scheduleNextWord()
     }
 
     function resetReading() {
@@ -251,7 +304,7 @@
     $effect(() => {
         return () => {
             if (readingInterval) {
-                clearInterval(readingInterval)
+                clearTimeout(readingInterval)
                 readingInterval = null
             }
             if (progressSaveInterval) {
@@ -450,19 +503,51 @@
         {:else}
             <div class="flex min-h-screen flex-col items-center justify-center p-4">
                 <div class="w-full max-w-2xl space-y-8">
-                    <!-- Current Word Display -->
+                    <!-- Current Word Display with Context -->
                     <div class="relative">
                         <div
                             class="absolute inset-0 rounded-2xl bg-gradient-to-r from-indigo-100 to-purple-100 opacity-60 blur-xl"
                         ></div>
                         <div
-                            class="relative flex min-h-[160px] items-center justify-center rounded-2xl border border-gray-200/50 bg-gradient-to-br from-gray-50 to-white p-12 shadow-inner"
+                            class="relative flex min-h-[160px] items-center justify-center overflow-hidden rounded-2xl border border-gray-200/50 bg-gradient-to-br from-gray-50 to-white p-12 shadow-inner"
                         >
-                            <span
-                                class="font-mono text-6xl font-bold tracking-wide text-gray-900 select-none"
+                            <div
+                                class="relative flex h-full w-full items-center justify-center select-none"
                             >
-                                {currentWord}
-                            </span>
+                                <!-- Container for the current word with before/after positioned relative to it -->
+                                <div class="relative flex items-center">
+                                    <!-- Before words - positioned to the left of current word -->
+                                    <div class="mr-4 flex items-center gap-3">
+                                        {#each surroundingWords.before as word, i (surroundingWords.before.length - 1 - i)}
+                                            <span
+                                                class="font-mono text-3xl whitespace-nowrap text-gray-400"
+                                            >
+                                                {surroundingWords.before[
+                                                    surroundingWords.before.length - 1 - i
+                                                ]}
+                                            </span>
+                                        {/each}
+                                    </div>
+
+                                    <!-- Current word - centered within its container -->
+                                    <span
+                                        class="rounded-lg bg-gradient-to-r from-indigo-100 to-purple-100 px-3 py-1 font-mono text-5xl font-bold text-gray-900"
+                                    >
+                                        {surroundingWords.current}
+                                    </span>
+
+                                    <!-- After words - positioned to the right of current word -->
+                                    <div class="ml-4 flex items-center gap-3">
+                                        {#each surroundingWords.after as word, i (i)}
+                                            <span
+                                                class="font-mono text-3xl whitespace-nowrap text-gray-400"
+                                            >
+                                                {word}
+                                            </span>
+                                        {/each}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -514,19 +599,137 @@
                             {/if}
                         </button>
 
-                        <div class="flex items-center space-x-2">
-                            <input
-                                id="wpm"
-                                type="number"
-                                bind:value={wordsPerMinute}
-                                oninput={handleWpmChange}
-                                min="50"
-                                max="1000"
-                                step="10"
-                                class="w-24 rounded-full border-gray-200 bg-white px-4 py-2 text-center font-bold text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
-                            />
-                            <label for="wpm" class="text-sm font-semibold text-gray-700">WPM</label>
+                        <div class="flex flex-wrap items-center justify-center gap-4">
+                            <div class="flex items-center space-x-2">
+                                <input
+                                    id="wpm"
+                                    type="number"
+                                    bind:value={wordsPerMinute}
+                                    oninput={handleWpmChange}
+                                    min="50"
+                                    max="1000"
+                                    step="10"
+                                    class="w-24 rounded-full border-gray-200 bg-white px-4 py-2 text-center font-bold text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
+                                />
+                                <label for="wpm" class="text-sm font-semibold text-gray-700"
+                                    >WPM</label
+                                >
+                            </div>
+
+                            <div class="flex items-center space-x-2">
+                                <input
+                                    id="context"
+                                    type="number"
+                                    bind:value={surroundingWordsCount}
+                                    min="0"
+                                    max="8"
+                                    step="1"
+                                    class="w-16 rounded-full border-gray-200 bg-white px-3 py-2 text-center font-bold text-purple-600 shadow-sm focus:border-purple-300 focus:ring-2 focus:ring-purple-200 focus:outline-none"
+                                />
+                                <label for="context" class="text-sm font-semibold text-gray-700"
+                                    >Context</label
+                                >
+                            </div>
                         </div>
+
+                        <!-- Extra Settings Toggle -->
+                        <div class="mt-4">
+                            <button
+                                onclick={() => (showExtraSettings = !showExtraSettings)}
+                                class="mx-auto flex items-center justify-center space-x-2 rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-200 focus:ring-2 focus:ring-gray-300 focus:outline-none"
+                            >
+                                <Icon
+                                    name={showExtraSettings ? 'chevron-up' : 'chevron-down'}
+                                    size={16}
+                                />
+                                <span>Extra Settings</span>
+                            </button>
+                        </div>
+
+                        <!-- Extra Settings Panel -->
+                        {#if showExtraSettings}
+                            <div
+                                class="mt-4 space-y-4 rounded-xl border border-gray-200 bg-gray-50/50 p-4 transition-all"
+                            >
+                                <!-- Punctuation Pause Settings -->
+                                <div>
+                                    <h4
+                                        class="mb-3 text-center text-sm font-semibold text-gray-700"
+                                    >
+                                        Punctuation Pause Multipliers
+                                    </h4>
+                                    <div class="flex flex-wrap items-center justify-center gap-3">
+                                        <div class="flex items-center space-x-1">
+                                            <input
+                                                id="period"
+                                                type="number"
+                                                bind:value={periodMultiplier}
+                                                min="1"
+                                                max="10"
+                                                step="0.5"
+                                                class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-emerald-600 shadow-sm focus:border-emerald-300 focus:ring-2 focus:ring-emerald-200 focus:outline-none"
+                                            />
+                                            <label
+                                                for="period"
+                                                class="text-xs font-medium text-gray-600"
+                                                >. Period</label
+                                            >
+                                        </div>
+
+                                        <div class="flex items-center space-x-1">
+                                            <input
+                                                id="comma"
+                                                type="number"
+                                                bind:value={commaMultiplier}
+                                                min="1"
+                                                max="10"
+                                                step="0.5"
+                                                class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-blue-600 shadow-sm focus:border-blue-300 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                                            />
+                                            <label
+                                                for="comma"
+                                                class="text-xs font-medium text-gray-600"
+                                                >, Comma</label
+                                            >
+                                        </div>
+
+                                        <div class="flex items-center space-x-1">
+                                            <input
+                                                id="semicolon"
+                                                type="number"
+                                                bind:value={semicolonMultiplier}
+                                                min="1"
+                                                max="10"
+                                                step="0.5"
+                                                class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-orange-600 shadow-sm focus:border-orange-300 focus:ring-2 focus:ring-orange-200 focus:outline-none"
+                                            />
+                                            <label
+                                                for="semicolon"
+                                                class="text-xs font-medium text-gray-600"
+                                                >; : Colon</label
+                                            >
+                                        </div>
+
+                                        <div class="flex items-center space-x-1">
+                                            <input
+                                                id="exclamation"
+                                                type="number"
+                                                bind:value={exclamationMultiplier}
+                                                min="1"
+                                                max="10"
+                                                step="0.5"
+                                                class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-red-600 shadow-sm focus:border-red-300 focus:ring-2 focus:ring-red-200 focus:outline-none"
+                                            />
+                                            <label
+                                                for="exclamation"
+                                                class="text-xs font-medium text-gray-600"
+                                                >! ? Exclaim</label
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {/if}
                     </div>
 
                     <!-- Quick WPM presets -->

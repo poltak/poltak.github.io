@@ -8,6 +8,8 @@
         | 'play'
         | 'pause'
         | 'refresh'
+        | 'chevron-up'
+        | 'chevron-down'
         | 'chevron-right'
         | 'menu'
         | 'alert-circle'
@@ -69,6 +71,10 @@
         <path d="M21 3v5h-5" />
         <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
         <path d="M3 21v-5h5" />
+    {:else if name === 'chevron-up'}
+        <polyline points="18,15 12,9 6,15" />
+    {:else if name === 'chevron-down'}
+        <polyline points="6,9 12,15 18,9" />
     {:else if name === 'chevron-right'}
         <polyline points="9,18 15,12 9,6" />
     {:else if name === 'menu'}
