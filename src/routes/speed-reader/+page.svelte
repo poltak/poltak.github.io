@@ -515,7 +515,15 @@
                                             : 0}
                                     <div
                                         class="group relative cursor-pointer rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:shadow-lg"
+                                        role="button"
+                                        tabindex="0"
                                         onclick={() => openStoredBook(book)}
+                                        onkeydown={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                openStoredBook(book)
+                                                e.preventDefault()
+                                            }
+                                        }}
                                     >
                                         <div class="mb-4">
                                             <h3
@@ -577,7 +585,10 @@
 
                                         <!-- Delete button -->
                                         <button
-                                            onclick={(e) => deleteStoredBook(book.id, e)}
+                                            onclick={(e) => {
+                                                e.stopPropagation()
+                                                deleteStoredBook(book.id, e)
+                                            }}
                                             class="absolute top-2 right-2 rounded-full bg-red-500 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-600"
                                             title="Delete book"
                                         >
@@ -1003,20 +1014,3 @@
         {/if}
     </div>
 </main>
-
-<style>
-    /* For Webkit-based browsers (Chrome, Safari) */
-    aside::-webkit-scrollbar {
-        width: 8px;
-    }
-    aside::-webkit-scrollbar-track {
-        background: #f1f5f9; /* gray-100 */
-    }
-    aside::-webkit-scrollbar-thumb {
-        background: #d1d5db; /* gray-300 */
-        border-radius: 4px;
-    }
-    aside::-webkit-scrollbar-thumb:hover {
-        background: #9ca3af; /* gray-400 */
-    }
-</style>
