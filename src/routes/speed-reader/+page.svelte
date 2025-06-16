@@ -578,13 +578,11 @@
                                 <div class="relative flex items-center">
                                     <!-- Before words - positioned to the left of current word -->
                                     <div class="mr-2 flex items-center gap-2 sm:mr-4 sm:gap-3">
-                                        {#each surroundingWords.before as word, i (surroundingWords.before.length - 1 - i)}
+                                        {#each surroundingWords.before as word, i (i)}
                                             <span
                                                 class="font-mono text-xl whitespace-nowrap text-gray-400 sm:text-2xl md:text-3xl dark:text-gray-500"
                                             >
-                                                {surroundingWords.before[
-                                                    surroundingWords.before.length - 1 - i
-                                                ]}
+                                                {word}
                                             </span>
                                         {/each}
                                     </div>
