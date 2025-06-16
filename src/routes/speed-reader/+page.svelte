@@ -452,6 +452,36 @@
                         </div>
                     </div>
 
+                    <!-- Helpful Tip -->
+                    <div class="mb-6">
+                        <div
+                            class="rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20"
+                        >
+                            <div class="flex items-start space-x-3">
+                                <div
+                                    class="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-500"
+                                >
+                                    <Icon name="info" size={14} className="text-white" />
+                                </div>
+                                <div>
+                                    <h4 class="font-medium text-blue-800 dark:text-blue-200">
+                                        Looking for books to try?
+                                    </h4>
+                                    <p class="mt-1 text-sm text-blue-700 dark:text-blue-300">
+                                        Check out <a
+                                            href="https://standardebooks.org/"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="font-semibold underline hover:no-underline"
+                                            >Standard Ebooks</a
+                                        > for high-quality, beautifully formatted public domain EPUB
+                                        files that work perfectly with this speed reader.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Library -->
                     {#if isLoadingLibrary}
                         <div class="flex items-center justify-center py-12">
