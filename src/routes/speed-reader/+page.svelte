@@ -323,7 +323,7 @@
     <meta name="description" content="A fast EPUB speed reader with adjustable reading speed" />
 </svelte:head>
 
-<main class="bg-gray-50 text-gray-800">
+<main class="text-gray-800">
     <div class="container mx-auto max-w-7xl">
         {#if showLibrary}
             <div class="p-4">
@@ -342,7 +342,7 @@
                     <!-- Upload Section -->
                     <div class="mb-8">
                         <div
-                            class="rounded-2xl border border-gray-200/60 bg-white/80 p-6 shadow-xl backdrop-blur-sm"
+                            class="rounded-2xl border border-gray-200/60 bg-white/80 p-6 shadow-xl backdrop-blur-sm dark:border-gray-700/60 dark:bg-gray-800/80"
                         >
                             <div class="relative">
                                 <input
@@ -350,7 +350,7 @@
                                     type="file"
                                     accept=".epub"
                                     onchange={handleFileUpload}
-                                    class="w-full rounded-xl border-2 border-dashed border-gray-300 p-6 text-center transition-all hover:border-indigo-400 hover:bg-indigo-50/50 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 focus:outline-none"
+                                    class="w-full rounded-xl border-2 border-dashed border-gray-300 p-6 text-center transition-all hover:border-indigo-400 hover:bg-indigo-50/50 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 focus:outline-none dark:border-gray-600 dark:hover:border-indigo-400 dark:hover:bg-indigo-900/20 dark:focus:ring-indigo-900/30"
                                 />
                                 <div
                                     class="pointer-events-none absolute inset-0 flex items-center justify-center"
@@ -383,7 +383,7 @@
 
                             {#if errorMessage}
                                 <div
-                                    class="mt-4 flex items-start space-x-3 rounded-xl border border-red-200 bg-red-50 p-4"
+                                    class="mt-4 flex items-start space-x-3 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
                                 >
                                     <Icon
                                         name="alert-circle"
@@ -391,8 +391,12 @@
                                         className="mt-0.5 flex-shrink-0 text-red-500"
                                     />
                                     <div>
-                                        <h4 class="font-medium text-red-800">Error</h4>
-                                        <p class="mt-1 text-sm text-red-700">{errorMessage}</p>
+                                        <h4 class="font-medium text-red-800 dark:text-red-200">
+                                            Error
+                                        </h4>
+                                        <p class="mt-1 text-sm text-red-700 dark:text-red-300">
+                                            {errorMessage}
+                                        </p>
                                     </div>
                                 </div>
                             {/if}
@@ -431,15 +435,19 @@
                                               )
                                             : 0}
                                     <div
-                                        class="group relative cursor-pointer rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md"
+                                        class="group relative cursor-pointer rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:shadow-lg"
                                         onclick={() => openStoredBook(book)}
                                     >
                                         <div class="mb-4">
-                                            <h3 class="line-clamp-2 font-semibold text-gray-800">
+                                            <h3
+                                                class="line-clamp-2 font-semibold text-gray-800 dark:text-gray-200"
+                                            >
                                                 {book.title}
                                             </h3>
                                             {#if book.author}
-                                                <p class="mt-1 text-sm text-gray-600">
+                                                <p
+                                                    class="mt-1 text-sm text-gray-600 dark:text-gray-400"
+                                                >
                                                     by {book.author}
                                                 </p>
                                             {/if}
@@ -512,7 +520,7 @@
                             class="absolute inset-0 rounded-2xl bg-gradient-to-r from-indigo-100 to-purple-100 opacity-60 blur-xl"
                         ></div>
                         <div
-                            class="relative flex min-h-[120px] items-center justify-center overflow-hidden rounded-2xl border border-gray-200/50 bg-gradient-to-br from-gray-50 to-white p-4 shadow-inner sm:min-h-[160px] sm:p-8 md:p-12"
+                            class="relative flex min-h-[120px] items-center justify-center overflow-hidden rounded-2xl border border-gray-200/50 bg-gradient-to-br from-gray-50 to-white p-4 shadow-inner sm:min-h-[160px] sm:p-8 md:p-12 dark:border-gray-700/50 dark:from-gray-800 dark:to-gray-900"
                         >
                             <div
                                 class="relative flex h-full w-full items-center justify-center select-none"
@@ -523,7 +531,7 @@
                                     <div class="mr-2 flex items-center gap-2 sm:mr-4 sm:gap-3">
                                         {#each surroundingWords.before as word, i (surroundingWords.before.length - 1 - i)}
                                             <span
-                                                class="font-mono text-xl whitespace-nowrap text-gray-400 sm:text-2xl md:text-3xl"
+                                                class="font-mono text-xl whitespace-nowrap text-gray-400 sm:text-2xl md:text-3xl dark:text-gray-500"
                                             >
                                                 {surroundingWords.before[
                                                     surroundingWords.before.length - 1 - i
@@ -534,7 +542,7 @@
 
                                     <!-- Current word - centered within its container -->
                                     <span
-                                        class="rounded-lg bg-gradient-to-r from-indigo-100 to-purple-100 px-2 py-1 font-mono text-3xl font-bold text-gray-900 sm:px-3 sm:text-4xl md:text-5xl"
+                                        class="rounded-lg bg-gradient-to-r from-indigo-100 to-purple-100 px-2 py-1 font-mono text-3xl font-bold text-gray-900 sm:px-3 sm:text-4xl md:text-5xl dark:from-indigo-900/30 dark:to-purple-900/30 dark:text-gray-100"
                                     >
                                         {surroundingWords.current}
                                     </span>
@@ -543,7 +551,7 @@
                                     <div class="ml-2 flex items-center gap-2 sm:ml-4 sm:gap-3">
                                         {#each surroundingWords.after as word, i (i)}
                                             <span
-                                                class="font-mono text-xl whitespace-nowrap text-gray-400 sm:text-2xl md:text-3xl"
+                                                class="font-mono text-xl whitespace-nowrap text-gray-400 sm:text-2xl md:text-3xl dark:text-gray-500"
                                             >
                                                 {word}
                                             </span>
@@ -557,17 +565,21 @@
                     <!-- Progress -->
                     <div class="space-y-3 sm:space-y-4">
                         <div class="flex justify-between text-xs font-medium sm:text-sm">
-                            <div class="flex items-center space-x-1 text-gray-600 sm:space-x-2">
+                            <div
+                                class="flex items-center space-x-1 text-gray-600 sm:space-x-2 dark:text-gray-400"
+                            >
                                 <Icon name="info" size={14} className="sm:w-4 sm:h-4" />
                                 <span class="hidden sm:inline">Word </span>
                                 <span>{(currentWordIndex + 1).toLocaleString()}</span>
                             </div>
                             <div
-                                class="flex items-center space-x-1 font-bold text-indigo-600 sm:space-x-2"
+                                class="flex items-center space-x-1 font-bold text-indigo-600 sm:space-x-2 dark:text-indigo-400"
                             >
                                 <span>{progressPercentage.toFixed(1)}%</span>
                             </div>
-                            <div class="flex items-center space-x-1 text-gray-600 sm:space-x-2">
+                            <div
+                                class="flex items-center space-x-1 text-gray-600 sm:space-x-2 dark:text-gray-400"
+                            >
                                 <span>{allWords.length.toLocaleString()}</span>
                                 <span class="hidden sm:inline">total</span>
                                 <Icon name="file-text" size={14} className="sm:w-4 sm:h-4" />
@@ -587,7 +599,7 @@
                     <div class="flex items-center justify-center space-x-4 sm:space-x-8">
                         <button
                             onclick={resetReading}
-                            class="rounded-full bg-gray-200 p-3 text-gray-600 transition-all duration-200 hover:scale-110 hover:bg-gray-300 sm:p-4"
+                            class="rounded-full bg-gray-200 p-3 text-gray-600 transition-all duration-200 hover:scale-110 hover:bg-gray-300 sm:p-4 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
                             title="Reset to beginning"
                         >
                             <Icon name="refresh" size={20} className="sm:w-6 sm:h-6" />
@@ -616,11 +628,11 @@
                                     min="50"
                                     max="1000"
                                     step="10"
-                                    class="w-20 rounded-full border-gray-200 bg-white px-3 py-1.5 text-center text-sm font-bold text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring-2 focus:ring-indigo-200 focus:outline-none sm:w-24 sm:px-4 sm:py-2"
+                                    class="w-20 rounded-full border-gray-200 bg-white px-3 py-1.5 text-center text-sm font-bold text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring-2 focus:ring-indigo-200 focus:outline-none sm:w-24 sm:px-4 sm:py-2 dark:border-gray-600 dark:bg-gray-800 dark:text-indigo-400 dark:focus:border-indigo-400 dark:focus:ring-indigo-800"
                                 />
                                 <label
                                     for="wpm"
-                                    class="text-xs font-semibold text-gray-700 sm:text-sm"
+                                    class="text-xs font-semibold text-gray-700 sm:text-sm dark:text-gray-300"
                                     >WPM</label
                                 >
                             </div>
@@ -633,11 +645,11 @@
                                     min="0"
                                     max="8"
                                     step="1"
-                                    class="w-14 rounded-full border-gray-200 bg-white px-2 py-1.5 text-center text-sm font-bold text-purple-600 shadow-sm focus:border-purple-300 focus:ring-2 focus:ring-purple-200 focus:outline-none sm:w-16 sm:px-3 sm:py-2"
+                                    class="w-14 rounded-full border-gray-200 bg-white px-2 py-1.5 text-center text-sm font-bold text-purple-600 shadow-sm focus:border-purple-300 focus:ring-2 focus:ring-purple-200 focus:outline-none sm:w-16 sm:px-3 sm:py-2 dark:border-gray-600 dark:bg-gray-800 dark:text-purple-400 dark:focus:border-purple-400 dark:focus:ring-purple-800"
                                 />
                                 <label
                                     for="context"
-                                    class="text-xs font-semibold text-gray-700 sm:text-sm"
+                                    class="text-xs font-semibold text-gray-700 sm:text-sm dark:text-gray-300"
                                     >Context</label
                                 >
                             </div>
@@ -658,6 +670,9 @@
                                 class:bg-gray-200={wordsPerMinute !== preset}
                                 class:text-gray-700={wordsPerMinute !== preset}
                                 class:hover:bg-gray-300={wordsPerMinute !== preset}
+                                class:dark:bg-gray-700={wordsPerMinute !== preset}
+                                class:dark:text-gray-300={wordsPerMinute !== preset}
+                                class:dark:hover:bg-gray-600={wordsPerMinute !== preset}
                             >
                                 {preset}
                             </button>
@@ -668,7 +683,7 @@
                     <div class="mt-4">
                         <button
                             onclick={() => (showExtraSettings = !showExtraSettings)}
-                            class="mx-auto flex items-center justify-center space-x-2 rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-200 focus:ring-2 focus:ring-gray-300 focus:outline-none"
+                            class="mx-auto flex items-center justify-center space-x-2 rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-200 focus:ring-2 focus:ring-gray-300 focus:outline-none dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:focus:ring-gray-600"
                         >
                             <Icon
                                 name={showExtraSettings ? 'chevron-up' : 'chevron-down'}
@@ -680,9 +695,11 @@
                         <!-- Extra Settings Panel as horizontal row -->
                         {#if showExtraSettings}
                             <div
-                                class="mt-4 w-full rounded-xl border border-gray-200 bg-gray-50/50 p-4 transition-all"
+                                class="mt-4 w-full rounded-xl border border-gray-200 bg-gray-50/50 p-4 transition-all dark:border-gray-700 dark:bg-gray-800/50"
                             >
-                                <h4 class="mb-3 text-center text-sm font-semibold text-gray-700">
+                                <h4
+                                    class="mb-3 text-center text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                >
                                     Punctuation Pause Multipliers
                                 </h4>
                                 <div
@@ -696,11 +713,11 @@
                                             min="1"
                                             max="10"
                                             step="0.5"
-                                            class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-emerald-600 shadow-sm focus:border-emerald-300 focus:ring-2 focus:ring-emerald-200 focus:outline-none"
+                                            class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-emerald-600 shadow-sm focus:border-emerald-300 focus:ring-2 focus:ring-emerald-200 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-emerald-400 dark:focus:border-emerald-400 dark:focus:ring-emerald-800"
                                         />
                                         <label
                                             for="period"
-                                            class="text-xs font-medium text-gray-600"
+                                            class="text-xs font-medium text-gray-600 dark:text-gray-400"
                                             >. Period</label
                                         >
                                     </div>
@@ -713,9 +730,11 @@
                                             min="1"
                                             max="10"
                                             step="0.5"
-                                            class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-blue-600 shadow-sm focus:border-blue-300 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                                            class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-blue-600 shadow-sm focus:border-blue-300 focus:ring-2 focus:ring-blue-200 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-blue-400 dark:focus:border-blue-400 dark:focus:ring-blue-800"
                                         />
-                                        <label for="comma" class="text-xs font-medium text-gray-600"
+                                        <label
+                                            for="comma"
+                                            class="text-xs font-medium text-gray-600 dark:text-gray-400"
                                             >, Comma</label
                                         >
                                     </div>
@@ -728,11 +747,11 @@
                                             min="1"
                                             max="10"
                                             step="0.5"
-                                            class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-orange-600 shadow-sm focus:border-orange-300 focus:ring-2 focus:ring-orange-200 focus:outline-none"
+                                            class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-orange-600 shadow-sm focus:border-orange-300 focus:ring-2 focus:ring-orange-200 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-orange-400 dark:focus:border-orange-400 dark:focus:ring-orange-800"
                                         />
                                         <label
                                             for="semicolon"
-                                            class="text-xs font-medium text-gray-600"
+                                            class="text-xs font-medium text-gray-600 dark:text-gray-400"
                                             >; : Colon</label
                                         >
                                     </div>
@@ -745,11 +764,11 @@
                                             min="1"
                                             max="10"
                                             step="0.5"
-                                            class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-red-600 shadow-sm focus:border-red-300 focus:ring-2 focus:ring-red-200 focus:outline-none"
+                                            class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-red-600 shadow-sm focus:border-red-300 focus:ring-2 focus:ring-red-200 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-red-400 dark:focus:border-red-400 dark:focus:ring-red-800"
                                         />
                                         <label
                                             for="exclamation"
-                                            class="text-xs font-medium text-gray-600"
+                                            class="text-xs font-medium text-gray-600 dark:text-gray-400"
                                             >! ? Exclaim</label
                                         >
                                     </div>
@@ -764,7 +783,7 @@
                     <div class="mt-8 w-full max-w-2xl sm:mt-12">
                         <button
                             onclick={() => (showTableOfContents = !showTableOfContents)}
-                            class="mb-3 flex w-full items-center gap-2 text-base font-bold text-gray-800 transition-colors hover:text-indigo-700 sm:mb-4 sm:text-lg"
+                            class="mb-3 flex w-full items-center gap-2 text-base font-bold text-gray-800 transition-colors hover:text-indigo-700 sm:mb-4 sm:text-lg dark:text-gray-200 dark:hover:text-indigo-400"
                         >
                             <Icon name="menu" size={18} className="text-indigo-500 sm:w-5 sm:h-5" />
                             <span>Table of Contents</span>
@@ -784,15 +803,19 @@
                                         class="group flex items-center justify-between rounded-lg px-4 py-3 text-left transition-all duration-200"
                                         class:bg-indigo-50={isActive}
                                         class:hover:bg-gray-100={!isActive}
+                                        class:dark:bg-indigo-900={isActive}
+                                        class:dark:hover:bg-gray-800={!isActive}
                                     >
                                         <div class="flex min-w-0 items-center gap-3">
                                             <div
-                                                class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-gray-200"
+                                                class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-gray-200 dark:bg-gray-700"
                                             >
                                                 <span
                                                     class="text-xs font-bold transition-colors"
                                                     class:text-indigo-600={isActive}
                                                     class:text-gray-600={!isActive}
+                                                    class:dark:text-indigo-400={isActive}
+                                                    class:dark:text-gray-400={!isActive}
                                                     >{item.order + 1}</span
                                                 >
                                             </div>
@@ -802,6 +825,9 @@
                                                     class:text-indigo-700={isActive}
                                                     class:text-gray-800={!isActive}
                                                     class:group-hover:text-indigo-700={!isActive}
+                                                    class:dark:text-indigo-400={isActive}
+                                                    class:dark:text-gray-200={!isActive}
+                                                    class:dark:group-hover:text-indigo-400={!isActive}
                                                 >
                                                     {item.title || `Chapter ${item.order + 1}`}
                                                 </p>
@@ -823,7 +849,7 @@
                 <div class="mt-6 w-full max-w-2xl sm:mt-8">
                     <button
                         onclick={backToLibrary}
-                        class="flex w-full items-center justify-center space-x-2 rounded-xl bg-gray-100 px-3 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-200 sm:px-4 sm:py-3 sm:text-base"
+                        class="flex w-full items-center justify-center space-x-2 rounded-xl bg-gray-100 px-3 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-200 sm:px-4 sm:py-3 sm:text-base dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                     >
                         <Icon name="arrow-left" size={14} className="sm:w-4 sm:h-4" />
                         <span>Back to Library</span>
