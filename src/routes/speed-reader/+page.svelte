@@ -19,6 +19,13 @@
     let isLoadingLibrary = $state(false)
     let bookProgresses = $state<Map<string, ReadingProgress>>(new Map())
 
+    // Rewind functionality
+    let isRewinding = $state(false)
+    let rewindInterval = $state<number | null>(null)
+
+    // Reset confirmation
+    let showResetConfirmation = $state(false)
+
     // Number of surrounding words to show on each side
     let surroundingWordsCount = $state(3)
 
@@ -269,10 +276,48 @@
         scheduleNextWord()
     }
 
+    function startRewind() {
+        if (allWords.length === 0 || currentWordIndex <= 0) return
+
+        isRewinding = true
+
+        // Use faster speed for rewinding
+        const rewindSpeed = Math.min(wordsPerMinute * 2, 800) // 2x speed, max 800 WPM
+        const intervalMs = Math.max(60000 / rewindSpeed, 25) // Minimum 25ms interval
+
+        rewindInterval = setInterval(() => {
+            if (currentWordIndex <= 0) {
+                stopRewind()
+                return
+            }
+            currentWordIndex--
+        }, intervalMs)
+    }
+
+    function stopRewind() {
+        isRewinding = false
+        if (rewindInterval) {
+            clearInterval(rewindInterval)
+            rewindInterval = null
+        }
+    }
+
     function resetReading() {
-        pauseReading()
-        currentWordIndex = 0
-        saveProgress() // Save the reset position
+        if (showResetConfirmation) {
+            // Confirmed reset
+            pauseReading()
+            stopRewind()
+            currentWordIndex = 0
+            saveProgress() // Save the reset position
+            showResetConfirmation = false
+        } else {
+            // Show confirmation
+            showResetConfirmation = true
+        }
+    }
+
+    function cancelReset() {
+        showResetConfirmation = false
     }
 
     function navigateToChapter(wordStartIndex: number) {
@@ -309,6 +354,10 @@
             if (readingInterval) {
                 clearTimeout(readingInterval)
                 readingInterval = null
+            }
+            if (rewindInterval) {
+                clearInterval(rewindInterval)
+                rewindInterval = null
             }
             if (progressSaveInterval) {
                 clearInterval(progressSaveInterval)
@@ -598,14 +647,6 @@
                     <!-- Controls -->
                     <div class="flex items-center justify-center space-x-4 sm:space-x-8">
                         <button
-                            onclick={resetReading}
-                            class="rounded-full bg-gray-200 p-3 text-gray-600 transition-all duration-200 hover:scale-110 hover:bg-gray-300 sm:p-4 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-                            title="Reset to beginning"
-                        >
-                            <Icon name="refresh" size={20} className="sm:w-6 sm:h-6" />
-                        </button>
-
-                        <button
                             onclick={togglePlayPause}
                             class="rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 p-4 text-white shadow-lg transition-all duration-200 hover:scale-110 hover:shadow-xl disabled:opacity-50 sm:p-6"
                             disabled={allWords.length === 0}
@@ -616,6 +657,21 @@
                             {:else}
                                 <Icon name="play" size={24} className="sm:w-8 sm:h-8" />
                             {/if}
+                        </button>
+
+                        <button
+                            onmousedown={startRewind}
+                            onmouseup={stopRewind}
+                            onmouseleave={stopRewind}
+                            ontouchstart={startRewind}
+                            ontouchend={stopRewind}
+                            class="rounded-full bg-amber-500 p-3 text-white transition-all duration-200 hover:scale-110 hover:bg-amber-600 active:scale-95 disabled:opacity-50 sm:p-4"
+                            disabled={allWords.length === 0 || currentWordIndex <= 0}
+                            title="Hold to rewind"
+                            class:bg-amber-600={isRewinding}
+                            class:scale-95={isRewinding}
+                        >
+                            <Icon name="rewind" size={20} className="sm:w-6 sm:h-6" />
                         </button>
 
                         <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
@@ -773,6 +829,26 @@
                                         >
                                     </div>
                                 </div>
+
+                                <!-- Reset Button in Extra Settings -->
+                                <div
+                                    class="mt-4 border-t border-gray-300 pt-4 dark:border-gray-600"
+                                >
+                                    <div class="flex justify-center">
+                                        <button
+                                            onclick={resetReading}
+                                            class="flex items-center space-x-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600 focus:ring-2 focus:ring-red-300 focus:outline-none"
+                                        >
+                                            <Icon name="refresh" size={16} />
+                                            <span>Reset to Beginning</span>
+                                        </button>
+                                    </div>
+                                    <p
+                                        class="mt-2 text-center text-xs text-gray-500 dark:text-gray-400"
+                                    >
+                                        This will reset your progress to the beginning
+                                    </p>
+                                </div>
                             </div>
                         {/if}
                     </div>
@@ -854,6 +930,46 @@
                         <Icon name="arrow-left" size={14} className="sm:w-4 sm:h-4" />
                         <span>Back to Library</span>
                     </button>
+                </div>
+            </div>
+        {/if}
+
+        <!-- Reset Confirmation Modal -->
+        {#if showResetConfirmation}
+            <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-gray-800">
+                    <div class="mb-4 flex items-center space-x-3">
+                        <div
+                            class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30"
+                        >
+                            <Icon
+                                name="alert-triangle"
+                                size={20}
+                                className="text-red-600 dark:text-red-400"
+                            />
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            Reset Progress?
+                        </h3>
+                    </div>
+                    <p class="mb-6 text-sm text-gray-600 dark:text-gray-400">
+                        This will reset your reading progress to the beginning of the book. This
+                        action cannot be undone.
+                    </p>
+                    <div class="flex space-x-3">
+                        <button
+                            onclick={cancelReset}
+                            class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-indigo-200 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onclick={resetReading}
+                            class="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 focus:ring-2 focus:ring-red-300 focus:outline-none"
+                        >
+                            Reset
+                        </button>
+                    </div>
                 </div>
             </div>
         {/if}
