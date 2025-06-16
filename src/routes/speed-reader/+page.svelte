@@ -31,6 +31,9 @@
     // Extra settings panel visibility
     let showExtraSettings = $state(false)
 
+    // Table of contents visibility
+    let showTableOfContents = $state(true)
+
     const currentWord = $derived(
         allWords[currentWordIndex] ?? (isPlaying ? '' : 'Press play to start'),
     )
@@ -323,7 +326,7 @@
 <main class="bg-gray-50 text-gray-800">
     <div class="container mx-auto max-w-7xl">
         {#if showLibrary}
-            <div class="min-h-screen p-4">
+            <div class="p-4">
                 <div class="mx-auto max-w-4xl">
                     <!-- Header -->
                     <div class="mb-8 text-center">
@@ -501,15 +504,15 @@
                 </div>
             </div>
         {:else}
-            <div class="flex min-h-screen flex-col items-center justify-center p-4">
-                <div class="w-full max-w-2xl space-y-8">
+            <div class="flex flex-col items-center justify-start p-2 sm:p-4">
+                <div class="w-full max-w-2xl space-y-4 sm:space-y-8">
                     <!-- Current Word Display with Context -->
                     <div class="relative">
                         <div
                             class="absolute inset-0 rounded-2xl bg-gradient-to-r from-indigo-100 to-purple-100 opacity-60 blur-xl"
                         ></div>
                         <div
-                            class="relative flex min-h-[160px] items-center justify-center overflow-hidden rounded-2xl border border-gray-200/50 bg-gradient-to-br from-gray-50 to-white p-12 shadow-inner"
+                            class="relative flex min-h-[120px] items-center justify-center overflow-hidden rounded-2xl border border-gray-200/50 bg-gradient-to-br from-gray-50 to-white p-4 shadow-inner sm:min-h-[160px] sm:p-8 md:p-12"
                         >
                             <div
                                 class="relative flex h-full w-full items-center justify-center select-none"
@@ -517,10 +520,10 @@
                                 <!-- Container for the current word with before/after positioned relative to it -->
                                 <div class="relative flex items-center">
                                     <!-- Before words - positioned to the left of current word -->
-                                    <div class="mr-4 flex items-center gap-3">
+                                    <div class="mr-2 flex items-center gap-2 sm:mr-4 sm:gap-3">
                                         {#each surroundingWords.before as word, i (surroundingWords.before.length - 1 - i)}
                                             <span
-                                                class="font-mono text-3xl whitespace-nowrap text-gray-400"
+                                                class="font-mono text-xl whitespace-nowrap text-gray-400 sm:text-2xl md:text-3xl"
                                             >
                                                 {surroundingWords.before[
                                                     surroundingWords.before.length - 1 - i
@@ -531,16 +534,16 @@
 
                                     <!-- Current word - centered within its container -->
                                     <span
-                                        class="rounded-lg bg-gradient-to-r from-indigo-100 to-purple-100 px-3 py-1 font-mono text-5xl font-bold text-gray-900"
+                                        class="rounded-lg bg-gradient-to-r from-indigo-100 to-purple-100 px-2 py-1 font-mono text-3xl font-bold text-gray-900 sm:px-3 sm:text-4xl md:text-5xl"
                                     >
                                         {surroundingWords.current}
                                     </span>
 
                                     <!-- After words - positioned to the right of current word -->
-                                    <div class="ml-4 flex items-center gap-3">
+                                    <div class="ml-2 flex items-center gap-2 sm:ml-4 sm:gap-3">
                                         {#each surroundingWords.after as word, i (i)}
                                             <span
-                                                class="font-mono text-3xl whitespace-nowrap text-gray-400"
+                                                class="font-mono text-xl whitespace-nowrap text-gray-400 sm:text-2xl md:text-3xl"
                                             >
                                                 {word}
                                             </span>
@@ -552,18 +555,22 @@
                     </div>
 
                     <!-- Progress -->
-                    <div class="space-y-4">
-                        <div class="flex justify-between text-sm font-medium">
-                            <div class="flex items-center space-x-2 text-gray-600">
-                                <Icon name="info" size={16} />
-                                <span>Word {(currentWordIndex + 1).toLocaleString()}</span>
+                    <div class="space-y-3 sm:space-y-4">
+                        <div class="flex justify-between text-xs font-medium sm:text-sm">
+                            <div class="flex items-center space-x-1 text-gray-600 sm:space-x-2">
+                                <Icon name="info" size={14} className="sm:w-4 sm:h-4" />
+                                <span class="hidden sm:inline">Word </span>
+                                <span>{(currentWordIndex + 1).toLocaleString()}</span>
                             </div>
-                            <div class="flex items-center space-x-2 font-bold text-indigo-600">
+                            <div
+                                class="flex items-center space-x-1 font-bold text-indigo-600 sm:space-x-2"
+                            >
                                 <span>{progressPercentage.toFixed(1)}%</span>
                             </div>
-                            <div class="flex items-center space-x-2 text-gray-600">
-                                <span>{allWords.length.toLocaleString()} total</span>
-                                <Icon name="file-text" size={16} />
+                            <div class="flex items-center space-x-1 text-gray-600 sm:space-x-2">
+                                <span>{allWords.length.toLocaleString()}</span>
+                                <span class="hidden sm:inline">total</span>
+                                <Icon name="file-text" size={14} className="sm:w-4 sm:h-4" />
                             </div>
                         </div>
                         <div
@@ -577,30 +584,30 @@
                     </div>
 
                     <!-- Controls -->
-                    <div class="flex items-center justify-center space-x-8">
+                    <div class="flex items-center justify-center space-x-4 sm:space-x-8">
                         <button
                             onclick={resetReading}
-                            class="rounded-full bg-gray-200 p-4 text-gray-600 transition-all duration-200 hover:scale-110 hover:bg-gray-300"
+                            class="rounded-full bg-gray-200 p-3 text-gray-600 transition-all duration-200 hover:scale-110 hover:bg-gray-300 sm:p-4"
                             title="Reset to beginning"
                         >
-                            <Icon name="refresh" size={24} />
+                            <Icon name="refresh" size={20} className="sm:w-6 sm:h-6" />
                         </button>
 
                         <button
                             onclick={togglePlayPause}
-                            class="rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 p-6 text-white shadow-lg transition-all duration-200 hover:scale-110 hover:shadow-xl disabled:opacity-50"
+                            class="rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 p-4 text-white shadow-lg transition-all duration-200 hover:scale-110 hover:shadow-xl disabled:opacity-50 sm:p-6"
                             disabled={allWords.length === 0}
                             aria-label={isPlaying ? 'Pause' : 'Play'}
                         >
                             {#if isPlaying}
-                                <Icon name="pause" size={32} />
+                                <Icon name="pause" size={24} className="sm:w-8 sm:h-8" />
                             {:else}
-                                <Icon name="play" size={32} />
+                                <Icon name="play" size={24} className="sm:w-8 sm:h-8" />
                             {/if}
                         </button>
 
-                        <div class="flex flex-wrap items-center justify-center gap-4">
-                            <div class="flex items-center space-x-2">
+                        <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+                            <div class="flex items-center space-x-1 sm:space-x-2">
                                 <input
                                     id="wpm"
                                     type="number"
@@ -609,14 +616,16 @@
                                     min="50"
                                     max="1000"
                                     step="10"
-                                    class="w-24 rounded-full border-gray-200 bg-white px-4 py-2 text-center font-bold text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring-2 focus:ring-indigo-200 focus:outline-none"
+                                    class="w-20 rounded-full border-gray-200 bg-white px-3 py-1.5 text-center text-sm font-bold text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring-2 focus:ring-indigo-200 focus:outline-none sm:w-24 sm:px-4 sm:py-2"
                                 />
-                                <label for="wpm" class="text-sm font-semibold text-gray-700"
+                                <label
+                                    for="wpm"
+                                    class="text-xs font-semibold text-gray-700 sm:text-sm"
                                     >WPM</label
                                 >
                             </div>
 
-                            <div class="flex items-center space-x-2">
+                            <div class="flex items-center space-x-1 sm:space-x-2">
                                 <input
                                     id="context"
                                     type="number"
@@ -624,123 +633,26 @@
                                     min="0"
                                     max="8"
                                     step="1"
-                                    class="w-16 rounded-full border-gray-200 bg-white px-3 py-2 text-center font-bold text-purple-600 shadow-sm focus:border-purple-300 focus:ring-2 focus:ring-purple-200 focus:outline-none"
+                                    class="w-14 rounded-full border-gray-200 bg-white px-2 py-1.5 text-center text-sm font-bold text-purple-600 shadow-sm focus:border-purple-300 focus:ring-2 focus:ring-purple-200 focus:outline-none sm:w-16 sm:px-3 sm:py-2"
                                 />
-                                <label for="context" class="text-sm font-semibold text-gray-700"
+                                <label
+                                    for="context"
+                                    class="text-xs font-semibold text-gray-700 sm:text-sm"
                                     >Context</label
                                 >
                             </div>
                         </div>
-
-                        <!-- Extra Settings Toggle -->
-                        <div class="mt-4">
-                            <button
-                                onclick={() => (showExtraSettings = !showExtraSettings)}
-                                class="mx-auto flex items-center justify-center space-x-2 rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-200 focus:ring-2 focus:ring-gray-300 focus:outline-none"
-                            >
-                                <Icon
-                                    name={showExtraSettings ? 'chevron-up' : 'chevron-down'}
-                                    size={16}
-                                />
-                                <span>Extra Settings</span>
-                            </button>
-                        </div>
-
-                        <!-- Extra Settings Panel -->
-                        {#if showExtraSettings}
-                            <div
-                                class="mt-4 space-y-4 rounded-xl border border-gray-200 bg-gray-50/50 p-4 transition-all"
-                            >
-                                <!-- Punctuation Pause Settings -->
-                                <div>
-                                    <h4
-                                        class="mb-3 text-center text-sm font-semibold text-gray-700"
-                                    >
-                                        Punctuation Pause Multipliers
-                                    </h4>
-                                    <div class="flex flex-wrap items-center justify-center gap-3">
-                                        <div class="flex items-center space-x-1">
-                                            <input
-                                                id="period"
-                                                type="number"
-                                                bind:value={periodMultiplier}
-                                                min="1"
-                                                max="10"
-                                                step="0.5"
-                                                class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-emerald-600 shadow-sm focus:border-emerald-300 focus:ring-2 focus:ring-emerald-200 focus:outline-none"
-                                            />
-                                            <label
-                                                for="period"
-                                                class="text-xs font-medium text-gray-600"
-                                                >. Period</label
-                                            >
-                                        </div>
-
-                                        <div class="flex items-center space-x-1">
-                                            <input
-                                                id="comma"
-                                                type="number"
-                                                bind:value={commaMultiplier}
-                                                min="1"
-                                                max="10"
-                                                step="0.5"
-                                                class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-blue-600 shadow-sm focus:border-blue-300 focus:ring-2 focus:ring-blue-200 focus:outline-none"
-                                            />
-                                            <label
-                                                for="comma"
-                                                class="text-xs font-medium text-gray-600"
-                                                >, Comma</label
-                                            >
-                                        </div>
-
-                                        <div class="flex items-center space-x-1">
-                                            <input
-                                                id="semicolon"
-                                                type="number"
-                                                bind:value={semicolonMultiplier}
-                                                min="1"
-                                                max="10"
-                                                step="0.5"
-                                                class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-orange-600 shadow-sm focus:border-orange-300 focus:ring-2 focus:ring-orange-200 focus:outline-none"
-                                            />
-                                            <label
-                                                for="semicolon"
-                                                class="text-xs font-medium text-gray-600"
-                                                >; : Colon</label
-                                            >
-                                        </div>
-
-                                        <div class="flex items-center space-x-1">
-                                            <input
-                                                id="exclamation"
-                                                type="number"
-                                                bind:value={exclamationMultiplier}
-                                                min="1"
-                                                max="10"
-                                                step="0.5"
-                                                class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-red-600 shadow-sm focus:border-red-300 focus:ring-2 focus:ring-red-200 focus:outline-none"
-                                            />
-                                            <label
-                                                for="exclamation"
-                                                class="text-xs font-medium text-gray-600"
-                                                >! ? Exclaim</label
-                                            >
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        {/if}
                     </div>
 
                     <!-- Quick WPM presets -->
-                    <div class="flex items-center justify-center space-x-2">
+                    <div class="flex flex-wrap items-center justify-center gap-1 sm:gap-2">
                         {#each [200, 300, 400, 500, 600] as preset (preset)}
                             <button
                                 onclick={() => {
                                     wordsPerMinute = preset
                                     handleWpmChange()
                                 }}
-                                class="rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-200"
+                                class="rounded-full px-3 py-1.5 text-xs font-semibold transition-colors duration-200 sm:px-4 sm:py-2 sm:text-sm"
                                 class:bg-indigo-600={wordsPerMinute === preset}
                                 class:text-white={wordsPerMinute === preset}
                                 class:bg-gray-200={wordsPerMinute !== preset}
@@ -751,64 +663,169 @@
                             </button>
                         {/each}
                     </div>
+
+                    <!-- Extra Settings Toggle & Panel -->
+                    <div class="mt-4">
+                        <button
+                            onclick={() => (showExtraSettings = !showExtraSettings)}
+                            class="mx-auto flex items-center justify-center space-x-2 rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-200 focus:ring-2 focus:ring-gray-300 focus:outline-none"
+                        >
+                            <Icon
+                                name={showExtraSettings ? 'chevron-up' : 'chevron-down'}
+                                size={16}
+                            />
+                            <span>Extra Settings</span>
+                        </button>
+
+                        <!-- Extra Settings Panel as horizontal row -->
+                        {#if showExtraSettings}
+                            <div
+                                class="mt-4 w-full rounded-xl border border-gray-200 bg-gray-50/50 p-4 transition-all"
+                            >
+                                <h4 class="mb-3 text-center text-sm font-semibold text-gray-700">
+                                    Punctuation Pause Multipliers
+                                </h4>
+                                <div
+                                    class="flex flex-wrap items-center justify-center gap-3 sm:gap-4"
+                                >
+                                    <div class="flex items-center space-x-1">
+                                        <input
+                                            id="period"
+                                            type="number"
+                                            bind:value={periodMultiplier}
+                                            min="1"
+                                            max="10"
+                                            step="0.5"
+                                            class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-emerald-600 shadow-sm focus:border-emerald-300 focus:ring-2 focus:ring-emerald-200 focus:outline-none"
+                                        />
+                                        <label
+                                            for="period"
+                                            class="text-xs font-medium text-gray-600"
+                                            >. Period</label
+                                        >
+                                    </div>
+
+                                    <div class="flex items-center space-x-1">
+                                        <input
+                                            id="comma"
+                                            type="number"
+                                            bind:value={commaMultiplier}
+                                            min="1"
+                                            max="10"
+                                            step="0.5"
+                                            class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-blue-600 shadow-sm focus:border-blue-300 focus:ring-2 focus:ring-blue-200 focus:outline-none"
+                                        />
+                                        <label for="comma" class="text-xs font-medium text-gray-600"
+                                            >, Comma</label
+                                        >
+                                    </div>
+
+                                    <div class="flex items-center space-x-1">
+                                        <input
+                                            id="semicolon"
+                                            type="number"
+                                            bind:value={semicolonMultiplier}
+                                            min="1"
+                                            max="10"
+                                            step="0.5"
+                                            class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-orange-600 shadow-sm focus:border-orange-300 focus:ring-2 focus:ring-orange-200 focus:outline-none"
+                                        />
+                                        <label
+                                            for="semicolon"
+                                            class="text-xs font-medium text-gray-600"
+                                            >; : Colon</label
+                                        >
+                                    </div>
+
+                                    <div class="flex items-center space-x-1">
+                                        <input
+                                            id="exclamation"
+                                            type="number"
+                                            bind:value={exclamationMultiplier}
+                                            min="1"
+                                            max="10"
+                                            step="0.5"
+                                            class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-red-600 shadow-sm focus:border-red-300 focus:ring-2 focus:ring-red-200 focus:outline-none"
+                                        />
+                                        <label
+                                            for="exclamation"
+                                            class="text-xs font-medium text-gray-600"
+                                            >! ? Exclaim</label
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                        {/if}
+                    </div>
                 </div>
 
                 <!-- Table of Contents below the reader -->
                 {#if epubData && epubData.tableOfContents.length > 1}
-                    <div class="mt-12 w-full max-w-2xl">
-                        <h3 class="mb-4 flex items-center gap-2 text-lg font-bold text-gray-800">
-                            <Icon name="menu" size={20} className="text-indigo-500" />
-                            Table of Contents
-                        </h3>
-                        <div class="flex flex-col gap-2">
-                            {#each epubData.tableOfContents as item (item.order)}
-                                {@const isActive = isChapterActive(item)}
-                                <button
-                                    onclick={() => navigateToChapter(item.wordStartIndex)}
-                                    class="group flex items-center justify-between rounded-lg px-4 py-3 text-left transition-all duration-200"
-                                    class:bg-indigo-50={isActive}
-                                    class:hover:bg-gray-100={!isActive}
-                                >
-                                    <div class="flex min-w-0 items-center gap-3">
-                                        <div
-                                            class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-gray-200"
-                                        >
-                                            <span
-                                                class="text-xs font-bold transition-colors"
-                                                class:text-indigo-600={isActive}
-                                                class:text-gray-600={!isActive}
-                                                >{item.order + 1}</span
+                    <div class="mt-8 w-full max-w-2xl sm:mt-12">
+                        <button
+                            onclick={() => (showTableOfContents = !showTableOfContents)}
+                            class="mb-3 flex w-full items-center gap-2 text-base font-bold text-gray-800 transition-colors hover:text-indigo-700 sm:mb-4 sm:text-lg"
+                        >
+                            <Icon name="menu" size={18} className="text-indigo-500 sm:w-5 sm:h-5" />
+                            <span>Table of Contents</span>
+                            <Icon
+                                name={showTableOfContents ? 'chevron-up' : 'chevron-down'}
+                                size={16}
+                                className="ml-auto text-gray-400"
+                            />
+                        </button>
+
+                        {#if showTableOfContents}
+                            <div class="flex flex-col gap-2">
+                                {#each epubData.tableOfContents as item (item.order)}
+                                    {@const isActive = isChapterActive(item)}
+                                    <button
+                                        onclick={() => navigateToChapter(item.wordStartIndex)}
+                                        class="group flex items-center justify-between rounded-lg px-4 py-3 text-left transition-all duration-200"
+                                        class:bg-indigo-50={isActive}
+                                        class:hover:bg-gray-100={!isActive}
+                                    >
+                                        <div class="flex min-w-0 items-center gap-3">
+                                            <div
+                                                class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-gray-200"
                                             >
+                                                <span
+                                                    class="text-xs font-bold transition-colors"
+                                                    class:text-indigo-600={isActive}
+                                                    class:text-gray-600={!isActive}
+                                                    >{item.order + 1}</span
+                                                >
+                                            </div>
+                                            <div class="min-w-0 flex-1">
+                                                <p
+                                                    class="truncate text-sm font-medium transition-colors"
+                                                    class:text-indigo-700={isActive}
+                                                    class:text-gray-800={!isActive}
+                                                    class:group-hover:text-indigo-700={!isActive}
+                                                >
+                                                    {item.title || `Chapter ${item.order + 1}`}
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div class="min-w-0 flex-1">
-                                            <p
-                                                class="truncate text-sm font-medium transition-colors"
-                                                class:text-indigo-700={isActive}
-                                                class:text-gray-800={!isActive}
-                                                class:group-hover:text-indigo-700={!isActive}
-                                            >
-                                                {item.title || `Chapter ${item.order + 1}`}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <Icon
-                                        name="chevron-right"
-                                        size={16}
-                                        className="text-gray-400 transition-colors group-hover:text-indigo-500"
-                                    />
-                                </button>
-                            {/each}
-                        </div>
+                                        <Icon
+                                            name="chevron-right"
+                                            size={16}
+                                            className="text-gray-400 transition-colors group-hover:text-indigo-500"
+                                        />
+                                    </button>
+                                {/each}
+                            </div>
+                        {/if}
                     </div>
                 {/if}
 
                 <!-- Back to Library Button -->
-                <div class="mt-8 w-full max-w-2xl">
+                <div class="mt-6 w-full max-w-2xl sm:mt-8">
                     <button
                         onclick={backToLibrary}
-                        class="flex w-full items-center justify-center space-x-2 rounded-xl bg-gray-100 px-4 py-3 text-gray-700 transition-colors hover:bg-gray-200"
+                        class="flex w-full items-center justify-center space-x-2 rounded-xl bg-gray-100 px-3 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-200 sm:px-4 sm:py-3 sm:text-base"
                     >
-                        <Icon name="arrow-left" size={16} />
+                        <Icon name="arrow-left" size={14} className="sm:w-4 sm:h-4" />
                         <span>Back to Library</span>
                     </button>
                 </div>
