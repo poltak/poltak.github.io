@@ -43,6 +43,10 @@
     // Table of contents visibility
     let showTableOfContents = $state(true)
 
+    // Fullscreen functionality
+    let isFullscreen = $state(false)
+    let wordContainer: HTMLDivElement | null = null
+
     const currentWord = $derived(
         allWords[currentWordIndex] ?? (isPlaying ? '' : 'Press play to start'),
     )
@@ -236,7 +240,7 @@
         saveProgress()
     }
 
-    function getPuncturationMultiplier(word: string): number {
+    function getPunctuationMultiplier(word: string): number {
         /*
          * Look at the *first* punctuation mark from the end of the word, but skip over
          * any trailing quote / bracket characters. This way `you?"` or `hello!')` are
@@ -289,7 +293,7 @@
 
         // Get the current word to check for punctuation
         const currentWordText = allWords[currentWordIndex] || ''
-        const multiplier = getPuncturationMultiplier(currentWordText)
+        const multiplier = getPunctuationMultiplier(currentWordText)
 
         // Calculate interval in milliseconds with punctuation pause
         const baseIntervalMs = Math.max(60000 / wordsPerMinute, 50) // Minimum 50ms interval
@@ -414,6 +418,33 @@
                 progressSaveInterval = null
             }
         }
+    })
+
+    function toggleFullscreen() {
+        if (!wordContainer) return
+
+        if (!isFullscreen) {
+            // Enter fullscreen
+            if (wordContainer.requestFullscreen) {
+                wordContainer.requestFullscreen()
+            } else if ((wordContainer as any).webkitRequestFullscreen) {
+                ;(wordContainer as any).webkitRequestFullscreen()
+            }
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen()
+            } else if ((document as any).webkitExitFullscreen) {
+                ;(document as any).webkitExitFullscreen()
+            }
+        }
+    }
+
+    onMount(() => {
+        const handler = () => {
+            isFullscreen = !!document.fullscreenElement
+        }
+        document.addEventListener('fullscreenchange', handler)
+        return () => document.removeEventListener('fullscreenchange', handler)
     })
 </script>
 
@@ -660,6 +691,7 @@
                             class="absolute inset-0 rounded-2xl bg-gradient-to-r from-indigo-100 to-purple-100 opacity-60 blur-xl"
                         ></div>
                         <div
+                            bind:this={wordContainer}
                             class="relative flex min-h-[240px] items-center justify-center overflow-hidden rounded-2xl border border-gray-200/50 bg-gradient-to-br from-gray-50 to-white p-6 shadow-inner sm:min-h-[320px] sm:p-10 md:min-h-[400px] md:p-14 dark:border-gray-700/50 dark:from-gray-800 dark:to-gray-900"
                         >
                             <div class="relative h-full w-full select-none">
@@ -696,6 +728,14 @@
                                     {/each}
                                 </div>
                             </div>
+                            <!-- Fullscreen toggle button -->
+                            <button
+                                onclick={toggleFullscreen}
+                                class="absolute right-3 bottom-3 flex h-9 w-9 items-center justify-center rounded-full bg-gray-800/70 text-white backdrop-blur transition-colors hover:bg-gray-800/90 focus:ring-2 focus:ring-gray-400 focus:outline-none"
+                                title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+                            >
+                                <Icon name={isFullscreen ? 'minimize' : 'maximize'} size={18} />
+                            </button>
                         </div>
                     </div>
 
