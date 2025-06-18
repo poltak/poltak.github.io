@@ -237,13 +237,48 @@
     }
 
     function getPuncturationMultiplier(word: string): number {
-        // Check for punctuation at the end of the word
-        const lastChar = word.slice(-1)
+        /*
+         * Look at the *first* punctuation mark from the end of the word, but skip over
+         * any trailing quote / bracket characters. This way `you?"` or `hello!')` are
+         * handled correctly.
+         */
+        const trailingSkippable = new Set([
+            '"',
+            "'",
+            '”',
+            '’',
+            ')',
+            ']',
+            '}',
+            '›',
+            '»',
+            '”',
+            '“',
+            '’',
+            '‘',
+            '›',
+            '«',
+            '‹',
+            '‐',
+            '-',
+            '—',
+            '–',
+            '…',
+        ])
+
+        let i = word.length - 1
+        while (i >= 0 && trailingSkippable.has(word[i])) {
+            i--
+        }
+
+        const lastChar = i >= 0 ? word[i] : ''
+
         if (lastChar === '.') return periodMultiplier
         if (lastChar === ',') return commaMultiplier
         if (lastChar === ';' || lastChar === ':') return semicolonMultiplier
         if (lastChar === '!' || lastChar === '?') return exclamationMultiplier
-        return 1 // No punctuation: normal speed
+
+        return 1 // No relevant punctuation found
     }
 
     function scheduleNextWord() {
