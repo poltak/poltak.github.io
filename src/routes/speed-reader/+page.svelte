@@ -22,6 +22,8 @@
     // Rewind functionality
     let isRewinding = $state(false)
     let rewindInterval = $state<number | null>(null)
+    // Track whether reading should resume after rewinding
+    let resumeAfterRewind = false
 
     // Reset confirmation
     let showResetConfirmation = $state(false)
@@ -279,12 +281,19 @@
     function startRewind() {
         if (allWords.length === 0 || currentWordIndex <= 0) return
 
+        // If currently playing, pause and remember to resume later
+        resumeAfterRewind = isPlaying
+        if (isPlaying) {
+            pauseReading()
+        }
+
         isRewinding = true
 
         // Use faster speed for rewinding
         const rewindSpeed = Math.min(wordsPerMinute * 2, 800) // 2x speed, max 800 WPM
         const intervalMs = Math.max(60000 / rewindSpeed, 25) // Minimum 25ms interval
 
+        clearInterval(rewindInterval!)
         rewindInterval = setInterval(() => {
             if (currentWordIndex <= 0) {
                 stopRewind()
@@ -300,6 +309,12 @@
             clearInterval(rewindInterval)
             rewindInterval = null
         }
+
+        // Resume reading if it was playing before rewinding
+        if (resumeAfterRewind) {
+            startReading()
+        }
+        resumeAfterRewind = false
     }
 
     function resetReading() {
