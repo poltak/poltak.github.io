@@ -602,7 +602,7 @@
                 </div>
             </div>
         {:else}
-            <div class="flex flex-col items-center justify-start p-2 sm:p-4">
+            <div class="flex flex-col items-center justify-start">
                 <div class="w-full max-w-2xl space-y-4 sm:space-y-8">
                     <!-- Current Word Display with Context -->
                     <div class="relative">
@@ -610,41 +610,40 @@
                             class="absolute inset-0 rounded-2xl bg-gradient-to-r from-indigo-100 to-purple-100 opacity-60 blur-xl"
                         ></div>
                         <div
-                            class="relative flex min-h-[120px] items-center justify-center overflow-hidden rounded-2xl border border-gray-200/50 bg-gradient-to-br from-gray-50 to-white p-4 shadow-inner sm:min-h-[160px] sm:p-8 md:p-12 dark:border-gray-700/50 dark:from-gray-800 dark:to-gray-900"
+                            class="relative flex min-h-[240px] items-center justify-center overflow-hidden rounded-2xl border border-gray-200/50 bg-gradient-to-br from-gray-50 to-white p-6 shadow-inner sm:min-h-[320px] sm:p-10 md:min-h-[400px] md:p-14 dark:border-gray-700/50 dark:from-gray-800 dark:to-gray-900"
                         >
-                            <div
-                                class="relative flex h-full w-full items-center justify-center select-none"
-                            >
-                                <!-- Container for the current word with before/after positioned relative to it -->
-                                <div class="relative flex items-center">
-                                    <!-- Before words - positioned to the left of current word -->
-                                    <div class="mr-2 flex items-center gap-2 sm:mr-4 sm:gap-3">
-                                        {#each surroundingWords.before as word, i (i)}
-                                            <span
-                                                class="font-mono text-xl whitespace-nowrap text-gray-400 sm:text-2xl md:text-3xl dark:text-gray-500"
-                                            >
-                                                {word}
-                                            </span>
-                                        {/each}
-                                    </div>
+                            <div class="relative h-full w-full select-none">
+                                <!-- Before words (top) -->
+                                <div
+                                    class="absolute inset-x-0 bottom-16 flex flex-wrap justify-center gap-2 sm:gap-3"
+                                >
+                                    {#each surroundingWords.before as word, i (i)}
+                                        <span
+                                            class="font-mono text-xl whitespace-nowrap text-gray-400 sm:text-2xl md:text-3xl dark:text-gray-500"
+                                        >
+                                            {word}
+                                        </span>
+                                    {/each}
+                                </div>
 
-                                    <!-- Current word - centered within its container -->
-                                    <span
-                                        class="rounded-lg bg-gradient-to-r from-indigo-100 to-purple-100 px-2 py-1 font-mono text-3xl font-bold text-gray-900 sm:px-3 sm:text-4xl md:text-5xl dark:from-indigo-900/30 dark:to-purple-900/30 dark:text-gray-100"
-                                    >
-                                        {surroundingWords.current}
-                                    </span>
+                                <!-- Current word (center, fixed) -->
+                                <span
+                                    class="absolute inset-x-0 top-1/2 -translate-y-1/2 rounded-lg bg-gradient-to-r from-indigo-100 to-purple-100 px-4 py-2 text-center font-mono text-4xl font-bold break-words text-gray-900 sm:text-5xl md:text-6xl dark:from-indigo-900/30 dark:to-purple-900/30 dark:text-gray-100"
+                                >
+                                    {surroundingWords.current}
+                                </span>
 
-                                    <!-- After words - positioned to the right of current word -->
-                                    <div class="ml-2 flex items-center gap-2 sm:ml-4 sm:gap-3">
-                                        {#each surroundingWords.after as word, i (i)}
-                                            <span
-                                                class="font-mono text-xl whitespace-nowrap text-gray-400 sm:text-2xl md:text-3xl dark:text-gray-500"
-                                            >
-                                                {word}
-                                            </span>
-                                        {/each}
-                                    </div>
+                                <!-- After words (bottom) -->
+                                <div
+                                    class="absolute inset-x-0 top-16 flex flex-wrap justify-center gap-2 sm:gap-3"
+                                >
+                                    {#each surroundingWords.after as word, i (i)}
+                                        <span
+                                            class="font-mono text-xl whitespace-nowrap text-gray-400 sm:text-2xl md:text-3xl dark:text-gray-500"
+                                        >
+                                            {word}
+                                        </span>
+                                    {/each}
                                 </div>
                             </div>
                         </div>
