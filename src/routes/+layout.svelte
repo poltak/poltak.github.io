@@ -10,6 +10,7 @@
         <a class="nav-link" href="{base}/">About</a>
         <a class="nav-link" href="{base}/cv">Résumé</a>
         <a class="nav-link" href="{base}/contact">Contact</a>
+        <a class="nav-link" href="{base}/fun">Fun</a>
     </nav>
     <!-- <div class="nav-split"></div> -->
 </div>
