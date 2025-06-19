@@ -47,6 +47,9 @@
     let isFullscreen = $state(false)
     let wordContainer: HTMLDivElement | null = null
 
+    // Track current chapter to detect transitions
+    let currentChapterIndex = $state(0)
+
     const currentWord = $derived(
         allWords[currentWordIndex] ?? (isPlaying ? '' : 'Press play to start'),
     )
@@ -301,7 +304,17 @@
 
         readingInterval = setTimeout(() => {
             if (!isPlaying) return // Safety check in case reading was paused
+
             currentWordIndex++
+
+            // Detect chapter change & pause if a new chapter is reached
+            const newChap = getChapterIndex(currentWordIndex)
+            if (newChap !== currentChapterIndex) {
+                currentChapterIndex = newChap
+                pauseReading()
+                return // don't schedule next word until user resumes
+            }
+
             scheduleNextWord() // Schedule the next word
         }, actualIntervalMs)
     }
@@ -381,6 +394,7 @@
         }
 
         currentWordIndex = Math.min(wordStartIndex, allWords.length - 1)
+        currentChapterIndex = getChapterIndex(currentWordIndex)
 
         if (wasPlaying) {
             startReading()
@@ -446,6 +460,15 @@
         document.addEventListener('fullscreenchange', handler)
         return () => document.removeEventListener('fullscreenchange', handler)
     })
+
+    function getChapterIndex(wordIndex: number): number {
+        if (!epubData) return 0
+        // Assumes tableOfContents is sorted by wordStartIndex / order
+        for (let i = epubData.tableOfContents.length - 1; i >= 0; i--) {
+            if (wordIndex >= epubData.tableOfContents[i].wordStartIndex) return i
+        }
+        return 0
+    }
 </script>
 
 <svelte:head>
@@ -1037,7 +1060,15 @@
 
                         {#if showTableOfContents}
                             <div class="flex flex-col gap-2">
-                                {#each epubData.tableOfContents as item (item.order)}
+                                {#each epubData.tableOfContents as item, idx (item.order)}
+                                    {@const nextStart =
+                                        epubData.tableOfContents[idx + 1]?.wordStartIndex ??
+                                        allWords.length}
+                                    {@const wordCount = nextStart - item.wordStartIndex}
+                                    {@const estMinutes = Math.max(
+                                        1,
+                                        Math.round(wordCount / wordsPerMinute),
+                                    )}
                                     {@const isActive = isChapterActive(item)}
                                     <button
                                         onclick={() => navigateToChapter(item.wordStartIndex)}
@@ -1071,6 +1102,13 @@
                                                     class:dark:group-hover:text-indigo-400={!isActive}
                                                 >
                                                     {item.title || `Chapter ${item.order + 1}`}
+                                                </p>
+
+                                                <p
+                                                    class="truncate text-xs text-gray-500 dark:text-gray-400"
+                                                >
+                                                    {wordCount.toLocaleString()} words · {estMinutes}
+                                                    min
                                                 </p>
                                             </div>
                                         </div>
