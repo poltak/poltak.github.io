@@ -1,7 +1,13 @@
 @import 'tailwindcss';
 
+body {
+    line-height: 1.6;
+    font-size: 18px;
+    padding: 0 10px;
+}
+
 :root {
-    --text-color: #000;
+    --text-color: #444;
     --bg-color: #fff;
     --hover-bg: rgba(0, 0, 0, 0.1);
     --border-color: #000;
@@ -13,6 +19,50 @@
         --bg-color: #1a1a1a;
         --hover-bg: rgba(255, 255, 255, 0.1);
         --border-color: #444;
+    }
+}
+
+@layer base {
+    h1 {
+        font-size: var(--text-3xl);
+        line-height: 3.2;
+        font-weight: 900;
+    }
+    h2 {
+        font-size: var(--text-2xl);
+        line-height: 3.2;
+        font-weight: 800;
+    }
+
+    h3 {
+        font-size: var(--text-xl);
+        line-height: 2.2;
+        font-weight: 700;
+    }
+
+    h4 {
+        font-size: var(--text-lg);
+        line-height: 2.2;
+        font-weight: 600;
+    }
+
+    ul {
+        list-style-type: disc;
+        padding-left: 1rem;
+    }
+
+    a {
+        color: var(--color-blue-500);
+        text-decoration: underline;
+        text-decoration-thickness: 0.1em;
+        text-underline-offset: 0.1em;
+    }
+
+    a:hover {
+        color: var(--color-blue-600);
+        text-decoration: underline;
+        text-decoration-thickness: 0.1em;
+        text-underline-offset: 0.1em;
     }
 }
 
