@@ -29,7 +29,7 @@
     let showResetConfirmation = $state(false)
 
     // Number of surrounding words to show on each side
-    let surroundingWordsCount = $state(3)
+    let surroundingWordsCount = $state(10)
 
     // Punctuation pause multipliers
     let periodMultiplier = $state(3)
@@ -728,14 +728,51 @@
                                     {/each}
                                 </div>
                             </div>
-                            <!-- Fullscreen toggle button -->
-                            <button
-                                onclick={toggleFullscreen}
-                                class="absolute right-3 bottom-3 flex h-9 w-9 items-center justify-center rounded-full bg-gray-800/70 text-white backdrop-blur transition-colors hover:bg-gray-800/90 focus:ring-2 focus:ring-gray-400 focus:outline-none"
-                                title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+
+                            <div
+                                class="pointer-events-auto absolute inset-x-0 bottom-3 flex items-center justify-center gap-4"
                             >
-                                <Icon name={isFullscreen ? 'minimize' : 'maximize'} size={18} />
-                            </button>
+                                {#if isFullscreen}
+                                    <!-- Rewind -->
+                                    <button
+                                        onmousedown={startRewind}
+                                        onmouseup={stopRewind}
+                                        onmouseleave={stopRewind}
+                                        ontouchstart={startRewind}
+                                        ontouchend={stopRewind}
+                                        class="rounded-full bg-amber-500 p-3 text-white transition-all duration-200 hover:scale-110 hover:bg-amber-600 active:scale-95 disabled:opacity-50"
+                                        disabled={allWords.length === 0 || currentWordIndex <= 0}
+                                        title="Hold to rewind"
+                                        class:bg-amber-600={isRewinding}
+                                        class:scale-95={isRewinding}
+                                    >
+                                        <Icon name="rewind" size={20} />
+                                    </button>
+
+                                    <!-- Play / Pause -->
+                                    <button
+                                        onclick={togglePlayPause}
+                                        class="rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 p-4 text-white shadow-lg transition-all duration-200 hover:scale-110 hover:shadow-xl disabled:opacity-50"
+                                        disabled={allWords.length === 0}
+                                        aria-label={isPlaying ? 'Pause' : 'Play'}
+                                    >
+                                        {#if isPlaying}
+                                            <Icon name="pause" size={24} />
+                                        {:else}
+                                            <Icon name="play" size={24} />
+                                        {/if}
+                                    </button>
+                                {/if}
+
+                                <!-- Fullscreen toggle button -->
+                                <button
+                                    onclick={toggleFullscreen}
+                                    class="absolute right-3 bottom-3 flex h-9 w-9 items-center justify-center rounded-full bg-gray-800/70 text-white backdrop-blur transition-colors hover:bg-gray-800/90 focus:ring-2 focus:ring-gray-400 focus:outline-none"
+                                    title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+                                >
+                                    <Icon name={isFullscreen ? 'minimize' : 'maximize'} size={18} />
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -775,19 +812,6 @@
                     <!-- Controls -->
                     <div class="flex items-center justify-center space-x-4 sm:space-x-8">
                         <button
-                            onclick={togglePlayPause}
-                            class="rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 p-4 text-white shadow-lg transition-all duration-200 hover:scale-110 hover:shadow-xl disabled:opacity-50 sm:p-6"
-                            disabled={allWords.length === 0}
-                            aria-label={isPlaying ? 'Pause' : 'Play'}
-                        >
-                            {#if isPlaying}
-                                <Icon name="pause" size={24} className="sm:w-8 sm:h-8" />
-                            {:else}
-                                <Icon name="play" size={24} className="sm:w-8 sm:h-8" />
-                            {/if}
-                        </button>
-
-                        <button
                             onmousedown={startRewind}
                             onmouseup={stopRewind}
                             onmouseleave={stopRewind}
@@ -800,6 +824,19 @@
                             class:scale-95={isRewinding}
                         >
                             <Icon name="rewind" size={20} className="sm:w-6 sm:h-6" />
+                        </button>
+
+                        <button
+                            onclick={togglePlayPause}
+                            class="rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 p-4 text-white shadow-lg transition-all duration-200 hover:scale-110 hover:shadow-xl disabled:opacity-50 sm:p-6"
+                            disabled={allWords.length === 0}
+                            aria-label={isPlaying ? 'Pause' : 'Play'}
+                        >
+                            {#if isPlaying}
+                                <Icon name="pause" size={24} className="sm:w-8 sm:h-8" />
+                            {:else}
+                                <Icon name="play" size={24} className="sm:w-8 sm:h-8" />
+                            {/if}
                         </button>
 
                         <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
@@ -827,7 +864,7 @@
                                     type="number"
                                     bind:value={surroundingWordsCount}
                                     min="0"
-                                    max="8"
+                                    max="100"
                                     step="1"
                                     class="w-14 rounded-full border-gray-200 bg-white px-2 py-1.5 text-center text-sm font-bold text-purple-600 shadow-sm focus:border-purple-300 focus:ring-2 focus:ring-purple-200 focus:outline-none sm:w-16 sm:px-3 sm:py-2 dark:border-gray-600 dark:bg-gray-800 dark:text-purple-400 dark:focus:border-purple-400 dark:focus:ring-purple-800"
                                 />
