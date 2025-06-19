@@ -694,10 +694,10 @@
                             bind:this={wordContainer}
                             class="relative flex min-h-[240px] items-center justify-center overflow-hidden rounded-2xl border border-gray-200/50 bg-gradient-to-br from-gray-50 to-white p-6 shadow-inner sm:min-h-[320px] sm:p-10 md:min-h-[400px] md:p-14 dark:border-gray-700/50 dark:from-gray-800 dark:to-gray-900"
                         >
-                            <div class="relative h-full w-full select-none">
+                            <div class="relative h-[30rem] w-full select-none">
                                 <!-- Before words (top) -->
                                 <div
-                                    class="absolute inset-x-0 bottom-16 flex flex-wrap justify-center gap-2 sm:gap-3"
+                                    class="absolute inset-x-0 top-8 flex flex-wrap justify-center gap-2 sm:gap-3"
                                 >
                                     {#each surroundingWords.before as word, i (i)}
                                         <span
@@ -717,7 +717,7 @@
 
                                 <!-- After words (bottom) -->
                                 <div
-                                    class="absolute inset-x-0 top-16 flex flex-wrap justify-center gap-2 sm:gap-3"
+                                    class="absolute inset-x-0 bottom-8 flex flex-wrap justify-center gap-2 sm:gap-3"
                                 >
                                     {#each surroundingWords.after as word, i (i)}
                                         <span
