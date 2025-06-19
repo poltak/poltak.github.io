@@ -1,42 +1,11 @@
 <script lang="ts">
     import '../app.css'
     import { base } from '$app/paths'
-    import { onMount } from 'svelte'
-    import Icon from '$lib/components/icons/Icon.svelte'
 
-    let darkMode = $state(true)
     let { children } = $props()
-
-    onMount(() => {
-        // Check for saved theme preference or system preference
-        const savedTheme = localStorage.getItem('theme')
-        if (
-            savedTheme === 'dark' ||
-            (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)
-        ) {
-            darkMode = true
-            document.documentElement.classList.add('dark')
-        } else {
-            darkMode = false
-            document.documentElement.classList.remove('dark')
-        }
-    })
-
-    function toggleTheme() {
-        darkMode = !darkMode
-        localStorage.setItem('theme', darkMode ? 'dark' : 'light')
-        document.documentElement.classList.toggle('dark')
-    }
 </script>
 
 <div class="nav-area nav-split">
-    <button class="theme-toggle" onclick={toggleTheme} aria-label="Toggle theme">
-        {#if darkMode}
-            <Icon name="moon" />
-        {:else}
-            <Icon name="sun" />
-        {/if}
-    </button>
     <nav class="nav-bar">
         <a class="nav-link" href="{base}/">About</a>
         <a class="nav-link" href="{base}/cv">Résumé</a>
@@ -126,34 +95,6 @@
         @media screen and (max-width: 768px) {
             margin: 0;
         }
-    }
-
-    .theme-toggle {
-        position: fixed;
-        top: 1rem;
-        right: 1rem;
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 0.5rem;
-        border-radius: 50%;
-        transition: all 0.2s ease;
-        color: var(--text-color);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .theme-toggle:hover {
-        background-color: var(--hover-bg);
-        transform: rotate(12deg);
-    }
-
-    :global(.dark) {
-        --text-color: #fff;
-        --bg-color: #1a1a1a;
-        --hover-bg: rgba(255, 255, 255, 0.1);
-        --border-color: #444;
     }
 
     :global(body) {

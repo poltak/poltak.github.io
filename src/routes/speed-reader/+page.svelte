@@ -488,8 +488,12 @@
                         >
                             <Icon name="book" size={32} className="text-white" />
                         </div>
-                        <h1 class="mb-3 text-4xl font-bold text-gray-800">EPUB Speed Reader</h1>
-                        <p class="text-gray-600">Your personal library of speed-readable books</p>
+                        <h1 class="mb-3 text-4xl font-bold text-gray-800 dark:text-gray-200">
+                            EPUB Speed Reader
+                        </h1>
+                        <p class="text-gray-600 dark:text-gray-400">
+                            Your personal library of speed-readable books
+                        </p>
                     </div>
 
                     <!-- Upload Section -->
@@ -508,7 +512,7 @@
                                 <div
                                     class="pointer-events-none absolute inset-0 flex items-center justify-center"
                                 >
-                                    <div class="text-center text-gray-500">
+                                    <div class="text-center text-gray-500 dark:text-gray-400">
                                         <Icon
                                             name="upload-cloud"
                                             size={32}
@@ -599,12 +603,16 @@
                     {:else if storedBooks.length === 0}
                         <div class="py-12 text-center">
                             <Icon name="book" size={48} className="mx-auto mb-4 text-gray-400" />
-                            <h3 class="mb-2 text-xl font-semibold text-gray-700">No books yet</h3>
-                            <p class="text-gray-500">Upload your first EPUB file to get started</p>
+                            <h3 class="mb-2 text-xl font-semibold text-gray-700 dark:text-gray-200">
+                                No books yet
+                            </h3>
+                            <p class="text-gray-500 dark:text-gray-400">
+                                Upload your first EPUB file to get started
+                            </p>
                         </div>
                     {:else}
                         <div>
-                            <h2 class="mb-4 text-2xl font-bold text-gray-800">
+                            <h2 class="mb-4 text-2xl font-bold text-gray-800 dark:text-gray-200">
                                 Your Library ({storedBooks.length} books)
                             </h2>
                             <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -646,7 +654,7 @@
 
                                         <div class="mb-4">
                                             <div
-                                                class="mb-1 flex justify-between text-xs text-gray-500"
+                                                class="mb-1 flex justify-between text-xs text-gray-500 dark:text-gray-400"
                                             >
                                                 <span>Progress</span>
                                                 <span>{progressPercentage}%</span>
@@ -660,7 +668,7 @@
                                         </div>
 
                                         <div
-                                            class="flex items-center justify-between text-xs text-gray-500"
+                                            class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400"
                                         >
                                             <span>{book.totalWords.toLocaleString()} words</span>
                                             <span>
@@ -673,13 +681,13 @@
                                             <div class="absolute top-2 left-2">
                                                 {#if progressPercentage >= 100}
                                                     <div
-                                                        class="rounded-full bg-green-500 px-2 py-1 text-xs font-semibold text-white"
+                                                        class="rounded-full bg-green-500 px-2 py-1 text-xs font-semibold text-white dark:text-gray-900"
                                                     >
                                                         Complete
                                                     </div>
                                                 {:else}
                                                     <div
-                                                        class="rounded-full bg-indigo-500 px-2 py-1 text-xs font-semibold text-white"
+                                                        class="rounded-full bg-indigo-500 px-2 py-1 text-xs font-semibold text-white dark:text-gray-900"
                                                     >
                                                         {progressPercentage}%
                                                     </div>
@@ -1178,3 +1186,9 @@
         {/if}
     </div>
 </main>
+
+<style>
+    input[type='file'] {
+        color: transparent;
+    }
+</style>

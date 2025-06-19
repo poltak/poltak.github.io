@@ -7,6 +7,15 @@
     --border-color: #000;
 }
 
+@media (prefers-color-scheme: dark) {
+    :root {
+        --text-color: #fff;
+        --bg-color: #1a1a1a;
+        --hover-bg: rgba(255, 255, 255, 0.1);
+        --border-color: #444;
+    }
+}
+
 .site {
     font-family: sans-serif;
     display: grid;
