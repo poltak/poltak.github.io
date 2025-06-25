@@ -25,6 +25,9 @@
     // Track whether reading should resume after rewinding
     let resumeAfterRewind = false
 
+    // Hold to pause functionality
+    let wasPlayingBeforeHold = $state(false)
+
     // Reset confirmation
     let showResetConfirmation = $state(false)
 
@@ -491,6 +494,26 @@
         }
         return 0
     }
+
+    function handleHoldStart(event: MouseEvent | TouchEvent) {
+        // Don't trigger hold-to-pause if clicking on interactive elements
+        const target = event.target as HTMLElement
+        if (target.closest('button') || target.closest('[role="button"]')) {
+            return
+        }
+
+        if (isPlaying) {
+            wasPlayingBeforeHold = true
+            pauseReading()
+        }
+    }
+
+    function handleHoldEnd() {
+        if (wasPlayingBeforeHold) {
+            wasPlayingBeforeHold = false
+            startReading()
+        }
+    }
 </script>
 
 <svelte:head>
@@ -743,9 +766,16 @@
                         <div
                             class="absolute inset-0 rounded-2xl bg-gradient-to-r from-indigo-100 to-purple-100 opacity-60 blur-xl"
                         ></div>
+                        <!-- svelte-ignore a11y_no_static_element_interactions -->
                         <div
                             bind:this={wordContainer}
                             class="relative flex min-h-[240px] items-center justify-center overflow-hidden rounded-2xl border border-gray-200/50 bg-gradient-to-br from-gray-50 to-white p-6 shadow-inner sm:min-h-[320px] sm:p-10 md:min-h-[400px] md:p-14 dark:border-gray-700/50 dark:from-gray-800 dark:to-gray-900"
+                            onmousedown={handleHoldStart}
+                            onmouseup={handleHoldEnd}
+                            onmouseleave={handleHoldEnd}
+                            ontouchstart={handleHoldStart}
+                            ontouchend={handleHoldEnd}
+                            ontouchcancel={handleHoldEnd}
                         >
                             <div class="relative h-[30rem] w-full select-none">
                                 <!-- Before words (top) -->
