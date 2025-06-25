@@ -50,6 +50,28 @@
     // Track current chapter to detect transitions
     let currentChapterIndex = $state(0)
 
+    // Chapter progress calculations
+    const currentChapter = $derived.by(() => {
+        if (!epubData || !epubData.tableOfContents.length) return null
+        return epubData.tableOfContents[currentChapterIndex] || null
+    })
+
+    const chapterProgress = $derived.by(() => {
+        if (!currentChapter || !epubData)
+            return { percentage: 0, wordsRemaining: 0, timeRemaining: 0 }
+
+        const nextChapter = epubData.tableOfContents[currentChapterIndex + 1]
+        const chapterEndIndex = nextChapter ? nextChapter.wordStartIndex : allWords.length
+        const chapterTotalWords = chapterEndIndex - currentChapter.wordStartIndex
+        const wordsReadInChapter = Math.max(0, currentWordIndex - currentChapter.wordStartIndex)
+        const wordsRemaining = Math.max(0, chapterTotalWords - wordsReadInChapter)
+        const percentage =
+            chapterTotalWords > 0 ? (wordsReadInChapter / chapterTotalWords) * 100 : 0
+        const timeRemaining = wordsPerMinute > 0 ? Math.ceil(wordsRemaining / wordsPerMinute) : 0
+
+        return { percentage, wordsRemaining, timeRemaining }
+    })
+
     const currentWord = $derived(
         allWords[currentWordIndex] ?? (isPlaying ? '' : 'Press play to start'),
     )
@@ -759,6 +781,29 @@
                                     {/each}
                                 </div>
                             </div>
+
+                            <!-- Minimal Chapter Progress Bar -->
+                            {#if currentChapter && epubData && epubData.tableOfContents.length > 1}
+                                <div
+                                    class="absolute inset-x-0 bottom-0 h-1 bg-gray-200/30 dark:bg-gray-700/30"
+                                >
+                                    <div
+                                        class="h-1 bg-gradient-to-r from-purple-400 to-pink-400 transition-all duration-300"
+                                        style="width: {chapterProgress.percentage}%"
+                                    ></div>
+                                </div>
+
+                                <!-- Time Remaining in bottom right -->
+                                {#if chapterProgress.timeRemaining > 0}
+                                    <div class="pointer-events-none absolute right-2 bottom-2">
+                                        <div class="flex items-center space-x-1 px-2 py-1">
+                                            <span class="text-xs text-white">
+                                                {chapterProgress.timeRemaining} min left
+                                            </span>
+                                        </div>
+                                    </div>
+                                {/if}
+                            {/if}
 
                             <div
                                 class="pointer-events-auto absolute inset-x-0 bottom-3 flex items-center justify-center gap-4"
