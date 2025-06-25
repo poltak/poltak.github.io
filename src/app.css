@@ -67,7 +67,7 @@ body {
 }
 
 .site {
-    font-family: sans-serif;
+    font-family: serif;
     display: grid;
     grid-template-columns: [first] 10rem [padding-left] 200px [split] 5fr [padding-right] 1fr [last];
     grid-template-rows: [first] 10rem [content-top] 5fr [content-bottom] 1fr [last];
