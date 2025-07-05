@@ -12,7 +12,6 @@
         <a class="nav-link" href="{base}/contact">Contact</a>
         <a class="nav-link" href="{base}/fun">Fun</a>
     </nav>
-    <!-- <div class="nav-split"></div> -->
 </div>
 
 <div class="content-area">
@@ -40,7 +39,6 @@
         grid-column: split / padding-right;
         grid-row: content-top / content-bottom;
         padding: 2rem 5rem;
-        max-width: 720px;
 
         @media screen and (max-width: 768px) {
             padding: 2rem 1rem;
