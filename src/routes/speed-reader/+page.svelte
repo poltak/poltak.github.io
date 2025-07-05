@@ -2,6 +2,7 @@
     import { EpubParser, type EpubData, type TableOfContents } from '$lib/epub-parser'
     import { epubStorage, type StoredBook, type ReadingProgress } from '$lib/storage/epub-storage'
     import Icon from '$lib/components/icons/Icon.svelte'
+    import { getPunctuationMultiplier } from '$lib/punctuation-utils'
     import { onMount } from 'svelte'
 
     let fileInput = $state<HTMLInputElement>()
@@ -268,51 +269,6 @@
         saveProgress()
     }
 
-    function getPunctuationMultiplier(word: string): number {
-        /*
-         * Look at the *first* punctuation mark from the end of the word, but skip over
-         * any trailing quote / bracket characters. This way `you?"` or `hello!')` are
-         * handled correctly.
-         */
-        const trailingSkippable = new Set([
-            '"',
-            "'",
-            '”',
-            '’',
-            ')',
-            ']',
-            '}',
-            '›',
-            '»',
-            '”',
-            '“',
-            '’',
-            '‘',
-            '›',
-            '«',
-            '‹',
-            '‐',
-            '-',
-            '—',
-            '–',
-            '…',
-        ])
-
-        let i = word.length - 1
-        while (i >= 0 && trailingSkippable.has(word[i])) {
-            i--
-        }
-
-        const lastChar = i >= 0 ? word[i] : ''
-
-        if (lastChar === '.') return periodMultiplier
-        if (lastChar === ',') return commaMultiplier
-        if (lastChar === ';' || lastChar === ':') return semicolonMultiplier
-        if (lastChar === '!' || lastChar === '?') return exclamationMultiplier
-
-        return 1 // No relevant punctuation found
-    }
-
     function scheduleNextWord() {
         if (currentWordIndex >= allWords.length - 1) {
             pauseReading()
@@ -321,7 +277,13 @@
 
         // Get the current word to check for punctuation
         const currentWordText = allWords[currentWordIndex] || ''
-        const multiplier = getPunctuationMultiplier(currentWordText)
+        const multiplier = getPunctuationMultiplier(
+            currentWordText,
+            periodMultiplier,
+            commaMultiplier,
+            semicolonMultiplier,
+            exclamationMultiplier,
+        )
 
         // Calculate interval in milliseconds with punctuation pause
         const baseIntervalMs = Math.max(60000 / wordsPerMinute, 50) // Minimum 50ms interval
