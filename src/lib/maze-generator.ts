@@ -1,4 +1,8 @@
 export type Point = [number, number]
+/**
+ * Tuple containing the inbetween point then the neighbor point.
+ */
+export type NeighborIndex = [number | null, number | null]
 
 const initRandomInt = (seed: number) => (min: number, max: number) => {
     return Math.floor(Math.random() * (max - min + 1)) + min
@@ -16,29 +20,92 @@ export class MazeGenerator {
         this.randomInt = initRandomInt(deps.seed)
     }
 
-    private initMaze(): boolean[][] {
-        return Array.from({ length: this.deps.mazeSize }, () =>
-            Array(this.deps.mazeSize).fill(true),
-        )
+    private initMaze(): boolean[] {
+        return Array(this.deps.mazeSize * this.deps.mazeSize).fill(true)
+    }
+
+    pointToIndex(point: Point): number {
+        return point[1] * this.deps.mazeSize + point[0]
+    }
+
+    indexToPoint(index: number): Point {
+        return [index % this.deps.mazeSize, Math.floor(index / this.deps.mazeSize)]
     }
 
     /**
-     * For a given point, gets the valid neighbors at least 2 cells away.
+     * For a given point, gets the valid neighbor cells which are exactly 2 cells away.
+     * TODO: Make this distance agnostic
      */
-    private getNeighbors([x, y]: Point) {
-        const neighbors: Point[] = []
-        if (x - 2 > 0) neighbors.push([x - 2, y]) // left
-        if (x + 2 < this.deps.mazeSize) neighbors.push([x + 2, y]) // right
-        if (y - 2 > 0) neighbors.push([x, y - 2]) // up
-        if (y + 2 < this.deps.mazeSize) neighbors.push([x, y + 2]) // down
-        return neighbors
+    private getExpansionCandidateNeighbors(index: number): NeighborIndex[] {
+        return [
+            [this.getTopNeighbor(index, 1), this.getTopNeighbor(index, 2)],
+            [this.getBottomNeighbor(index, 1), this.getBottomNeighbor(index, 2)],
+            [this.getLeftNeighbor(index, 1), this.getLeftNeighbor(index, 2)],
+            [this.getRightNeighbor(index, 1), this.getRightNeighbor(index, 2)],
+        ]
     }
 
-    private findInbetweenPoint(current: Point, next: Point): Point {
-        if (current[0] === next[0]) {
-            return [current[0], Math.ceil((current[1] + next[1]) / 2)]
-        } else {
-            return [Math.ceil((current[0] + next[0]) / 2), current[1]]
+    private getTopNeighbor(index: number, distance: number): number | null {
+        const indexUpperBound = this.deps.mazeSize * this.deps.mazeSize
+        if (index + this.deps.mazeSize * distance < indexUpperBound) {
+            return index + this.deps.mazeSize * distance
+        }
+        return null
+    }
+
+    private getBottomNeighbor(index: number, distance: number): number | null {
+        const indexLowerBound = 0
+        if (index - this.deps.mazeSize * distance >= indexLowerBound) {
+            return index - this.deps.mazeSize * distance
+        }
+        return null
+    }
+
+    private getLeftNeighbor(index: number, distance: number): number | null {
+        const xValue = index % this.deps.mazeSize
+        if (xValue >= distance) {
+            return index - distance
+        }
+        return null
+    }
+
+    private getRightNeighbor(index: number, distance: number): number | null {
+        const xValue = index % this.deps.mazeSize
+        if (xValue < this.deps.mazeSize - distance) {
+            return index + distance
+        }
+        return null
+    }
+
+    private pickRandomNeighbor(
+        neighbors: NeighborIndex[],
+        history: number[],
+    ): { inbetweenIndex: number | null; neighborIndex: number } | null {
+        if (neighbors.length === 0) {
+            return null
+        }
+        const randomIndex = this.randomInt(0, neighbors.length - 1)
+        const [inbetweenIndex, neighborIndex] = neighbors[randomIndex]
+
+        // Return the inbetween point as the neighbor if the neighbor doesn't exist (OOB)
+        //  This avoids the case where there's one row of unvisited cells on the maze walls
+        if (neighborIndex === null && inbetweenIndex !== null) {
+            return {
+                inbetweenIndex: null,
+                neighborIndex: inbetweenIndex,
+            }
+        }
+
+        // If the neighbor doesn't exist (OOB) or already in the history, recurse to try again
+        if (inbetweenIndex === null || neighborIndex === null || history.includes(neighborIndex)) {
+            const nextNeighbors = neighbors.filter(
+                ([, neighborIndex]) => neighborIndex != null && !history.includes(neighborIndex!),
+            )
+            return this.pickRandomNeighbor(nextNeighbors, history)
+        }
+        return {
+            inbetweenIndex,
+            neighborIndex,
         }
     }
 
@@ -47,52 +114,43 @@ export class MazeGenerator {
      * @param seed - The seed for the random number generator.
      * @returns The maze as a 2D array of booleans. `true` means a wall, `false` means a path.
      */
-    generateMaze(): { maze: boolean[][]; startingPoint: Point; history: Point[] } {
+    generateMazeDFS(): {
+        maze: boolean[]
+        startIndex: number
+        endIndex: number
+        history: number[]
+    } {
         const maze = this.initMaze()
-        const startingPoint: Point = [
-            this.randomInt(0, this.deps.mazeSize - 1),
-            this.randomInt(0, this.deps.mazeSize - 1),
-        ]
-        const stack: Point[] = [startingPoint]
-        const history: Point[] = []
-
-        const breakDownWall = (current: Point, next: Point) => {
-            maze[current[1]][current[0]] = false
-            maze[next[1]][next[0]] = false
-            const inbetweenPoint = this.findInbetweenPoint(current, next)
-            maze[inbetweenPoint[1]][inbetweenPoint[0]] = false
-        }
+        const startIndex = this.randomInt(0, this.deps.mazeSize * this.deps.mazeSize - 1)
+        const stack: number[] = [startIndex]
+        const history: number[] = []
 
         while (stack.length > 0) {
-            const current = stack[stack.length - 1]
-            const neighbors = this.getNeighbors(current)
-            let next = neighbors[this.randomInt(0, neighbors.length - 1)]
+            const currentIndex = stack[stack.length - 1]
+            const neighbors = this.getExpansionCandidateNeighbors(currentIndex)
 
-            // Keep trying the neighbors until we find one that's a wall
-            for (
-                let attempt = 0;
-                !maze[next[1]][next[0]] && attempt < neighbors.length;
-                attempt++
-            ) {
-                next = neighbors[this.randomInt(0, neighbors.length - 1)]
+            let randomNeighbor = this.pickRandomNeighbor(neighbors, history)
+            if (randomNeighbor === null) {
+                stack.pop()
+                continue
             }
 
-            // If the next point is a wall, break down everything between the current and there
-            if (maze[next[1]][next[0]]) {
-                try {
-                    breakDownWall(current, next)
-                } catch (error) {
-                    console.log('error:', error)
-                    break
-                }
-                stack.push(next)
-                console.log('next:', `${next[0] + 1}, ${next[1] + 1}`)
-                history.push(next)
-            } else {
-                stack.pop()
+            // Mark the neighbor + the inbetween cell as false to break down the wall
+            if (randomNeighbor.inbetweenIndex !== null) {
+                maze[randomNeighbor.inbetweenIndex] = false
+                history.push(randomNeighbor.inbetweenIndex)
+            }
+            maze[randomNeighbor.neighborIndex] = false
+            history.push(randomNeighbor.neighborIndex)
+
+            // Only push the target neighbor to the stack, not the inbetween point
+            // else we'll end up breaking down every single cell wall in the maze
+            if (randomNeighbor.inbetweenIndex !== null) {
+                stack.push(randomNeighbor.neighborIndex)
             }
         }
 
-        return { maze, startingPoint, history }
+        const endIndex = history[history.length - 1]
+        return { maze, startIndex, endIndex, history }
     }
 }
