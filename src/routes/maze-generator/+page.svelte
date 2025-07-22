@@ -2,7 +2,8 @@
     import { MazeGenerator } from '$lib/maze-generator'
 
     let mazeSize = $state(25)
-    const mazeGenerator = new MazeGenerator({ mazeSize: mazeSize, seed: 1 })
+    let seed = $state(new Date().toISOString().split('T')[0])
+    const mazeGenerator = new MazeGenerator({ mazeSize: mazeSize, seed })
     let generated = mazeGenerator.generateMazeDFS()
     let startIndex = $state(generated.startIndex)
     let endIndex = $state(generated.endIndex)
@@ -11,6 +12,9 @@
 
     let startingPoint = $derived(mazeGenerator.indexToPoint(startIndex))
 
+    $effect(() => {
+        mazeGenerator.setSeed(seed)
+    })
     $effect(() => {
         console.log(
             'history:',

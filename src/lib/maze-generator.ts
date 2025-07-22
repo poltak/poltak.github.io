@@ -1,11 +1,14 @@
+import seedrandom from 'seedrandom'
+
 export type Point = [number, number]
 /**
  * Tuple containing the inbetween point then the neighbor point.
  */
 export type NeighborIndex = [number | null, number | null]
 
-const initRandomInt = (seed: number) => (min: number, max: number) => {
-    return Math.floor(Math.random() * (max - min + 1)) + min
+const initRandomInt = (seed: string) => {
+    let rng = seedrandom(seed)
+    return (min: number, max: number) => Math.floor(rng() * (max - min + 1)) + min
 }
 
 export class MazeGenerator {
@@ -14,7 +17,7 @@ export class MazeGenerator {
     constructor(
         private deps: {
             mazeSize: number
-            seed: number
+            seed: string
         },
     ) {
         this.randomInt = initRandomInt(deps.seed)
@@ -32,6 +35,9 @@ export class MazeGenerator {
         return [index % this.deps.mazeSize, Math.floor(index / this.deps.mazeSize)]
     }
 
+    setSeed(seed: string) {
+        this.randomInt = initRandomInt(seed)
+    }
     /**
      * For a given point, gets the valid neighbor cells which are exactly 2 cells away.
      * TODO: Make this distance agnostic
