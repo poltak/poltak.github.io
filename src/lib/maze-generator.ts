@@ -1,12 +1,10 @@
 import seedrandom from 'seedrandom'
 
 export type Point = [number, number]
-/**
- * Tuple containing the inbetween point then the neighbor point.
- */
-export type NeighborIndex = [number | null, number | null]
-
 export type Algorithm = 'dfs' | 'prim' | 'kruskal'
+
+type Direction = 'top' | 'right' | 'bottom' | 'left'
+type NeighborCells = { [key in Direction]: number | null }
 
 export interface MazeGeneratorDeps {
     mazeSize: number
@@ -14,7 +12,7 @@ export interface MazeGeneratorDeps {
 }
 
 export interface MazeGenerationResult {
-    maze: boolean[]
+    maze: MazeCell[]
     startIndex: number
     endIndex: number
     history: number[]
@@ -31,6 +29,25 @@ const initRandomInt = (seed: string) => {
     return (min: number, max: number) => Math.floor(rng() * (max - min + 1)) + min
 }
 
+function getOppositeDirection(direction: Direction): Direction {
+    switch (direction) {
+        case 'top':
+            return 'bottom'
+        case 'right':
+            return 'left'
+        case 'bottom':
+            return 'top'
+        case 'left':
+            return 'right'
+        default:
+            throw new Error(`Invalid direction: ${direction}`)
+    }
+}
+
+class MazeCell {
+    walls = { top: true, right: true, bottom: true, left: true }
+}
+
 export class MazeGenerator {
     private randomInt: (min: number, max: number) => number
     private mazeSize: number
@@ -40,8 +57,8 @@ export class MazeGenerator {
         this.mazeSize = deps.mazeSize
     }
 
-    private initMaze(): boolean[] {
-        return Array(this.mazeSize * this.mazeSize).fill(true)
+    private initMaze(): MazeCell[] {
+        return Array.from({ length: this.mazeSize * this.mazeSize }, () => new MazeCell())
     }
 
     pointToIndex(point: Point): number {
@@ -60,17 +77,13 @@ export class MazeGenerator {
         this.mazeSize = mazeSize
     }
 
-    /**
-     * For a given point, gets the valid neighbor cells which are exactly 2 cells away.
-     * TODO: Make this distance agnostic
-     */
-    private getExpansionCandidateNeighbors(index: number): NeighborIndex[] {
-        return [
-            [this.getTopNeighbor(index, 1), this.getTopNeighbor(index, 2)],
-            [this.getBottomNeighbor(index, 1), this.getBottomNeighbor(index, 2)],
-            [this.getLeftNeighbor(index, 1), this.getLeftNeighbor(index, 2)],
-            [this.getRightNeighbor(index, 1), this.getRightNeighbor(index, 2)],
-        ]
+    private getNeighborCells(index: number): NeighborCells {
+        return {
+            top: this.getTopNeighbor(index, 1),
+            right: this.getRightNeighbor(index, 1),
+            bottom: this.getBottomNeighbor(index, 1),
+            left: this.getLeftNeighbor(index, 1),
+        }
     }
 
     private getTopNeighbor(index: number, distance: number): number | null {
@@ -105,72 +118,48 @@ export class MazeGenerator {
         return null
     }
 
-    private pickRandomNeighbor(
-        neighbors: NeighborIndex[],
+    private pickRandomNeighborDirection(
+        neighbors: NeighborCells,
         history: number[],
-    ): { inbetweenIndex: number | null; neighborIndex: number } | null {
-        if (neighbors.length === 0) {
+    ): Direction | null {
+        const validDirections = Object.entries(neighbors)
+            .filter(
+                ([, neighborIndex]) => neighborIndex !== null && !history.includes(neighborIndex),
+            )
+            .map(([direction]) => direction as Direction)
+        if (validDirections.length === 0) {
             return null
         }
-        const randomIndex = this.randomInt(0, neighbors.length - 1)
-        const [inbetweenIndex, neighborIndex] = neighbors[randomIndex]
-
-        // Return the inbetween point as the neighbor if the neighbor doesn't exist (OOB)
-        //  This avoids the case where there's one row of unvisited cells on the maze walls
-        if (neighborIndex === null && inbetweenIndex !== null) {
-            return {
-                inbetweenIndex: null,
-                neighborIndex: inbetweenIndex,
-            }
-        }
-
-        // If the neighbor doesn't exist (OOB) or already in the history, recurse to try again
-        if (inbetweenIndex === null || neighborIndex === null || history.includes(neighborIndex)) {
-            const nextNeighbors = neighbors.filter(
-                ([, neighborIndex]) => neighborIndex != null && !history.includes(neighborIndex!),
-            )
-            return this.pickRandomNeighbor(nextNeighbors, history)
-        }
-        return {
-            inbetweenIndex,
-            neighborIndex,
-        }
+        return validDirections[this.randomInt(0, validDirections.length - 1)]
     }
 
-    /**
-     * Generate a maze using the depth-first search algorithm.
-     * @param seed - The seed for the random number generator.
-     * @returns The maze as a 2D array of booleans. `true` means a wall, `false` means a path.
-     */
     generateMazeDFS(): MazeGenerationResult {
         const maze = this.initMaze()
         const startIndex = this.randomInt(0, this.mazeSize * this.mazeSize - 1)
         const stack: number[] = [startIndex]
-        const history: number[] = []
+        const history: number[] = [startIndex]
 
         while (stack.length > 0) {
             const currentIndex = stack[stack.length - 1]
-            const neighbors = this.getExpansionCandidateNeighbors(currentIndex)
+            const neighbors = this.getNeighborCells(currentIndex)
+            let direction = this.pickRandomNeighborDirection(neighbors, history)
 
-            let randomNeighbor = this.pickRandomNeighbor(neighbors, history)
-            if (randomNeighbor === null) {
+            // Once we've exhausted all possible directions, pop the stack so we can backtrack on next iteration
+            if (direction === null) {
                 stack.pop()
                 continue
             }
 
-            // Mark the neighbor + the inbetween cell as false to break down the wall
-            if (randomNeighbor.inbetweenIndex !== null) {
-                maze[randomNeighbor.inbetweenIndex] = false
-                history.push(randomNeighbor.inbetweenIndex)
-            }
-            maze[randomNeighbor.neighborIndex] = false
-            history.push(randomNeighbor.neighborIndex)
+            const neighborIndex = neighbors[direction]!
 
-            // Only push the target neighbor to the stack, not the inbetween point
-            // else we'll end up breaking down every single cell wall in the maze
-            if (randomNeighbor.inbetweenIndex !== null) {
-                stack.push(randomNeighbor.neighborIndex)
-            }
+            // Break down the wall between the current cell and the neighbor
+            const oppositeDirection = getOppositeDirection(direction)
+            maze[currentIndex].walls[direction] = false
+            maze[neighborIndex].walls[oppositeDirection] = false
+
+            // And add the neighbor to the history and stack, to work from on the next iteration
+            history.push(neighborIndex)
+            stack.push(neighborIndex)
         }
 
         const endIndex = history[history.length - 1]

@@ -18,11 +18,6 @@
     })
 
     $effect(() => {
-        mazeGenerator.setMazeSize(mazeSize)
-        generateMaze()
-    })
-
-    $effect(() => {
         console.log(
             'history:',
             history.map((index) => {
@@ -34,10 +29,16 @@
 
     function generateMaze() {
         generated = mazeGenerator.generateMaze(algorithm)
+        console.log('generated maze', generated)
         maze = generated.maze
         startIndex = generated.startIndex
         endIndex = generated.endIndex
         history = generated.history
+    }
+
+    function onMazeSizeChange() {
+        mazeGenerator.setMazeSize(mazeSize)
+        generateMaze()
     }
 </script>
 
@@ -55,7 +56,14 @@
 
     <div class="control">
         <label for="maze-size">Maze size:</label>
-        <input id="maze-size" type="number" bind:value={mazeSize} min={1} max={100} />
+        <input
+            id="maze-size"
+            type="number"
+            min={1}
+            max={100}
+            bind:value={mazeSize}
+            onchange={onMazeSizeChange}
+        />
     </div>
 
     <div class="control">
@@ -83,20 +91,52 @@
             {#each Array.from({ length: mazeSize }, (_, colIndex) => colIndex) as colIndex}
                 {@const cellIndex = rowIndex * mazeSize + colIndex}
                 {@const cell = maze[cellIndex]}
-                <div
-                    class="cell"
-                    style="background-color: {cell ? 'black' : 'white'}; {startIndex === cellIndex
-                        ? 'background-color: red;'
-                        : endIndex === cellIndex
-                          ? 'background-color: blue;'
-                          : ''}"
-                ></div>
+                {#if cell}
+                    <div
+                        class="cell"
+                        style="
+                        {startIndex === cellIndex
+                            ? 'background-color: var(--maze-start-bg);'
+                            : endIndex === cellIndex
+                              ? 'background-color: var(--maze-end-bg);'
+                              : ''}
+                        border-top: 2px solid {cell.walls.top
+                            ? 'var(--maze-wall-color)'
+                            : 'transparent'};
+                        border-right: 2px solid {cell.walls.right
+                            ? 'var(--maze-wall-color)'
+                            : 'transparent'};
+                        border-bottom: 2px solid {cell.walls.bottom
+                            ? 'var(--maze-wall-color)'
+                            : 'transparent'};
+                        border-left: 2px solid {cell.walls.left
+                            ? 'var(--maze-wall-color)'
+                            : 'transparent'};
+                    "
+                    ></div>
+                {/if}
             {/each}
         </div>
     {/each}
 </div>
 
 <style>
+    :root {
+        --maze-wall-color: #222;
+        --maze-cell-bg: #fff;
+        --maze-start-bg: #e11d48;
+        --maze-end-bg: #2563eb;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --maze-wall-color: #eee;
+            --maze-cell-bg: #18181b;
+            --maze-start-bg: #f87171;
+            --maze-end-bg: #60a5fa;
+        }
+    }
+
     .maze {
         display: flex;
         flex-direction: column-reverse;
@@ -110,7 +150,9 @@
     .cell {
         width: 20px;
         height: 20px;
-        border: 1px solid #ccc;
+        box-sizing: border-box;
+        background: var(--maze-cell-bg);
+        transition: background 0.2s;
     }
 
     .maze-controls {
