@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { MazeGenerator } from '$lib/maze-generator'
+    import { MazeGenerator, type Algorithm, ALGO_CHOICES } from '$lib/maze-generator'
 
     let mazeSize = $state(25)
     let seed = $state(new Date().toISOString().split('T')[0])
@@ -9,6 +9,7 @@
     let endIndex = $state(generated.endIndex)
     let maze = $state(generated.maze)
     let history = $state(generated.history)
+    let algorithm = $state<Algorithm>('dfs')
 
     let startingPoint = $derived(mazeGenerator.indexToPoint(startIndex))
 
@@ -32,7 +33,7 @@
     })
 
     function generateMaze() {
-        generated = mazeGenerator.generateMazeDFS()
+        generated = mazeGenerator.generateMaze(algorithm)
         maze = generated.maze
         startIndex = generated.startIndex
         endIndex = generated.endIndex
@@ -60,6 +61,15 @@
     <div class="control">
         <label for="seed">Seed:</label>
         <input id="seed" type="text" bind:value={seed} />
+    </div>
+
+    <div class="control">
+        <label for="algorithm">Algorithm:</label>
+        <select id="algorithm" bind:value={algorithm}>
+            {#each Object.entries(ALGO_CHOICES) as [algo, algoName]}
+                <option value={algo}>{algoName}</option>
+            {/each}
+        </select>
     </div>
 
     <div class="control">

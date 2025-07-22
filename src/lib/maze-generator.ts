@@ -6,6 +6,26 @@ export type Point = [number, number]
  */
 export type NeighborIndex = [number | null, number | null]
 
+export type Algorithm = 'dfs' | 'prim' | 'kruskal'
+
+export interface MazeGeneratorDeps {
+    mazeSize: number
+    seed: string
+}
+
+export interface MazeGenerationResult {
+    maze: boolean[]
+    startIndex: number
+    endIndex: number
+    history: number[]
+}
+
+export const ALGO_CHOICES: Record<Algorithm, string> = {
+    dfs: 'Depth-First Search',
+    prim: "Prim's",
+    kruskal: "Kruskal's",
+} as const
+
 const initRandomInt = (seed: string) => {
     let rng = seedrandom(seed)
     return (min: number, max: number) => Math.floor(rng() * (max - min + 1)) + min
@@ -13,26 +33,23 @@ const initRandomInt = (seed: string) => {
 
 export class MazeGenerator {
     private randomInt: (min: number, max: number) => number
+    private mazeSize: number
 
-    constructor(
-        private deps: {
-            mazeSize: number
-            seed: string
-        },
-    ) {
+    constructor(deps: MazeGeneratorDeps) {
         this.randomInt = initRandomInt(deps.seed)
+        this.mazeSize = deps.mazeSize
     }
 
     private initMaze(): boolean[] {
-        return Array(this.deps.mazeSize * this.deps.mazeSize).fill(true)
+        return Array(this.mazeSize * this.mazeSize).fill(true)
     }
 
     pointToIndex(point: Point): number {
-        return point[1] * this.deps.mazeSize + point[0]
+        return point[1] * this.mazeSize + point[0]
     }
 
     indexToPoint(index: number): Point {
-        return [index % this.deps.mazeSize, Math.floor(index / this.deps.mazeSize)]
+        return [index % this.mazeSize, Math.floor(index / this.mazeSize)]
     }
 
     setSeed(seed: string) {
@@ -40,7 +57,7 @@ export class MazeGenerator {
     }
 
     setMazeSize(mazeSize: number) {
-        this.deps.mazeSize = mazeSize
+        this.mazeSize = mazeSize
     }
 
     /**
@@ -57,23 +74,23 @@ export class MazeGenerator {
     }
 
     private getTopNeighbor(index: number, distance: number): number | null {
-        const indexUpperBound = this.deps.mazeSize * this.deps.mazeSize
-        if (index + this.deps.mazeSize * distance < indexUpperBound) {
-            return index + this.deps.mazeSize * distance
+        const indexUpperBound = this.mazeSize * this.mazeSize
+        if (index + this.mazeSize * distance < indexUpperBound) {
+            return index + this.mazeSize * distance
         }
         return null
     }
 
     private getBottomNeighbor(index: number, distance: number): number | null {
         const indexLowerBound = 0
-        if (index - this.deps.mazeSize * distance >= indexLowerBound) {
-            return index - this.deps.mazeSize * distance
+        if (index - this.mazeSize * distance >= indexLowerBound) {
+            return index - this.mazeSize * distance
         }
         return null
     }
 
     private getLeftNeighbor(index: number, distance: number): number | null {
-        const xValue = index % this.deps.mazeSize
+        const xValue = index % this.mazeSize
         if (xValue >= distance) {
             return index - distance
         }
@@ -81,8 +98,8 @@ export class MazeGenerator {
     }
 
     private getRightNeighbor(index: number, distance: number): number | null {
-        const xValue = index % this.deps.mazeSize
-        if (xValue < this.deps.mazeSize - distance) {
+        const xValue = index % this.mazeSize
+        if (xValue < this.mazeSize - distance) {
             return index + distance
         }
         return null
@@ -125,14 +142,9 @@ export class MazeGenerator {
      * @param seed - The seed for the random number generator.
      * @returns The maze as a 2D array of booleans. `true` means a wall, `false` means a path.
      */
-    generateMazeDFS(): {
-        maze: boolean[]
-        startIndex: number
-        endIndex: number
-        history: number[]
-    } {
+    generateMazeDFS(): MazeGenerationResult {
         const maze = this.initMaze()
-        const startIndex = this.randomInt(0, this.deps.mazeSize * this.deps.mazeSize - 1)
+        const startIndex = this.randomInt(0, this.mazeSize * this.mazeSize - 1)
         const stack: number[] = [startIndex]
         const history: number[] = []
 
@@ -163,5 +175,25 @@ export class MazeGenerator {
 
         const endIndex = history[history.length - 1]
         return { maze, startIndex, endIndex, history }
+    }
+
+    generateMazePrim(): MazeGenerationResult {
+        throw new Error('Not implemented')
+    }
+
+    generateMazeKruskal(): MazeGenerationResult {
+        throw new Error('Not implemented')
+    }
+
+    generateMaze(algorithm: Algorithm): MazeGenerationResult {
+        switch (algorithm) {
+            case 'prim':
+                return this.generateMazePrim()
+            case 'kruskal':
+                return this.generateMazeKruskal()
+            case 'dfs':
+            default:
+                return this.generateMazeDFS()
+        }
     }
 }
