@@ -15,6 +15,12 @@
     $effect(() => {
         mazeGenerator.setSeed(seed)
     })
+
+    $effect(() => {
+        mazeGenerator.setMazeSize(mazeSize)
+        generateMaze()
+    })
+
     $effect(() => {
         console.log(
             'history:',
@@ -43,6 +49,24 @@
     <p>Maze size: {mazeSize} x {mazeSize}</p>
 </div>
 
+<div class="maze-controls">
+    <h3>Controls</h3>
+
+    <div class="control">
+        <label for="maze-size">Maze size:</label>
+        <input id="maze-size" type="number" bind:value={mazeSize} min={1} max={100} />
+    </div>
+
+    <div class="control">
+        <label for="seed">Seed:</label>
+        <input id="seed" type="text" bind:value={seed} />
+    </div>
+
+    <div class="control">
+        <button onclick={generateMaze}>Regenerate Maze</button>
+    </div>
+</div>
+
 <div class="maze" style="width: {mazeSize * 20}px; height: {mazeSize * 20}px;">
     {#each Array.from({ length: mazeSize }, (_, rowIndex) => rowIndex) as rowIndex}
         <div class="row">
@@ -62,8 +86,6 @@
     {/each}
 </div>
 
-<button onclick={generateMaze}>Regenerate Maze</button>
-
 <style>
     .maze {
         display: flex;
@@ -79,5 +101,20 @@
         width: 20px;
         height: 20px;
         border: 1px solid #ccc;
+    }
+
+    .maze-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    .control {
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
     }
 </style>

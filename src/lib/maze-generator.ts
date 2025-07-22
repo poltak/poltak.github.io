@@ -38,6 +38,11 @@ export class MazeGenerator {
     setSeed(seed: string) {
         this.randomInt = initRandomInt(seed)
     }
+
+    setMazeSize(mazeSize: number) {
+        this.deps.mazeSize = mazeSize
+    }
+
     /**
      * For a given point, gets the valid neighbor cells which are exactly 2 cells away.
      * TODO: Make this distance agnostic
