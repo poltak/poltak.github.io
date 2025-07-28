@@ -1,45 +1,40 @@
 <script lang="ts">
-    import { MazeGenerator, type Algorithm, ALGO_CHOICES, type MazeCell } from '$lib/maze-generator'
+    import {
+        generateMaze,
+        indexToPoint,
+        type Algorithm,
+        ALGO_CHOICES,
+        type MazeCell,
+    } from '$lib/maze-generator'
 
     let mazeSize = $state(25)
     let seed = $state(new Date().toISOString().split('T')[0])
-    const mazeGenerator = new MazeGenerator({ mazeSize: mazeSize, seed })
     let startIndex = $state(0)
     let endIndex = $state(0)
     let maze = $state<MazeCell[]>([])
     let history = $state<number[]>([])
     let algorithm = $state<Algorithm>('prim')
 
-    generateMaze()
+    regenerateMaze()
 
-    let startingPoint = $derived(mazeGenerator.indexToPoint(startIndex))
-
-    $effect(() => {
-        mazeGenerator.setSeed(seed)
-    })
+    let startingPoint = $derived(indexToPoint(startIndex, mazeSize))
 
     $effect(() => {
         console.log(
             'history:',
             history.map((index) => {
-                const point = mazeGenerator.indexToPoint(index)
+                const point = indexToPoint(index, mazeSize)
                 return `${point[0] + 1},${point[1] + 1}`
             }),
         )
     })
 
-    function generateMaze() {
-        let generated = mazeGenerator.generateMaze(algorithm)
-        console.log('generated maze', generated)
+    function regenerateMaze() {
+        let generated = generateMaze({ mazeSize, seed, algorithm })
         maze = generated.maze
         startIndex = generated.startIndex
         endIndex = generated.endIndex
         history = generated.history
-    }
-
-    function onMazeSizeChange() {
-        mazeGenerator.setMazeSize(mazeSize)
-        generateMaze()
     }
 </script>
 
@@ -63,18 +58,18 @@
             min={1}
             max={100}
             bind:value={mazeSize}
-            onchange={onMazeSizeChange}
+            onchange={regenerateMaze}
         />
     </div>
 
     <div class="control">
         <label for="seed">Seed:</label>
-        <input id="seed" type="text" bind:value={seed} />
+        <input id="seed" type="text" bind:value={seed} onchange={regenerateMaze} />
     </div>
 
     <div class="control">
         <label for="algorithm">Algorithm:</label>
-        <select id="algorithm" bind:value={algorithm} onchange={generateMaze}>
+        <select id="algorithm" bind:value={algorithm} onchange={regenerateMaze}>
             {#each Object.entries(ALGO_CHOICES) as [algo, algoName]}
                 <option value={algo}>{algoName}</option>
             {/each}
@@ -82,7 +77,7 @@
     </div>
 
     <div class="control">
-        <button onclick={generateMaze}>Regenerate Maze</button>
+        <button onclick={regenerateMaze}>Regenerate Maze</button>
     </div>
 </div>
 

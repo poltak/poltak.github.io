@@ -6,9 +6,10 @@ export type Algorithm = 'dfs' | 'prim' | 'kruskal'
 type Direction = 'top' | 'right' | 'bottom' | 'left'
 type NeighborCells = { [key in Direction]: number | null }
 
-export interface MazeGeneratorDeps {
+export interface MazeGenerationParams {
     mazeSize: number
     seed: string
+    algorithm: Algorithm
 }
 
 export interface MazeGenerationResult {
@@ -24,8 +25,39 @@ export const ALGO_CHOICES: Record<Algorithm, string> = {
     kruskal: "Kruskal's",
 } as const
 
-const initRandomInt = (seed: string) => {
-    let rng = seedrandom(seed)
+class RNGManager {
+    private rngInstances = new Map<string, seedrandom.PRNG>()
+
+    getRNG(seed: string): seedrandom.PRNG {
+        if (!this.rngInstances.has(seed)) {
+            this.rngInstances.set(seed, seedrandom(seed))
+        }
+        return this.rngInstances.get(seed)!
+    }
+
+    clearSeed(seed: string) {
+        this.rngInstances.delete(seed)
+    }
+
+    clearAll() {
+        this.rngInstances.clear()
+    }
+}
+
+// Global RNG manager instance to afford persistence of RNG state in a given session
+const rngManager = new RNGManager()
+
+// Utility functions for managing RNG state
+export function resetRNG(seed: string) {
+    rngManager.clearSeed(seed)
+}
+
+export function resetAllRNG() {
+    rngManager.clearAll()
+}
+
+function getRandomInt(seed: string) {
+    const rng = rngManager.getRNG(seed)
     return (min: number, max: number) => Math.floor(rng() * (max - min + 1)) + min
 }
 
@@ -53,179 +85,161 @@ export class MazeCell {
     }
 }
 
-export class MazeGenerator {
-    private randomInt: (min: number, max: number) => number
-    private mazeSize: number
+export function pointToIndex(point: Point, mazeSize: number): number {
+    return point[1] * mazeSize + point[0]
+}
 
-    constructor(deps: MazeGeneratorDeps) {
-        this.randomInt = initRandomInt(deps.seed)
-        this.mazeSize = deps.mazeSize
+export function indexToPoint(index: number, mazeSize: number): Point {
+    return [index % mazeSize, Math.floor(index / mazeSize)]
+}
+
+function initMaze(mazeSize: number): MazeCell[] {
+    return Array.from({ length: mazeSize * mazeSize }, (_, index) => new MazeCell(index))
+}
+
+function getNeighborCells(index: number, mazeSize: number): NeighborCells {
+    return {
+        top: getTopNeighbor(index, 1, mazeSize),
+        right: getRightNeighbor(index, 1, mazeSize),
+        bottom: getBottomNeighbor(index, 1, mazeSize),
+        left: getLeftNeighbor(index, 1, mazeSize),
     }
+}
 
-    private initMaze(): MazeCell[] {
-        return Array.from(
-            { length: this.mazeSize * this.mazeSize },
-            (_, index) => new MazeCell(index),
-        )
+function getTopNeighbor(index: number, distance: number, mazeSize: number): number | null {
+    const indexUpperBound = mazeSize * mazeSize
+    if (index + mazeSize * distance < indexUpperBound) {
+        return index + mazeSize * distance
     }
+    return null
+}
 
-    pointToIndex(point: Point): number {
-        return point[1] * this.mazeSize + point[0]
+function getBottomNeighbor(index: number, distance: number, mazeSize: number): number | null {
+    const indexLowerBound = 0
+    if (index - mazeSize * distance >= indexLowerBound) {
+        return index - mazeSize * distance
     }
+    return null
+}
 
-    indexToPoint(index: number): Point {
-        return [index % this.mazeSize, Math.floor(index / this.mazeSize)]
+function getLeftNeighbor(index: number, distance: number, mazeSize: number): number | null {
+    const xValue = index % mazeSize
+    if (xValue >= distance) {
+        return index - distance
     }
+    return null
+}
 
-    setSeed(seed: string) {
-        this.randomInt = initRandomInt(seed)
+function getRightNeighbor(index: number, distance: number, mazeSize: number): number | null {
+    const xValue = index % mazeSize
+    if (xValue < mazeSize - distance) {
+        return index + distance
     }
+    return null
+}
 
-    setMazeSize(mazeSize: number) {
-        this.mazeSize = mazeSize
-    }
-
-    private getNeighborCells(index: number): NeighborCells {
-        return {
-            top: this.getTopNeighbor(index, 1),
-            right: this.getRightNeighbor(index, 1),
-            bottom: this.getBottomNeighbor(index, 1),
-            left: this.getLeftNeighbor(index, 1),
-        }
-    }
-
-    private getTopNeighbor(index: number, distance: number): number | null {
-        const indexUpperBound = this.mazeSize * this.mazeSize
-        if (index + this.mazeSize * distance < indexUpperBound) {
-            return index + this.mazeSize * distance
-        }
+function pickRandomNeighborDirection(
+    neighbors: NeighborCells,
+    history: number[],
+    randomInt: (min: number, max: number) => number,
+): Direction | null {
+    const validDirections = Object.entries(neighbors)
+        .filter(([, neighborIndex]) => neighborIndex !== null && !history.includes(neighborIndex))
+        .map(([direction]) => direction as Direction)
+    if (validDirections.length === 0) {
         return null
     }
+    return validDirections[randomInt(0, validDirections.length - 1)]
+}
 
-    private getBottomNeighbor(index: number, distance: number): number | null {
-        const indexLowerBound = 0
-        if (index - this.mazeSize * distance >= indexLowerBound) {
-            return index - this.mazeSize * distance
+const generateMazeDFS: MazeGenerator = ({ mazeSize, seed }) => {
+    const maze = initMaze(mazeSize)
+    const randomInt = getRandomInt(seed)
+    const startIndex = randomInt(0, mazeSize * mazeSize - 1)
+    const stack: number[] = [startIndex]
+    const history: number[] = [startIndex]
+
+    while (stack.length > 0) {
+        const currentIndex = stack[stack.length - 1]
+        const neighbors = getNeighborCells(currentIndex, mazeSize)
+        let direction = pickRandomNeighborDirection(neighbors, history, randomInt)
+
+        // Once we've exhausted all possible directions, pop the stack so we can backtrack on next iteration
+        if (direction === null) {
+            stack.pop()
+            continue
         }
-        return null
+
+        const neighborIndex = neighbors[direction]!
+
+        // Break down the wall between the current cell and the neighbor
+        const oppositeDirection = getOppositeDirection(direction)
+        maze[currentIndex].walls[direction] = false
+        maze[neighborIndex].walls[oppositeDirection] = false
+
+        // And add the neighbor to the history and stack, to work from on the next iteration
+        history.push(neighborIndex)
+        stack.push(neighborIndex)
     }
 
-    private getLeftNeighbor(index: number, distance: number): number | null {
-        const xValue = index % this.mazeSize
-        if (xValue >= distance) {
-            return index - distance
-        }
-        return null
-    }
+    return { maze, startIndex, endIndex: history[history.length - 1], history }
+}
 
-    private getRightNeighbor(index: number, distance: number): number | null {
-        const xValue = index % this.mazeSize
-        if (xValue < this.mazeSize - distance) {
-            return index + distance
-        }
-        return null
-    }
+const generateMazePrim: MazeGenerator = ({ mazeSize, seed }) => {
+    const maze = initMaze(mazeSize)
+    const randomInt = getRandomInt(seed)
+    const startIndex = randomInt(0, mazeSize * mazeSize - 1)
+    const history: number[] = [startIndex]
+    const wallPool: Array<[MazeCell, Direction]> = []
 
-    private pickRandomNeighborDirection(
-        neighbors: NeighborCells,
-        history: number[],
-    ): Direction | null {
-        const validDirections = Object.entries(neighbors)
-            .filter(
-                ([, neighborIndex]) => neighborIndex !== null && !history.includes(neighborIndex),
-            )
-            .map(([direction]) => direction as Direction)
-        if (validDirections.length === 0) {
-            return null
-        }
-        return validDirections[this.randomInt(0, validDirections.length - 1)]
-    }
+    const addValidWallsToPool = (cell: MazeCell): void => {
+        const neighboringCells = getNeighborCells(cell.index, mazeSize)
 
-    generateMazeDFS(): MazeGenerationResult {
-        const maze = this.initMaze()
-        const startIndex = this.randomInt(0, this.mazeSize * this.mazeSize - 1)
-        const stack: number[] = [startIndex]
-        const history: number[] = [startIndex]
-
-        while (stack.length > 0) {
-            const currentIndex = stack[stack.length - 1]
-            const neighbors = this.getNeighborCells(currentIndex)
-            let direction = this.pickRandomNeighborDirection(neighbors, history)
-
-            // Once we've exhausted all possible directions, pop the stack so we can backtrack on next iteration
-            if (direction === null) {
-                stack.pop()
+        for (const [direction, neighborIndex] of Object.entries(neighboringCells)) {
+            // Skip any directions that can't be visited OR have already been visited
+            if (neighborIndex === null || history.includes(neighborIndex)) {
                 continue
             }
+            wallPool.push([cell, direction as Direction])
+        }
+    }
 
-            const neighborIndex = neighbors[direction]!
+    addValidWallsToPool(maze[startIndex])
 
-            // Break down the wall between the current cell and the neighbor
-            const oppositeDirection = getOppositeDirection(direction)
-            maze[currentIndex].walls[direction] = false
-            maze[neighborIndex].walls[oppositeDirection] = false
+    while (wallPool.length > 0) {
+        const randomWallIndex = randomInt(0, wallPool.length - 1)
+        const [cell, direction] = wallPool[randomWallIndex]
+        const neighborIndex = getNeighborCells(cell.index, mazeSize)[direction]
 
-            // And add the neighbor to the history and stack, to work from on the next iteration
+        // If we haven't visited this neighbor yet (and actually can) - visit it!
+        if (neighborIndex !== null && !history.includes(neighborIndex)) {
+            maze[cell.index].walls[direction] = false
+            maze[neighborIndex].walls[getOppositeDirection(direction)] = false
             history.push(neighborIndex)
-            stack.push(neighborIndex)
-        }
 
-        return { maze, startIndex, endIndex: history[history.length - 1], history }
+            // Add this neighbor's walls to the wall pool for future iterations
+            addValidWallsToPool(maze[neighborIndex])
+        }
+        wallPool.splice(randomWallIndex, 1)
     }
 
-    generateMazePrim(): MazeGenerationResult {
-        const maze = this.initMaze()
-        const startIndex = this.randomInt(0, this.mazeSize * this.mazeSize - 1)
-        const history: number[] = [startIndex]
-        const wallPool: Array<[MazeCell, Direction]> = []
+    return { maze, startIndex, endIndex: history[history.length - 1], history }
+}
 
-        const addValidWallsToPool = (cell: MazeCell): void => {
-            const neighboringCells = this.getNeighborCells(cell.index)
+const generateMazeKruskal: MazeGenerator = ({ mazeSize, seed }) => {
+    throw new Error('Not implemented')
+}
 
-            for (const [direction, neighborIndex] of Object.entries(neighboringCells)) {
-                // Skip any directions that can't be visited OR have already been visited
-                if (neighborIndex === null || history.includes(neighborIndex)) {
-                    continue
-                }
-                wallPool.push([cell, direction as Direction])
-            }
-        }
+export type MazeGenerator = (params: MazeGenerationParams) => MazeGenerationResult
 
-        addValidWallsToPool(maze[startIndex])
-
-        while (wallPool.length > 0) {
-            const randomWallIndex = this.randomInt(0, wallPool.length - 1)
-            const [cell, direction] = wallPool[randomWallIndex]
-            const neighborIndex = this.getNeighborCells(cell.index)[direction]
-
-            // If we haven't visited this neighbor yet (and actually can) - visit it!
-            if (neighborIndex !== null && !history.includes(neighborIndex)) {
-                maze[cell.index].walls[direction] = false
-                maze[neighborIndex].walls[getOppositeDirection(direction)] = false
-                history.push(neighborIndex)
-
-                // Add this neighbor's walls to the wall pool for future iterations
-                addValidWallsToPool(maze[neighborIndex])
-            }
-            wallPool.splice(randomWallIndex, 1)
-        }
-
-        return { maze, startIndex, endIndex: history[history.length - 1], history }
-    }
-
-    generateMazeKruskal(): MazeGenerationResult {
-        throw new Error('Not implemented')
-    }
-
-    generateMaze(algorithm: Algorithm): MazeGenerationResult {
-        switch (algorithm) {
-            case 'prim':
-                return this.generateMazePrim()
-            case 'kruskal':
-                return this.generateMazeKruskal()
-            case 'dfs':
-            default:
-                return this.generateMazeDFS()
-        }
+export const generateMaze: MazeGenerator = (params) => {
+    switch (params.algorithm) {
+        case 'prim':
+            return generateMazePrim(params)
+        case 'kruskal':
+            return generateMazeKruskal(params)
+        case 'dfs':
+        default:
+            return generateMazeDFS(params)
     }
 }
