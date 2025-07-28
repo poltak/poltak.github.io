@@ -176,20 +176,27 @@ export class MazeGenerator {
     generateMazePrim(): MazeGenerationResult {
         const maze = this.initMaze()
         const startIndex = this.randomInt(0, this.mazeSize * this.mazeSize - 1)
-        const startCell = maze[startIndex]
-        const wallList: Array<[MazeCell, Direction]> = [
-            [startCell, 'top'],
-            [startCell, 'right'],
-            [startCell, 'bottom'],
-            [startCell, 'left'],
-        ]
         const history: number[] = [startIndex]
+        const wallPool: Array<[MazeCell, Direction]> = []
 
-        while (wallList.length > 0) {
-            const randomWallIndex = this.randomInt(0, wallList.length - 1)
-            const [cell, direction] = wallList[randomWallIndex]
+        const addValidWallsToPool = (cell: MazeCell): void => {
             const neighboringCells = this.getNeighborCells(cell.index)
-            const neighborIndex = neighboringCells[direction]
+
+            for (const [direction, neighborIndex] of Object.entries(neighboringCells)) {
+                // Skip any directions that can't be visited OR have already been visited
+                if (neighborIndex === null || history.includes(neighborIndex)) {
+                    continue
+                }
+                wallPool.push([cell, direction as Direction])
+            }
+        }
+
+        addValidWallsToPool(maze[startIndex])
+
+        while (wallPool.length > 0) {
+            const randomWallIndex = this.randomInt(0, wallPool.length - 1)
+            const [cell, direction] = wallPool[randomWallIndex]
+            const neighborIndex = this.getNeighborCells(cell.index)[direction]
 
             // If we haven't visited this neighbor yet (and actually can) - visit it!
             if (neighborIndex !== null && !history.includes(neighborIndex)) {
@@ -197,15 +204,10 @@ export class MazeGenerator {
                 maze[neighborIndex].walls[getOppositeDirection(direction)] = false
                 history.push(neighborIndex)
 
-                // And add all its walls to the wall list
-                wallList.push(
-                    [maze[neighborIndex], 'top'],
-                    [maze[neighborIndex], 'right'],
-                    [maze[neighborIndex], 'bottom'],
-                    [maze[neighborIndex], 'left'],
-                )
+                // Add this neighbor's walls to the wall pool for future iterations
+                addValidWallsToPool(maze[neighborIndex])
             }
-            wallList.splice(randomWallIndex, 1)
+            wallPool.splice(randomWallIndex, 1)
         }
 
         return { maze, startIndex, endIndex: history[history.length - 1], history }
