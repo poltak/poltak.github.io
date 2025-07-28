@@ -1,15 +1,16 @@
 <script lang="ts">
-    import { MazeGenerator, type Algorithm, ALGO_CHOICES } from '$lib/maze-generator'
+    import { MazeGenerator, type Algorithm, ALGO_CHOICES, type MazeCell } from '$lib/maze-generator'
 
     let mazeSize = $state(25)
     let seed = $state(new Date().toISOString().split('T')[0])
     const mazeGenerator = new MazeGenerator({ mazeSize: mazeSize, seed })
-    let generated = mazeGenerator.generateMazeDFS()
-    let startIndex = $state(generated.startIndex)
-    let endIndex = $state(generated.endIndex)
-    let maze = $state(generated.maze)
-    let history = $state(generated.history)
-    let algorithm = $state<Algorithm>('dfs')
+    let startIndex = $state(0)
+    let endIndex = $state(0)
+    let maze = $state<MazeCell[]>([])
+    let history = $state<number[]>([])
+    let algorithm = $state<Algorithm>('prim')
+
+    generateMaze()
 
     let startingPoint = $derived(mazeGenerator.indexToPoint(startIndex))
 
@@ -28,7 +29,7 @@
     })
 
     function generateMaze() {
-        generated = mazeGenerator.generateMaze(algorithm)
+        let generated = mazeGenerator.generateMaze(algorithm)
         console.log('generated maze', generated)
         maze = generated.maze
         startIndex = generated.startIndex
@@ -73,7 +74,7 @@
 
     <div class="control">
         <label for="algorithm">Algorithm:</label>
-        <select id="algorithm" bind:value={algorithm}>
+        <select id="algorithm" bind:value={algorithm} onchange={generateMaze}>
             {#each Object.entries(ALGO_CHOICES) as [algo, algoName]}
                 <option value={algo}>{algoName}</option>
             {/each}

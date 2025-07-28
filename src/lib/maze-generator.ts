@@ -44,8 +44,13 @@ function getOppositeDirection(direction: Direction): Direction {
     }
 }
 
-class MazeCell {
+export class MazeCell {
+    index: number
     walls = { top: true, right: true, bottom: true, left: true }
+
+    constructor(index: number) {
+        this.index = index
+    }
 }
 
 export class MazeGenerator {
@@ -58,7 +63,10 @@ export class MazeGenerator {
     }
 
     private initMaze(): MazeCell[] {
-        return Array.from({ length: this.mazeSize * this.mazeSize }, () => new MazeCell())
+        return Array.from(
+            { length: this.mazeSize * this.mazeSize },
+            (_, index) => new MazeCell(index),
+        )
     }
 
     pointToIndex(point: Point): number {
@@ -162,12 +170,45 @@ export class MazeGenerator {
             stack.push(neighborIndex)
         }
 
-        const endIndex = history[history.length - 1]
-        return { maze, startIndex, endIndex, history }
+        return { maze, startIndex, endIndex: history[history.length - 1], history }
     }
 
     generateMazePrim(): MazeGenerationResult {
-        throw new Error('Not implemented')
+        const maze = this.initMaze()
+        const startIndex = this.randomInt(0, this.mazeSize * this.mazeSize - 1)
+        const startCell = maze[startIndex]
+        const wallList: Array<[MazeCell, Direction]> = [
+            [startCell, 'top'],
+            [startCell, 'right'],
+            [startCell, 'bottom'],
+            [startCell, 'left'],
+        ]
+        const history: number[] = [startIndex]
+
+        while (wallList.length > 0) {
+            const randomWallIndex = this.randomInt(0, wallList.length - 1)
+            const [cell, direction] = wallList[randomWallIndex]
+            const neighboringCells = this.getNeighborCells(cell.index)
+            const neighborIndex = neighboringCells[direction]
+
+            // If we haven't visited this neighbor yet (and actually can) - visit it!
+            if (neighborIndex !== null && !history.includes(neighborIndex)) {
+                maze[cell.index].walls[direction] = false
+                maze[neighborIndex].walls[getOppositeDirection(direction)] = false
+                history.push(neighborIndex)
+
+                // And add all its walls to the wall list
+                wallList.push(
+                    [maze[neighborIndex], 'top'],
+                    [maze[neighborIndex], 'right'],
+                    [maze[neighborIndex], 'bottom'],
+                    [maze[neighborIndex], 'left'],
+                )
+            }
+            wallList.splice(randomWallIndex, 1)
+        }
+
+        return { maze, startIndex, endIndex: history[history.length - 1], history }
     }
 
     generateMazeKruskal(): MazeGenerationResult {
