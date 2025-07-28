@@ -10,7 +10,7 @@ export interface MazeCellInterface {
 
 export interface MazeGenerationParams {
     mazeSize: number
-    seed: string
+    randomInt: RandomIntGenerator
     algorithm: MazeGenAlgorithm
 }
 
@@ -22,3 +22,5 @@ export interface MazeGenerationResult {
 }
 
 export type MazeGenerator = (params: MazeGenerationParams) => MazeGenerationResult
+
+export type RandomIntGenerator = (min: number, max: number) => number

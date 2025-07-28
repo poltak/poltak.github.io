@@ -1,4 +1,3 @@
-import { RNGManager } from './rng'
 import {
     getOppositeDirection,
     MazeCell,
@@ -8,17 +7,8 @@ import {
 } from './util'
 import type { Direction, MazeGenerator } from './types'
 
-// Global RNG manager instance to afford persistence of RNG state in a given session
-const rngManager = new RNGManager()
-
-function getRandomInt(seed: string) {
-    const rng = rngManager.getRNG(seed)
-    return (min: number, max: number) => Math.floor(rng() * (max - min + 1)) + min
-}
-
-const generateMazeDFS: MazeGenerator = ({ mazeSize, seed }) => {
+const generateMazeDFS: MazeGenerator = ({ mazeSize, randomInt }) => {
     const maze = initMaze(mazeSize)
-    const randomInt = getRandomInt(seed)
     const startIndex = randomInt(0, mazeSize * mazeSize - 1)
     const stack: number[] = [startIndex]
     const history: number[] = [startIndex]
@@ -49,9 +39,8 @@ const generateMazeDFS: MazeGenerator = ({ mazeSize, seed }) => {
     return { maze, startIndex, endIndex: history[history.length - 1], history }
 }
 
-const generateMazePrim: MazeGenerator = ({ mazeSize, seed }) => {
+const generateMazePrim: MazeGenerator = ({ mazeSize, randomInt }) => {
     const maze = initMaze(mazeSize)
-    const randomInt = getRandomInt(seed)
     const startIndex = randomInt(0, mazeSize * mazeSize - 1)
     const history: number[] = [startIndex]
     const wallPool: Array<[MazeCell, Direction]> = []
@@ -90,7 +79,7 @@ const generateMazePrim: MazeGenerator = ({ mazeSize, seed }) => {
     return { maze, startIndex, endIndex: history[history.length - 1], history }
 }
 
-const generateMazeKruskal: MazeGenerator = ({ mazeSize, seed }) => {
+const generateMazeKruskal: MazeGenerator = ({ mazeSize, randomInt }) => {
     throw new Error('Not implemented')
 }
 

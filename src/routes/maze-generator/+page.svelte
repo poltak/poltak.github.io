@@ -1,37 +1,46 @@
 <script lang="ts">
+    import seedrandom from 'seedrandom'
     import { generateMaze } from '$lib/maze-generator/generation-functions'
     import { ALGO_CHOICES } from '$lib/maze-generator/constants'
     import { MazeCell, indexToPoint } from '$lib/maze-generator/util'
-    import type { MazeGenAlgorithm } from '$lib/maze-generator/types'
+    import type { MazeGenAlgorithm, RandomIntGenerator } from '$lib/maze-generator/types'
+
+    let rngInstances = $state(new Map<string, RandomIntGenerator>())
+    let seed = $state(new Date().toISOString().split('T')[0])
+
+    function getRandomIntGenerator(seed: string): RandomIntGenerator {
+        if (!rngInstances.has(seed)) {
+            const rng = seedrandom(seed)
+            rngInstances.set(seed, (min, max) => Math.floor(rng() * (max - min + 1)) + min)
+        }
+        return rngInstances.get(seed)!
+    }
 
     let mazeSize = $state(25)
-    let seed = $state(new Date().toISOString().split('T')[0])
     let startIndex = $state(0)
     let endIndex = $state(0)
     let maze = $state<MazeCell[]>([])
     let history = $state<number[]>([])
     let algorithm = $state<MazeGenAlgorithm>('prim')
-
-    regenerateMaze()
-
     let startingPoint = $derived(indexToPoint(startIndex, mazeSize))
 
+    // Regenerate maze when seed, mazeSize, algorithm, or RNG instances change
     $effect(() => {
-        console.log(
-            'history:',
-            history.map((index) => {
-                const point = indexToPoint(index, mazeSize)
-                return `${point[0] + 1},${point[1] + 1}`
-            }),
-        )
+        regenerateMaze()
     })
 
     function regenerateMaze() {
-        let generated = generateMaze({ mazeSize, seed, algorithm })
+        const randomInt = getRandomIntGenerator(seed)
+        let generated = generateMaze({ mazeSize, randomInt, algorithm })
         maze = generated.maze
         startIndex = generated.startIndex
         endIndex = generated.endIndex
         history = generated.history
+    }
+
+    function resetRNG() {
+        rngInstances.delete(seed)
+        rngInstances = new Map(rngInstances) // Update reference to trigger reactivity
     }
 </script>
 
@@ -49,24 +58,18 @@
 
     <div class="control">
         <label for="maze-size">Maze size:</label>
-        <input
-            id="maze-size"
-            type="number"
-            min={1}
-            max={100}
-            bind:value={mazeSize}
-            onchange={regenerateMaze}
-        />
+        <input id="maze-size" type="number" min={1} max={100} bind:value={mazeSize} />
     </div>
 
     <div class="control">
         <label for="seed">Seed:</label>
-        <input id="seed" type="text" bind:value={seed} onchange={regenerateMaze} />
+        <input id="seed" type="text" bind:value={seed} />
+        <button onclick={resetRNG}>Reset RNG</button>
     </div>
 
     <div class="control">
         <label for="algorithm">Algorithm:</label>
-        <select id="algorithm" bind:value={algorithm} onchange={regenerateMaze}>
+        <select id="algorithm" bind:value={algorithm}>
             {#each Object.entries(ALGO_CHOICES) as [algo, algoName]}
                 <option value={algo}>{algoName}</option>
             {/each}
