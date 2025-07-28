@@ -87,7 +87,20 @@ const generateMazeKruskal: MazeGenerator = ({ mazeSize, randomInt }) => {
         )
         .sort(() => randomInt(0, 1) - 0.5)
 
-    const cellSets = new Map<MazeCell, Set<MazeCell>>(maze.map((cell) => [cell, new Set([cell])]))
+    // Create a disjoint set for each cell
+    const disjointSets = new Map<MazeCell, MazeCell>(maze.map((cell) => [cell, cell]))
+    function findSetRoot(cell: MazeCell): MazeCell {
+        while (disjointSets.get(cell) !== cell) {
+            cell = disjointSets.get(cell)!
+        }
+        return cell
+    }
+    function unionSets(a: MazeCell, b: MazeCell): void {
+        const rootA = findSetRoot(a)
+        const rootB = findSetRoot(b)
+        disjointSets.set(rootB, rootA)
+    }
+
     const history = [allWallsShuffled[0][0].index]
 
     for (const [cellA, direction] of allWallsShuffled) {
@@ -97,23 +110,13 @@ const generateMazeKruskal: MazeGenerator = ({ mazeSize, randomInt }) => {
         }
         const cellB = maze[cellBIndex]
 
-        const setA = cellSets.get(cellA)!
-        const setB = cellSets.get(cellB)!
-
-        if (setA === setB) {
+        // If both cells are part of the same set, we don't need to do anything else
+        if (findSetRoot(cellA) === findSetRoot(cellB)) {
             continue
         }
 
-        // If both cells are different sets, merge their sets and remove that wall
-        const mergedSet = new Set([...setA, ...setB])
-        cellSets.set(cellA, mergedSet)
-        cellSets.set(cellB, mergedSet)
-
-        // Now ensure all other cells in the merged set also point to it
-        for (const cell of mergedSet) {
-            cellSets.set(cell, mergedSet)
-        }
-
+        // If different sets, merge their sets and remove that wall
+        unionSets(cellA, cellB)
         cellA.walls[direction] = false
         cellB.walls[getOppositeDirection(direction)] = false
         history.push(cellBIndex)
