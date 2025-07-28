@@ -80,7 +80,51 @@ const generateMazePrim: MazeGenerator = ({ mazeSize, randomInt }) => {
 }
 
 const generateMazeKruskal: MazeGenerator = ({ mazeSize, randomInt }) => {
-    throw new Error('Not implemented')
+    const maze = initMaze(mazeSize)
+    const allWallsShuffled = maze
+        .flatMap((cell) =>
+            Object.keys(cell.walls).map((wall) => [cell, wall] as [MazeCell, Direction]),
+        )
+        .sort(() => randomInt(0, 1) - 0.5)
+
+    const cellSets = new Map<MazeCell, Set<MazeCell>>(maze.map((cell) => [cell, new Set([cell])]))
+    const history = [allWallsShuffled[0][0].index]
+
+    for (const [cellA, direction] of allWallsShuffled) {
+        const cellBIndex = getNeighborCells(cellA.index, mazeSize)[direction]
+        if (cellBIndex == null) {
+            continue
+        }
+        const cellB = maze[cellBIndex]
+
+        const setA = cellSets.get(cellA)!
+        const setB = cellSets.get(cellB)!
+
+        if (setA === setB) {
+            continue
+        }
+
+        // If both cells are different sets, merge their sets and remove that wall
+        const mergedSet = new Set([...setA, ...setB])
+        cellSets.set(cellA, mergedSet)
+        cellSets.set(cellB, mergedSet)
+
+        // Now ensure all other cells in the merged set also point to it
+        for (const cell of mergedSet) {
+            cellSets.set(cell, mergedSet)
+        }
+
+        cellA.walls[direction] = false
+        cellB.walls[getOppositeDirection(direction)] = false
+        history.push(cellBIndex)
+    }
+
+    return {
+        maze,
+        startIndex: allWallsShuffled[0][0].index,
+        endIndex: allWallsShuffled[allWallsShuffled.length - 1][0].index,
+        history,
+    }
 }
 
 export const generateMaze: MazeGenerator = (params) => {
