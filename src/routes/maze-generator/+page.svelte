@@ -1,11 +1,8 @@
 <script lang="ts">
-    import {
-        generateMaze,
-        indexToPoint,
-        type Algorithm,
-        ALGO_CHOICES,
-        type MazeCell,
-    } from '$lib/maze-generator'
+    import { generateMaze } from '$lib/maze-generator/generation-functions'
+    import { ALGO_CHOICES } from '$lib/maze-generator/constants'
+    import { MazeCell, indexToPoint } from '$lib/maze-generator/util'
+    import type { MazeGenAlgorithm } from '$lib/maze-generator/types'
 
     let mazeSize = $state(25)
     let seed = $state(new Date().toISOString().split('T')[0])
@@ -13,7 +10,7 @@
     let endIndex = $state(0)
     let maze = $state<MazeCell[]>([])
     let history = $state<number[]>([])
-    let algorithm = $state<Algorithm>('prim')
+    let algorithm = $state<MazeGenAlgorithm>('prim')
 
     regenerateMaze()
 
