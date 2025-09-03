@@ -10,7 +10,11 @@
 
 <ul>
     <li>
-        <a href="{base}/speed-reader">Speed Reader</a> — a speed-reader that works with EPUB files.
+        <a href="{base}/speed-reader">Speed Reader</a> — A speed-reader that works with EPUB files.
+    </li>
+    <li>
+        <a href="{base}/maze-generator">Maze Generator</a> — A maze generator that I made for fun, which
+        I want to use to make some simple browser games with.
     </li>
 </ul>
 
