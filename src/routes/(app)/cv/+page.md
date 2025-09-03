@@ -217,7 +217,9 @@ Bachelor of Computer Science (First Class Honours): _2010 - 2015_
 - Cloud Infrastructure:
     - Docker + Docker compose
     - Firebase (Firestore, Functions, Hosting, Auth, Cloud Messaging, Realtime DB)
-    - Cloudflare (Workers, KV, Domains, R2)
+    - Supabase (PostgreSQL, Edge Functions)
+    - Pocketbase
+    - Cloudflare (Workers, KV, Domains, R2, D1)
 - Software Design and Architecture:
     - Algorithm design and analysis
     - Database design
