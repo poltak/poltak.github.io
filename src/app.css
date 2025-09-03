@@ -84,4 +84,8 @@ body {
 
 ul {
     line-height: 2rem;
+
+    > li {
+        margin: 0.5rem 0;
+    }
 }

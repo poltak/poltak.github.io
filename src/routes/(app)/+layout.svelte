@@ -9,5 +9,6 @@
 <style>
     .text-content-area {
         max-width: 720px;
+        text-align: justify;
     }
 </style>
