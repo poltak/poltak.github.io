@@ -49,7 +49,7 @@
 
     // Fullscreen functionality
     let isFullscreen = $state(false)
-    let wordContainer: HTMLDivElement | null = null
+    let wordContainer = $state<HTMLDivElement | null>(null)
 
     // Track current chapter to detect transitions
     let currentChapterIndex = $state(0)
@@ -479,632 +479,404 @@
 </script>
 
 <svelte:head>
-    <title>EPUB Speed Reader</title>
-    <meta name="description" content="A fast EPUB speed reader with adjustable reading speed" />
+    <title>Speed Reader</title>
+    <meta name="description" content="A fun way to read your books faster." />
 </svelte:head>
 
-<main class="text-gray-800">
-    <div class="container mx-auto max-w-7xl">
-        {#if showLibrary}
-            <div class="p-4">
-                <div class="mx-auto max-w-4xl">
-                    <!-- Header -->
-                    <div class="mb-8 text-center">
-                        <div
-                            class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"
-                        >
-                            <Icon name="book" size={32} className="text-white" />
-                        </div>
-                        <h1 class="mb-3 text-4xl font-bold text-gray-800 dark:text-gray-200">
-                            EPUB Speed Reader
-                        </h1>
-                        <p class="text-gray-600 dark:text-gray-400">
-                            Your personal library of speed-readable books
-                        </p>
-                    </div>
+<main class="app-container">
+    {#if showLibrary}
+        <div class="library-view">
+            <div class="library-header">
+                <div class="logo-circle">
+                    <Icon name="book" size={32} />
+                </div>
+                <h1>Speed Reader</h1>
+                <p>Your personal book nook.</p>
+            </div>
 
-                    <!-- Upload Section -->
-                    <div class="mb-8">
-                        <div
-                            class="rounded-2xl border border-gray-200/60 bg-white/80 p-6 shadow-xl backdrop-blur-sm dark:border-gray-700/60 dark:bg-gray-800/80"
-                        >
-                            <div class="relative">
-                                <input
-                                    bind:this={fileInput}
-                                    type="file"
-                                    accept=".epub"
-                                    onchange={handleFileUpload}
-                                    class="w-full rounded-xl border-2 border-dashed border-gray-300 p-6 text-center transition-all hover:border-indigo-400 hover:bg-indigo-50/50 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 focus:outline-none dark:border-gray-600 dark:hover:border-indigo-400 dark:hover:bg-indigo-900/20 dark:focus:ring-indigo-900/30"
-                                />
-                                <div
-                                    class="pointer-events-none absolute inset-0 flex items-center justify-center"
-                                >
-                                    <div class="text-center text-gray-500 dark:text-gray-400">
-                                        <Icon
-                                            name="upload-cloud"
-                                            size={32}
-                                            className="mx-auto mb-2"
-                                        />
-                                        <span class="text-sm font-medium"
-                                            >Add a new EPUB file to your library</span
-                                        >
-                                    </div>
-                                </div>
-                            </div>
-
-                            {#if isLoading}
-                                <div class="mt-4 flex items-center justify-center py-6">
-                                    <div class="flex items-center space-x-3">
-                                        <div
-                                            class="h-6 w-6 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600"
-                                        ></div>
-                                        <span class="font-medium text-gray-700"
-                                            >Adding to library...</span
-                                        >
-                                    </div>
-                                </div>
-                            {/if}
-
-                            {#if errorMessage}
-                                <div
-                                    class="mt-4 flex items-start space-x-3 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20"
-                                >
-                                    <Icon
-                                        name="alert-circle"
-                                        size={20}
-                                        className="mt-0.5 flex-shrink-0 text-red-500"
-                                    />
-                                    <div>
-                                        <h4 class="font-medium text-red-800 dark:text-red-200">
-                                            Error
-                                        </h4>
-                                        <p class="mt-1 text-sm text-red-700 dark:text-red-300">
-                                            {errorMessage}
-                                        </p>
-                                    </div>
-                                </div>
-                            {/if}
+            <div class="upload-section">
+                <div class="upload-card">
+                    <div class="file-input-wrapper">
+                        <input
+                            bind:this={fileInput}
+                            type="file"
+                            accept=".epub"
+                            onchange={handleFileUpload}
+                            class="file-input"
+                        />
+                        <div class="upload-placeholder">
+                            <Icon name="upload-cloud" size={32} className="mb-2" />
+                            <span>Drop an EPUB here or click to browse</span>
                         </div>
                     </div>
 
-                    <!-- Helpful Tip -->
-                    <div class="mb-6">
-                        <div
-                            class="rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20"
-                        >
-                            <div class="flex items-start space-x-3">
-                                <div
-                                    class="mt-0.5 flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-blue-500"
-                                >
-                                    <Icon name="info" size={14} className="text-white" />
-                                </div>
-                                <div>
-                                    <h4 class="font-medium text-blue-800 dark:text-blue-200">
-                                        Looking for books to try?
-                                    </h4>
-                                    <p class="mt-1 text-sm text-blue-700 dark:text-blue-300">
-                                        Check out <a
-                                            href="https://standardebooks.org/"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            class="font-semibold underline hover:no-underline"
-                                            >Standard Ebooks</a
-                                        > for high-quality, beautifully formatted public domain EPUB
-                                        files that work perfectly with this speed reader.
-                                    </p>
-                                </div>
-                            </div>
+                    {#if isLoading}
+                        <div class="status-message loading">
+                            <div class="spinner"></div>
+                            <span>Adding book to shelves...</span>
                         </div>
-                    </div>
+                    {/if}
 
-                    <!-- Library -->
-                    {#if isLoadingLibrary}
-                        <div class="flex items-center justify-center py-12">
-                            <div class="flex items-center space-x-3">
-                                <div
-                                    class="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600"
-                                ></div>
-                                <span class="font-medium text-gray-700">Loading library...</span>
-                            </div>
-                        </div>
-                    {:else if storedBooks.length === 0}
-                        <div class="py-12 text-center">
-                            <Icon name="book" size={48} className="mx-auto mb-4 text-gray-400" />
-                            <h3 class="mb-2 text-xl font-semibold text-gray-700 dark:text-gray-200">
-                                No books yet
-                            </h3>
-                            <p class="text-gray-500 dark:text-gray-400">
-                                Upload your first EPUB file to get started
-                            </p>
-                        </div>
-                    {:else}
-                        <div>
-                            <h2 class="mb-4 text-2xl font-bold text-gray-800 dark:text-gray-200">
-                                Your Library ({storedBooks.length} books)
-                            </h2>
-                            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                {#each storedBooks as book (book.id)}
-                                    {@const progress = bookProgresses.get(book.id)}
-                                    {@const progressPercentage =
-                                        progress && book.totalWords > 0
-                                            ? Math.round(
-                                                  (progress.currentWordIndex / book.totalWords) *
-                                                      100,
-                                              )
-                                            : 0}
-                                    <div
-                                        class="group relative cursor-pointer rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-800 dark:hover:shadow-lg"
-                                        role="button"
-                                        tabindex="0"
-                                        onclick={() => openStoredBook(book)}
-                                        onkeydown={(e) => {
-                                            if (e.key === 'Enter' || e.key === ' ') {
-                                                openStoredBook(book)
-                                                e.preventDefault()
-                                            }
-                                        }}
-                                    >
-                                        <div class="mb-4">
-                                            <h3
-                                                class="line-clamp-2 font-semibold text-gray-800 dark:text-gray-200"
-                                            >
-                                                {book.title}
-                                            </h3>
-                                            {#if book.author}
-                                                <p
-                                                    class="mt-1 text-sm text-gray-600 dark:text-gray-400"
-                                                >
-                                                    by {book.author}
-                                                </p>
-                                            {/if}
-                                        </div>
-
-                                        <div class="mb-4">
-                                            <div
-                                                class="mb-1 flex justify-between text-xs text-gray-500 dark:text-gray-400"
-                                            >
-                                                <span>Progress</span>
-                                                <span>{progressPercentage}%</span>
-                                            </div>
-                                            <div class="h-2 rounded-full bg-gray-200">
-                                                <div
-                                                    class="h-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all"
-                                                    style="width: {progressPercentage}%"
-                                                ></div>
-                                            </div>
-                                        </div>
-
-                                        <div
-                                            class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400"
-                                        >
-                                            <span>{book.totalWords.toLocaleString()} words</span>
-                                            <span>
-                                                {new Date(book.lastReadDate).toLocaleDateString()}
-                                            </span>
-                                        </div>
-
-                                        <!-- Progress indicator badge -->
-                                        {#if progressPercentage > 0}
-                                            <div class="absolute top-2 left-2">
-                                                {#if progressPercentage >= 100}
-                                                    <div
-                                                        class="rounded-full bg-green-500 px-2 py-1 text-xs font-semibold text-white dark:text-gray-900"
-                                                    >
-                                                        Complete
-                                                    </div>
-                                                {:else}
-                                                    <div
-                                                        class="rounded-full bg-indigo-500 px-2 py-1 text-xs font-semibold text-white dark:text-gray-900"
-                                                    >
-                                                        {progressPercentage}%
-                                                    </div>
-                                                {/if}
-                                            </div>
-                                        {/if}
-
-                                        <!-- Delete button -->
-                                        <button
-                                            onclick={(e) => {
-                                                e.stopPropagation()
-                                                deleteStoredBook(book.id, e)
-                                            }}
-                                            class="absolute top-2 right-2 rounded-full bg-red-500 p-1.5 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-600"
-                                            title="Delete book"
-                                        >
-                                            <Icon name="trash-2" size={12} />
-                                        </button>
-                                    </div>
-                                {/each}
+                    {#if errorMessage}
+                        <div class="status-message error">
+                            <Icon name="alert-circle" size={20} />
+                            <div class="error-content">
+                                <h4>Oops!</h4>
+                                <p>{errorMessage}</p>
                             </div>
                         </div>
                     {/if}
                 </div>
             </div>
-        {:else}
-            <div class="flex flex-col items-center justify-start">
-                <div class="w-full max-w-2xl space-y-4 sm:space-y-8">
-                    <!-- Current Word Display with Context -->
-                    <div class="relative">
-                        <div
-                            class="absolute inset-0 rounded-2xl bg-gradient-to-r from-indigo-100 to-purple-100 opacity-60 blur-xl"
-                        ></div>
-                        <!-- svelte-ignore a11y_no_static_element_interactions -->
-                        <div
-                            bind:this={wordContainer}
-                            class="relative flex min-h-[240px] items-center justify-center overflow-hidden rounded-2xl border border-gray-200/50 bg-gradient-to-br from-gray-50 to-white p-6 shadow-inner sm:min-h-[320px] sm:p-10 md:min-h-[400px] md:p-14 dark:border-gray-700/50 dark:from-gray-800 dark:to-gray-900"
-                            onmousedown={handleHoldStart}
-                            onmouseup={handleHoldEnd}
-                            onmouseleave={handleHoldEnd}
-                            ontouchstart={handleHoldStart}
-                            ontouchend={handleHoldEnd}
-                            ontouchcancel={handleHoldEnd}
-                        >
-                            <div class="relative h-[30rem] w-full select-none">
-                                <!-- Before words (top) -->
-                                <div
-                                    class="absolute inset-x-0 top-8 flex flex-wrap justify-center gap-2 sm:gap-3"
-                                >
-                                    {#each surroundingWords.before as word, i (i)}
-                                        <span
-                                            class="font-mono text-xl whitespace-nowrap text-gray-400 sm:text-2xl md:text-3xl dark:text-gray-500"
-                                        >
-                                            {word}
-                                        </span>
-                                    {/each}
+
+            <div class="tip-card">
+                <div class="tip-icon">
+                    <Icon name="info" size={14} />
+                </div>
+                <div class="tip-content">
+                    <h4>Need books?</h4>
+                    <p>
+                        Try <a
+                            href="https://standardebooks.org/"
+                            target="_blank"
+                            rel="noopener noreferrer">Standard Ebooks</a
+                        > for beautiful, free classics.
+                    </p>
+                </div>
+            </div>
+
+            <div class="library-content">
+                {#if isLoadingLibrary}
+                    <div class="status-message loading">
+                        <div class="spinner"></div>
+                        <span>Dusting off the books...</span>
+                    </div>
+                {:else if storedBooks.length === 0}
+                    <div class="empty-library">
+                        <Icon name="book" size={48} className="empty-icon" />
+                        <h3>It's quiet here...</h3>
+                        <p>Upload a book to start reading!</p>
+                    </div>
+                {:else}
+                    <div class="library-header-row">
+                        <h2>Your Collection <span>({storedBooks.length})</span></h2>
+                    </div>
+                    <div class="book-grid">
+                        {#each storedBooks as book (book.id)}
+                            {@const progress = bookProgresses.get(book.id)}
+                            {@const progressPercentage =
+                                progress && book.totalWords > 0
+                                    ? Math.round(
+                                          (progress.currentWordIndex / book.totalWords) * 100,
+                                      )
+                                    : 0}
+
+                            <!-- svelte-ignore a11y_click_events_have_key_events -->
+                            <div
+                                class="book-card"
+                                role="button"
+                                tabindex="0"
+                                onclick={() => openStoredBook(book)}
+                            >
+                                <div class="book-info">
+                                    <h3 class="book-title">{book.title}</h3>
+                                    {#if book.author}
+                                        <p class="book-author">by {book.author}</p>
+                                    {/if}
                                 </div>
 
-                                <!-- Current word (center, fixed) -->
-                                <span
-                                    class="absolute inset-x-0 top-1/2 -translate-y-1/2 rounded-lg bg-gradient-to-r from-indigo-100 to-purple-100 px-4 py-2 text-center font-mono text-4xl font-bold break-words text-gray-900 sm:text-5xl md:text-6xl dark:from-indigo-900/30 dark:to-purple-900/30 dark:text-gray-100"
-                                >
-                                    {surroundingWords.current}
-                                </span>
-
-                                <!-- After words (bottom) -->
-                                <div
-                                    class="absolute inset-x-0 bottom-8 flex flex-wrap justify-center gap-2 sm:gap-3"
-                                >
-                                    {#each surroundingWords.after as word, i (i)}
-                                        <span
-                                            class="font-mono text-xl whitespace-nowrap text-gray-400 sm:text-2xl md:text-3xl dark:text-gray-500"
-                                        >
-                                            {word}
-                                        </span>
-                                    {/each}
+                                <div class="book-progress">
+                                    <div class="progress-labels">
+                                        <span>Progress</span>
+                                        <span>{progressPercentage}%</span>
+                                    </div>
+                                    <div class="progress-track">
+                                        <div
+                                            class="progress-fill"
+                                            style="width: {progressPercentage}%"
+                                        ></div>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <!-- Minimal Chapter Progress Bar -->
-                            {#if currentChapter && epubData && epubData.tableOfContents.length > 1}
-                                <div
-                                    class="absolute inset-x-0 bottom-0 h-1 bg-gray-200/30 dark:bg-gray-700/30"
-                                >
+                                <div class="book-meta">
+                                    <span>{(book.totalWords / 1000).toFixed(1)}k words</span>
+                                    <span>{new Date(book.lastReadDate).toLocaleDateString()}</span>
+                                </div>
+
+                                {#if progressPercentage > 0}
                                     <div
-                                        class="h-1 bg-gradient-to-r from-purple-400 to-pink-400 transition-all duration-300"
-                                        style="width: {chapterProgress.percentage}%"
-                                    ></div>
-                                </div>
-
-                                <!-- Time Remaining in bottom right -->
-                                {#if chapterProgress.timeRemaining > 0}
-                                    <div class="pointer-events-none absolute right-2 bottom-2">
-                                        <div class="flex items-center space-x-1 px-2 py-1">
-                                            <span class="text-xs text-white">
-                                                {chapterProgress.timeRemaining} min left
-                                            </span>
-                                        </div>
+                                        class="book-badge {progressPercentage >= 100
+                                            ? 'completed'
+                                            : 'in-progress'}"
+                                    >
+                                        {progressPercentage >= 100
+                                            ? 'Done'
+                                            : `${progressPercentage}%`}
                                     </div>
                                 {/if}
-                            {/if}
 
-                            <div
-                                class="pointer-events-auto absolute inset-x-0 bottom-3 flex items-center justify-center gap-4"
-                            >
-                                {#if isFullscreen}
-                                    <!-- Rewind -->
-                                    <button
-                                        onmousedown={startRewind}
-                                        onmouseup={stopRewind}
-                                        onmouseleave={stopRewind}
-                                        ontouchstart={startRewind}
-                                        ontouchend={stopRewind}
-                                        class="rounded-full bg-amber-500 p-3 text-white transition-all duration-200 hover:scale-110 hover:bg-amber-600 active:scale-95 disabled:opacity-50"
-                                        disabled={allWords.length === 0 || currentWordIndex <= 0}
-                                        title="Hold to rewind"
-                                        class:bg-amber-600={isRewinding}
-                                        class:scale-95={isRewinding}
-                                    >
-                                        <Icon name="rewind" size={20} />
-                                    </button>
-
-                                    <!-- Play / Pause -->
-                                    <button
-                                        onclick={togglePlayPause}
-                                        class="rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 p-4 text-white shadow-lg transition-all duration-200 hover:scale-110 hover:shadow-xl disabled:opacity-50"
-                                        disabled={allWords.length === 0}
-                                        aria-label={isPlaying ? 'Pause' : 'Play'}
-                                    >
-                                        {#if isPlaying}
-                                            <Icon name="pause" size={24} />
-                                        {:else}
-                                            <Icon name="play" size={24} />
-                                        {/if}
-                                    </button>
-                                {/if}
-
-                                <!-- Fullscreen toggle button -->
                                 <button
-                                    onclick={toggleFullscreen}
-                                    class="absolute right-3 bottom-3 flex h-9 w-9 items-center justify-center rounded-full bg-gray-800/70 text-white backdrop-blur transition-colors hover:bg-gray-800/90 focus:ring-2 focus:ring-gray-400 focus:outline-none"
-                                    title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+                                    onclick={(e) => {
+                                        e.stopPropagation()
+                                        deleteStoredBook(book.id, e)
+                                    }}
+                                    class="delete-btn"
+                                    title="Delete book"
                                 >
-                                    <Icon name={isFullscreen ? 'minimize' : 'maximize'} size={18} />
+                                    <Icon name="trash-2" size={16} />
                                 </button>
                             </div>
-                        </div>
+                        {/each}
                     </div>
-
-                    <!-- Progress -->
-                    <div class="space-y-3 sm:space-y-4">
-                        <div class="flex justify-between text-xs font-medium sm:text-sm">
-                            <div
-                                class="flex items-center space-x-1 text-gray-600 sm:space-x-2 dark:text-gray-400"
-                            >
-                                <Icon name="info" size={14} className="sm:w-4 sm:h-4" />
-                                <span class="hidden sm:inline">Word </span>
-                                <span>{(currentWordIndex + 1).toLocaleString()}</span>
-                            </div>
-                            <div
-                                class="flex items-center space-x-1 font-bold text-indigo-600 sm:space-x-2 dark:text-indigo-400"
-                            >
-                                <span>{progressPercentage.toFixed(1)}%</span>
-                            </div>
-                            <div
-                                class="flex items-center space-x-1 text-gray-600 sm:space-x-2 dark:text-gray-400"
-                            >
-                                <span>{allWords.length.toLocaleString()}</span>
-                                <span class="hidden sm:inline">total</span>
-                                <Icon name="file-text" size={14} className="sm:w-4 sm:h-4" />
-                            </div>
-                        </div>
-                        <div
-                            class="relative h-3 w-full rounded-full bg-gradient-to-r from-gray-200 to-gray-300"
-                        >
-                            <div
-                                class="h-3 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 shadow-sm transition-all duration-300"
-                                style="width: {progressPercentage}%"
-                            ></div>
-                        </div>
-                    </div>
-
-                    <!-- Controls -->
-                    <div class="flex items-center justify-center space-x-4 sm:space-x-8">
-                        <button
-                            onmousedown={startRewind}
-                            onmouseup={stopRewind}
-                            onmouseleave={stopRewind}
-                            ontouchstart={startRewind}
-                            ontouchend={stopRewind}
-                            class="rounded-full bg-amber-500 p-3 text-white transition-all duration-200 hover:scale-110 hover:bg-amber-600 active:scale-95 disabled:opacity-50 sm:p-4"
-                            disabled={allWords.length === 0 || currentWordIndex <= 0}
-                            title="Hold to rewind"
-                            class:bg-amber-600={isRewinding}
-                            class:scale-95={isRewinding}
-                        >
-                            <Icon name="rewind" size={20} className="sm:w-6 sm:h-6" />
-                        </button>
-
-                        <button
-                            onclick={togglePlayPause}
-                            class="rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 p-4 text-white shadow-lg transition-all duration-200 hover:scale-110 hover:shadow-xl disabled:opacity-50 sm:p-6"
-                            disabled={allWords.length === 0}
-                            aria-label={isPlaying ? 'Pause' : 'Play'}
-                        >
-                            {#if isPlaying}
-                                <Icon name="pause" size={24} className="sm:w-8 sm:h-8" />
-                            {:else}
-                                <Icon name="play" size={24} className="sm:w-8 sm:h-8" />
-                            {/if}
-                        </button>
-
-                        <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-                            <div class="flex items-center space-x-1 sm:space-x-2">
-                                <input
-                                    id="wpm"
-                                    type="number"
-                                    bind:value={wordsPerMinute}
-                                    oninput={handleWpmChange}
-                                    min="50"
-                                    max="1000"
-                                    step="10"
-                                    class="w-20 rounded-full border-gray-200 bg-white px-3 py-1.5 text-center text-sm font-bold text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring-2 focus:ring-indigo-200 focus:outline-none sm:w-24 sm:px-4 sm:py-2 dark:border-gray-600 dark:bg-gray-800 dark:text-indigo-400 dark:focus:border-indigo-400 dark:focus:ring-indigo-800"
-                                />
-                                <label
-                                    for="wpm"
-                                    class="text-xs font-semibold text-gray-700 sm:text-sm dark:text-gray-300"
-                                    >WPM</label
-                                >
-                            </div>
-
-                            <div class="flex items-center space-x-1 sm:space-x-2">
-                                <input
-                                    id="context"
-                                    type="number"
-                                    bind:value={surroundingWordsCount}
-                                    min="0"
-                                    max="100"
-                                    step="1"
-                                    class="w-14 rounded-full border-gray-200 bg-white px-2 py-1.5 text-center text-sm font-bold text-purple-600 shadow-sm focus:border-purple-300 focus:ring-2 focus:ring-purple-200 focus:outline-none sm:w-16 sm:px-3 sm:py-2 dark:border-gray-600 dark:bg-gray-800 dark:text-purple-400 dark:focus:border-purple-400 dark:focus:ring-purple-800"
-                                />
-                                <label
-                                    for="context"
-                                    class="text-xs font-semibold text-gray-700 sm:text-sm dark:text-gray-300"
-                                    >Context</label
-                                >
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Quick WPM presets -->
-                    <div class="flex flex-wrap items-center justify-center gap-1 sm:gap-2">
-                        {#each [200, 300, 400, 500, 600] as preset (preset)}
-                            <button
-                                onclick={() => {
-                                    wordsPerMinute = preset
-                                    handleWpmChange()
-                                }}
-                                class="rounded-full px-3 py-1.5 text-xs font-semibold transition-colors duration-200 sm:px-4 sm:py-2 sm:text-sm"
-                                class:bg-indigo-600={wordsPerMinute === preset}
-                                class:text-white={wordsPerMinute === preset}
-                                class:bg-gray-200={wordsPerMinute !== preset}
-                                class:text-gray-700={wordsPerMinute !== preset}
-                                class:hover:bg-gray-300={wordsPerMinute !== preset}
-                                class:dark:bg-gray-700={wordsPerMinute !== preset}
-                                class:dark:text-gray-300={wordsPerMinute !== preset}
-                                class:dark:hover:bg-gray-600={wordsPerMinute !== preset}
-                            >
-                                {preset}
-                            </button>
+                {/if}
+            </div>
+        </div>
+    {:else}
+        <div class="reader-view">
+            <!-- Word Display -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <div
+                bind:this={wordContainer}
+                class="reader-stage"
+                onmousedown={handleHoldStart}
+                onmouseup={handleHoldEnd}
+                onmouseleave={handleHoldEnd}
+                ontouchstart={handleHoldStart}
+                ontouchend={handleHoldEnd}
+                ontouchcancel={handleHoldEnd}
+            >
+                <div class="word-display">
+                    <div class="context-words before">
+                        {#each surroundingWords.before as word}
+                            <span>{word}</span>
                         {/each}
                     </div>
 
-                    <!-- Extra Settings Toggle & Panel -->
-                    <div class="mt-4">
-                        <button
-                            onclick={() => (showExtraSettings = !showExtraSettings)}
-                            class="mx-auto flex items-center justify-center space-x-2 rounded-full bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-all hover:bg-gray-200 focus:ring-2 focus:ring-gray-300 focus:outline-none dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:focus:ring-gray-600"
-                        >
-                            <Icon
-                                name={showExtraSettings ? 'chevron-up' : 'chevron-down'}
-                                size={16}
-                            />
-                            <span>Extra Settings</span>
-                        </button>
+                    <div class="current-word-container">
+                        <span class="current-word">{surroundingWords.current}</span>
+                    </div>
 
-                        <!-- Extra Settings Panel as horizontal row -->
-                        {#if showExtraSettings}
-                            <div
-                                class="mt-4 w-full rounded-xl border border-gray-200 bg-gray-50/50 p-4 transition-all dark:border-gray-700 dark:bg-gray-800/50"
-                            >
-                                <h4
-                                    class="mb-3 text-center text-sm font-semibold text-gray-700 dark:text-gray-300"
-                                >
-                                    Punctuation Pause Multipliers
-                                </h4>
-                                <div
-                                    class="flex flex-wrap items-center justify-center gap-3 sm:gap-4"
-                                >
-                                    <div class="flex items-center space-x-1">
-                                        <input
-                                            id="period"
-                                            type="number"
-                                            bind:value={periodMultiplier}
-                                            min="1"
-                                            max="10"
-                                            step="0.5"
-                                            class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-emerald-600 shadow-sm focus:border-emerald-300 focus:ring-2 focus:ring-emerald-200 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-emerald-400 dark:focus:border-emerald-400 dark:focus:ring-emerald-800"
-                                        />
-                                        <label
-                                            for="period"
-                                            class="text-xs font-medium text-gray-600 dark:text-gray-400"
-                                            >. Period</label
-                                        >
-                                    </div>
-
-                                    <div class="flex items-center space-x-1">
-                                        <input
-                                            id="comma"
-                                            type="number"
-                                            bind:value={commaMultiplier}
-                                            min="1"
-                                            max="10"
-                                            step="0.5"
-                                            class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-blue-600 shadow-sm focus:border-blue-300 focus:ring-2 focus:ring-blue-200 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-blue-400 dark:focus:border-blue-400 dark:focus:ring-blue-800"
-                                        />
-                                        <label
-                                            for="comma"
-                                            class="text-xs font-medium text-gray-600 dark:text-gray-400"
-                                            >, Comma</label
-                                        >
-                                    </div>
-
-                                    <div class="flex items-center space-x-1">
-                                        <input
-                                            id="semicolon"
-                                            type="number"
-                                            bind:value={semicolonMultiplier}
-                                            min="1"
-                                            max="10"
-                                            step="0.5"
-                                            class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-orange-600 shadow-sm focus:border-orange-300 focus:ring-2 focus:ring-orange-200 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-orange-400 dark:focus:border-orange-400 dark:focus:ring-orange-800"
-                                        />
-                                        <label
-                                            for="semicolon"
-                                            class="text-xs font-medium text-gray-600 dark:text-gray-400"
-                                            >; : Colon</label
-                                        >
-                                    </div>
-
-                                    <div class="flex items-center space-x-1">
-                                        <input
-                                            id="exclamation"
-                                            type="number"
-                                            bind:value={exclamationMultiplier}
-                                            min="1"
-                                            max="10"
-                                            step="0.5"
-                                            class="w-14 rounded-full border-gray-200 bg-white px-2 py-1 text-center text-sm font-bold text-red-600 shadow-sm focus:border-red-300 focus:ring-2 focus:ring-red-200 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-red-400 dark:focus:border-red-400 dark:focus:ring-red-800"
-                                        />
-                                        <label
-                                            for="exclamation"
-                                            class="text-xs font-medium text-gray-600 dark:text-gray-400"
-                                            >! ? Exclaim</label
-                                        >
-                                    </div>
-                                </div>
-
-                                <!-- Reset Button in Extra Settings -->
-                                <div
-                                    class="mt-4 border-t border-gray-300 pt-4 dark:border-gray-600"
-                                >
-                                    <div class="flex justify-center">
-                                        <button
-                                            onclick={resetReading}
-                                            class="flex items-center space-x-2 rounded-lg bg-red-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600 focus:ring-2 focus:ring-red-300 focus:outline-none"
-                                        >
-                                            <Icon name="refresh" size={16} />
-                                            <span>Reset to Beginning</span>
-                                        </button>
-                                    </div>
-                                    <p
-                                        class="mt-2 text-center text-xs text-gray-500 dark:text-gray-400"
-                                    >
-                                        This will reset your progress to the beginning
-                                    </p>
-                                </div>
-                            </div>
-                        {/if}
+                    <div class="context-words after">
+                        {#each surroundingWords.after as word}
+                            <span>{word}</span>
+                        {/each}
                     </div>
                 </div>
 
-                <!-- Table of Contents below the reader -->
+                <!-- Chapter Progress -->
+                {#if currentChapter && epubData && epubData.tableOfContents.length > 1}
+                    <div class="chapter-progress-bar">
+                        <div
+                            class="chapter-fill"
+                            style="width: {chapterProgress.percentage}%"
+                        ></div>
+                    </div>
+                    {#if chapterProgress.timeRemaining > 0}
+                        <div class="chapter-time">
+                            {chapterProgress.timeRemaining}m left in chapter
+                        </div>
+                    {/if}
+                {/if}
+
+                <!-- Overlay Controls (Fullscreen/Rewind when fullscreen) -->
+                <div class="reader-overlay">
+                    {#if isFullscreen}
+                        <div class="fs-controls">
+                            <button
+                                onmousedown={startRewind}
+                                onmouseup={stopRewind}
+                                onmouseleave={stopRewind}
+                                ontouchstart={startRewind}
+                                ontouchend={stopRewind}
+                                class="fs-btn rewind"
+                                disabled={allWords.length === 0 || currentWordIndex <= 0}
+                                class:active={isRewinding}
+                            >
+                                <Icon name="rewind" size={24} />
+                            </button>
+
+                            <button
+                                onclick={togglePlayPause}
+                                class="fs-btn play"
+                                disabled={allWords.length === 0}
+                            >
+                                <Icon name={isPlaying ? 'pause' : 'play'} size={32} />
+                            </button>
+                        </div>
+                    {/if}
+
+                    <button class="fs-toggle" onclick={toggleFullscreen} title="Toggle Fullscreen">
+                        <Icon name={isFullscreen ? 'minimize' : 'maximize'} size={20} />
+                    </button>
+                </div>
+            </div>
+
+            <!-- Reader Controls & Stats -->
+            <div class="reader-controls-container">
+                <div class="progress-stats">
+                    <div class="stat">
+                        <Icon name="info" size={14} />
+                        <span>Word {(currentWordIndex + 1).toLocaleString()}</span>
+                    </div>
+                    <div class="stat main-stat">
+                        {progressPercentage.toFixed(1)}%
+                    </div>
+                    <div class="stat">
+                        <span>{allWords.length.toLocaleString()} total</span>
+                    </div>
+                </div>
+                <div class="main-progress-track">
+                    <div class="main-progress-fill" style="width: {progressPercentage}%"></div>
+                </div>
+
+                <div class="primary-controls">
+                    <button
+                        onmousedown={startRewind}
+                        onmouseup={stopRewind}
+                        onmouseleave={stopRewind}
+                        ontouchstart={startRewind}
+                        ontouchend={stopRewind}
+                        class="control-btn rewind"
+                        disabled={allWords.length === 0 || currentWordIndex <= 0}
+                        class:active={isRewinding}
+                    >
+                        <Icon name="rewind" size={24} />
+                    </button>
+
+                    <button
+                        onclick={togglePlayPause}
+                        class="control-btn play-pause"
+                        disabled={allWords.length === 0}
+                    >
+                        <Icon name={isPlaying ? 'pause' : 'play'} size={32} />
+                    </button>
+                </div>
+
+                <div class="settings-row">
+                    <div class="setting-group">
+                        <input
+                            id="wpm"
+                            type="number"
+                            bind:value={wordsPerMinute}
+                            oninput={handleWpmChange}
+                            min="50"
+                            max="1000"
+                            step="10"
+                        />
+                        <label for="wpm">WPM</label>
+                    </div>
+                    <div class="setting-group">
+                        <input
+                            id="context"
+                            type="number"
+                            bind:value={surroundingWordsCount}
+                            min="0"
+                            max="100"
+                            step="1"
+                        />
+                        <label for="context">Context</label>
+                    </div>
+                </div>
+
+                <div class="presets-row">
+                    {#each [200, 300, 400, 500, 600] as preset}
+                        <button
+                            onclick={() => {
+                                wordsPerMinute = preset
+                                handleWpmChange()
+                            }}
+                            class="preset-btn {wordsPerMinute === preset ? 'active' : ''}"
+                        >
+                            {preset}
+                        </button>
+                    {/each}
+                </div>
+
+                <div class="extra-settings-section">
+                    <button
+                        onclick={() => (showExtraSettings = !showExtraSettings)}
+                        class="toggle-extras"
+                    >
+                        <span>Extra Settings</span>
+                        <Icon name={showExtraSettings ? 'chevron-up' : 'chevron-down'} size={16} />
+                    </button>
+
+                    {#if showExtraSettings}
+                        <div class="extras-panel">
+                            <h4>Pause Multipliers</h4>
+                            <div class="multipliers-grid">
+                                <div class="mult-group">
+                                    <input
+                                        id="mult-period"
+                                        type="number"
+                                        bind:value={periodMultiplier}
+                                        min="1"
+                                        max="10"
+                                        step="0.5"
+                                    />
+                                    <label for="mult-period">. Period</label>
+                                </div>
+                                <div class="mult-group">
+                                    <input
+                                        id="mult-comma"
+                                        type="number"
+                                        bind:value={commaMultiplier}
+                                        min="1"
+                                        max="10"
+                                        step="0.5"
+                                    />
+                                    <label for="mult-comma">, Comma</label>
+                                </div>
+                                <div class="mult-group">
+                                    <input
+                                        id="mult-semi"
+                                        type="number"
+                                        bind:value={semicolonMultiplier}
+                                        min="1"
+                                        max="10"
+                                        step="0.5"
+                                    />
+                                    <label for="mult-semi">; Colon</label>
+                                </div>
+                                <div class="mult-group">
+                                    <input
+                                        id="mult-exclaim"
+                                        type="number"
+                                        bind:value={exclamationMultiplier}
+                                        min="1"
+                                        max="10"
+                                        step="0.5"
+                                    />
+                                    <label for="mult-exclaim">! Exclaim</label>
+                                </div>
+                            </div>
+                            <div class="extras-actions">
+                                <button onclick={resetReading} class="reset-btn">
+                                    <Icon name="refresh" size={16} />
+                                    <span>Reset to Beginning</span>
+                                </button>
+                            </div>
+                        </div>
+                    {/if}
+                </div>
+
                 {#if epubData && epubData.tableOfContents.length > 1}
-                    <div class="mt-8 w-full max-w-2xl sm:mt-12">
+                    <div class="toc-section">
                         <button
                             onclick={() => (showTableOfContents = !showTableOfContents)}
-                            class="mb-3 flex w-full items-center gap-2 text-base font-bold text-gray-800 transition-colors hover:text-indigo-700 sm:mb-4 sm:text-lg dark:text-gray-200 dark:hover:text-indigo-400"
+                            class="toc-toggle"
                         >
-                            <Icon name="menu" size={18} className="text-indigo-500 sm:w-5 sm:h-5" />
+                            <Icon name="menu" size={18} />
                             <span>Table of Contents</span>
                             <Icon
                                 name={showTableOfContents ? 'chevron-up' : 'chevron-down'}
                                 size={16}
-                                className="ml-auto text-gray-400"
+                                className="arrow"
                             />
                         </button>
 
                         {#if showTableOfContents}
-                            <div class="flex flex-col gap-2">
+                            <div class="toc-list">
                                 {#each epubData.tableOfContents as item, idx (item.order)}
                                     {@const nextStart =
                                         epubData.tableOfContents[idx + 1]?.wordStartIndex ??
@@ -1115,53 +887,21 @@
                                         Math.round(wordCount / wordsPerMinute),
                                     )}
                                     {@const isActive = isChapterActive(item)}
+
                                     <button
                                         onclick={() => navigateToChapter(item.wordStartIndex)}
-                                        class="group flex items-center justify-between rounded-lg px-4 py-3 text-left transition-all duration-200"
-                                        class:bg-indigo-50={isActive}
-                                        class:hover:bg-gray-100={!isActive}
-                                        class:dark:bg-indigo-900={isActive}
-                                        class:dark:hover:bg-gray-800={!isActive}
+                                        class="toc-item {isActive ? 'active' : ''}"
                                     >
-                                        <div class="flex min-w-0 items-center gap-3">
-                                            <div
-                                                class="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-gray-200 dark:bg-gray-700"
+                                        <span class="chapter-num">{item.order + 1}</span>
+                                        <div class="chapter-info">
+                                            <span class="chapter-title"
+                                                >{item.title || `Chapter ${item.order + 1}`}</span
                                             >
-                                                <span
-                                                    class="text-xs font-bold transition-colors"
-                                                    class:text-indigo-600={isActive}
-                                                    class:text-gray-600={!isActive}
-                                                    class:dark:text-indigo-400={isActive}
-                                                    class:dark:text-gray-400={!isActive}
-                                                    >{item.order + 1}</span
-                                                >
-                                            </div>
-                                            <div class="min-w-0 flex-1">
-                                                <p
-                                                    class="truncate text-sm font-medium transition-colors"
-                                                    class:text-indigo-700={isActive}
-                                                    class:text-gray-800={!isActive}
-                                                    class:group-hover:text-indigo-700={!isActive}
-                                                    class:dark:text-indigo-400={isActive}
-                                                    class:dark:text-gray-200={!isActive}
-                                                    class:dark:group-hover:text-indigo-400={!isActive}
-                                                >
-                                                    {item.title || `Chapter ${item.order + 1}`}
-                                                </p>
-
-                                                <p
-                                                    class="truncate text-xs text-gray-500 dark:text-gray-400"
-                                                >
-                                                    {wordCount.toLocaleString()} words · {estMinutes}
-                                                    min
-                                                </p>
-                                            </div>
+                                            <span class="chapter-meta"
+                                                >{wordCount.toLocaleString()} words · {estMinutes} min</span
+                                            >
                                         </div>
-                                        <Icon
-                                            name="chevron-right"
-                                            size={16}
-                                            className="text-gray-400 transition-colors group-hover:text-indigo-500"
-                                        />
+                                        <Icon name="chevron-right" size={16} className="arrow" />
                                     </button>
                                 {/each}
                             </div>
@@ -1169,63 +909,987 @@
                     </div>
                 {/if}
 
-                <!-- Back to Library Button -->
-                <div class="mt-6 w-full max-w-2xl sm:mt-8">
-                    <button
-                        onclick={backToLibrary}
-                        class="flex w-full items-center justify-center space-x-2 rounded-xl bg-gray-100 px-3 py-2.5 text-sm text-gray-700 transition-colors hover:bg-gray-200 sm:px-4 sm:py-3 sm:text-base dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-                    >
-                        <Icon name="arrow-left" size={14} className="sm:w-4 sm:h-4" />
-                        <span>Back to Library</span>
-                    </button>
-                </div>
+                <button onclick={backToLibrary} class="back-link">
+                    <Icon name="arrow-left" size={14} />
+                    <span>Back to Library</span>
+                </button>
             </div>
-        {/if}
+        </div>
+    {/if}
 
-        <!-- Reset Confirmation Modal -->
-        {#if showResetConfirmation}
-            <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                <div class="w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-gray-800">
-                    <div class="mb-4 flex items-center space-x-3">
-                        <div
-                            class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30"
-                        >
-                            <Icon
-                                name="alert-triangle"
-                                size={20}
-                                className="text-red-600 dark:text-red-400"
-                            />
-                        </div>
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                            Reset Progress?
-                        </h3>
-                    </div>
-                    <p class="mb-6 text-sm text-gray-600 dark:text-gray-400">
-                        This will reset your reading progress to the beginning of the book. This
-                        action cannot be undone.
-                    </p>
-                    <div class="flex space-x-3">
-                        <button
-                            onclick={cancelReset}
-                            class="flex-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-indigo-200 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onclick={resetReading}
-                            class="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 focus:ring-2 focus:ring-red-300 focus:outline-none"
-                        >
-                            Reset
-                        </button>
-                    </div>
+    {#if showResetConfirmation}
+        <div class="modal-overlay">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <div class="icon-danger"><Icon name="alert-triangle" size={20} /></div>
+                    <h3>Reset Progress?</h3>
+                </div>
+                <p>This will return you to the start of the book.</p>
+                <div class="modal-actions">
+                    <button onclick={cancelReset} class="btn-secondary">Cancel</button>
+                    <button onclick={resetReading} class="btn-danger">Reset</button>
                 </div>
             </div>
-        {/if}
-    </div>
+        </div>
+    {/if}
 </main>
 
 <style>
-    input[type='file'] {
-        color: transparent;
+    :global(:root) {
+        --font-serif: 'Merriweather', 'Georgia', serif;
+        --font-sans: 'Inter', system-ui, sans-serif;
+        --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+        /* Light Mode (Default) */
+        --c-bg: #fdfbf7;
+        --c-surface: #ffffff;
+        --c-text: #2c3e50;
+        --c-text-light: #64748b;
+        --c-text-muted: #94a3b8;
+
+        --c-primary: #3b82f6;
+        --c-primary-dark: #2563eb;
+        --c-primary-light: #eff6ff;
+        --c-primary-hover-bg: #e0f2fe;
+        --c-primary-gradient-to: #818cf8;
+        --c-shadow-primary: rgba(59, 130, 246, 0.5);
+
+        --c-accent: #f59e0b;
+        --c-accent-light: #fffbeb;
+        --c-accent-border: #fef3c7;
+
+        --c-danger: #ef4444;
+        --c-danger-bg: #fef2f2;
+        --c-danger-border: #fca5a5;
+
+        --c-success: #10b981;
+
+        --c-border: #e2e8f0;
+        --c-border-light: rgba(0, 0, 0, 0.05);
+        --c-border-dashed: #e2e8f0;
+
+        --c-bg-subtle: #f8fafc;
+        --c-bg-input: #ffffff;
+
+        --c-info-bg: #f0f9ff;
+        --c-info-border: #bae6fd;
+        --c-info-text: #0369a1;
+        --c-info-link: #0284c7;
+
+        --c-progress-track: #e2e8f0;
+        --c-context-text: #cbd5e1;
+
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+
+        --radius-sm: 0.5rem;
+        --radius-md: 0.75rem;
+        --radius-lg: 1rem;
+        --radius-full: 9999px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :global(:root) {
+            --c-bg: #0f172a;
+            --c-surface: #1e293b;
+            --c-text: #f1f5f9;
+            --c-text-light: #cbd5e1;
+            --c-text-muted: #64748b;
+
+            --c-primary: #60a5fa;
+            --c-primary-dark: #3b82f6;
+            --c-primary-light: rgba(59, 130, 246, 0.15);
+            --c-primary-hover-bg: rgba(59, 130, 246, 0.25);
+            --c-primary-gradient-to: #3b82f6;
+            --c-shadow-primary: rgba(96, 165, 250, 0.4);
+
+            --c-accent: #fbbf24;
+            --c-accent-light: rgba(245, 158, 11, 0.15);
+            --c-accent-border: rgba(245, 158, 11, 0.3);
+
+            --c-danger: #f87171;
+            --c-danger-bg: rgba(239, 68, 68, 0.15);
+            --c-danger-border: rgba(239, 68, 68, 0.3);
+
+            --c-success: #34d399;
+
+            --c-border: #334155;
+            --c-border-light: rgba(255, 255, 255, 0.05);
+            --c-border-dashed: #475569;
+
+            --c-bg-subtle: #334155;
+            --c-bg-input: #1e293b;
+
+            --c-info-bg: rgba(14, 165, 233, 0.15);
+            --c-info-border: rgba(14, 165, 233, 0.3);
+            --c-info-text: #7dd3fc;
+            --c-info-link: #38bdf8;
+
+            --c-progress-track: #334155;
+            --c-context-text: #64748b;
+
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+    }
+
+    /* Reset & Base */
+    .app-container {
+        font-family: var(--font-sans);
+        color: var(--c-text);
+        min-height: 100vh;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem 1rem;
+        box-sizing: border-box;
+    }
+
+    button {
+        cursor: pointer;
+        border: none;
+        background: none;
+        font-family: inherit;
+    }
+
+    input {
+        font-family: inherit;
+        color: var(--c-text);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+        font-family: var(--font-serif);
+        margin: 0;
+        color: var(--c-text);
+    }
+
+    /* Library View */
+    .library-view {
+        width: 100%;
+        max-width: 64rem;
+    }
+
+    .library-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .logo-circle {
+        width: 4rem;
+        height: 4rem;
+        background-color: var(--c-primary);
+        color: white;
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        box-shadow: var(--shadow-md);
+    }
+
+    .library-header h1 {
+        font-size: 2.5rem;
+        color: var(--c-text);
+        margin-bottom: 0.5rem;
+    }
+
+    .library-header p {
+        color: var(--c-text-light);
+        font-size: 1.125rem;
+    }
+
+    .upload-card {
+        background: var(--c-surface);
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        box-shadow: var(--shadow-lg);
+        margin-bottom: 2rem;
+        border: 1px solid var(--c-border-light);
+    }
+
+    .file-input-wrapper {
+        position: relative;
+        border: 2px dashed var(--c-border-dashed);
+        border-radius: var(--radius-md);
+        transition: all 0.2s;
+        height: 150px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--c-bg-subtle);
+    }
+
+    .file-input-wrapper:hover {
+        border-color: var(--c-primary);
+        background: var(--c-primary-hover-bg);
+    }
+
+    .file-input {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+        z-index: 10;
+    }
+
+    .upload-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: var(--c-text-light);
+        pointer-events: none;
+    }
+
+    .status-message {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .status-message.loading {
+        background: var(--c-primary-light);
+        color: var(--c-primary-dark);
+    }
+
+    .status-message.error {
+        background: var(--c-danger-bg);
+        color: var(--c-danger);
+        border: 1px solid var(--c-danger-border);
+    }
+
+    .spinner {
+        width: 1.25rem;
+        height: 1.25rem;
+        border: 2px solid currentColor;
+        border-right-color: transparent;
+        border-radius: 50%;
+        animation: spin 0.75s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .tip-card {
+        background: var(--c-info-bg);
+        border: 1px solid var(--c-info-border);
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 3rem;
+        color: var(--c-info-text);
+    }
+
+    .tip-card a {
+        color: var(--c-info-link);
+        font-weight: 600;
+        text-decoration: underline;
+    }
+
+    /* Book Grid */
+    .library-header-row {
+        margin-bottom: 1.5rem;
+    }
+
+    .book-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .book-card {
+        background: var(--c-surface);
+        padding: 1.5rem;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--c-border-light);
+        position: relative;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .book-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--c-primary-light);
+    }
+
+    .book-title {
+        font-size: 1.1rem;
+        line-height: 1.4;
+        margin-bottom: 0.25rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        color: var(--c-text);
+    }
+
+    .book-author {
+        font-family: var(--font-sans);
+        font-size: 0.875rem;
+        color: var(--c-text-light);
+    }
+
+    .progress-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        margin-bottom: 0.25rem;
+        color: var(--c-text-light);
+        font-weight: 500;
+    }
+
+    .progress-track {
+        height: 0.5rem;
+        background: var(--c-progress-track);
+        border-radius: var(--radius-full);
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--c-primary), var(--c-primary-gradient-to));
+        transition: width 0.3s ease;
+    }
+
+    .book-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        color: var(--c-text-muted);
+        margin-top: auto;
+    }
+
+    .book-badge {
+        position: absolute;
+        top: -0.5rem;
+        left: 1rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--radius-full);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .book-badge.completed {
+        background: var(--c-success);
+        color: white;
+    }
+
+    .book-badge.in-progress {
+        background: var(--c-primary);
+        color: white;
+    }
+
+    .delete-btn {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        color: var(--c-text-muted);
+        padding: 0.25rem;
+        border-radius: var(--radius-full);
+        opacity: 0;
+        transition: all 0.2s;
+    }
+
+    .book-card:hover .delete-btn {
+        opacity: 1;
+    }
+
+    .delete-btn:hover {
+        background: var(--c-danger-bg);
+        color: var(--c-danger);
+    }
+
+    .empty-library {
+        text-align: center;
+        padding: 4rem 0;
+        color: var(--c-text-light);
+    }
+
+    /* Reader View */
+    .reader-view {
+        width: 100%;
+        max-width: 42rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .reader-stage {
+        position: relative;
+        background: var(--c-surface);
+        border-radius: 1.5rem;
+        box-shadow:
+            var(--shadow-lg),
+            inset 0 0 0 1px var(--c-border-light);
+        height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        overflow: hidden;
+    }
+
+    .word-display {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        width: 100%;
+        text-align: center;
+    }
+
+    .context-words {
+        color: var(--c-context-text);
+        font-family: var(--font-mono);
+        font-size: 1.5rem;
+        height: 3rem;
+        display: flex;
+        gap: 1rem;
+        overflow: hidden;
+        opacity: 0.6;
+    }
+
+    .current-word-container {
+        margin: 2rem 0;
+        min-height: 5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .current-word {
+        font-family: var(--font-mono);
+        font-size: 4rem;
+        font-weight: 700;
+        color: var(--c-text);
+        line-height: 1;
+    }
+
+    /* Chapter Progress inside Reader */
+    .chapter-progress-bar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--c-border-light);
+    }
+
+    .chapter-fill {
+        height: 100%;
+        background: var(--c-accent);
+        transition: width 0.2s linear;
+    }
+
+    .chapter-time {
+        position: absolute;
+        bottom: 0.75rem;
+        right: 1rem;
+        font-size: 0.75rem;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        pointer-events: none;
+    }
+
+    .reader-overlay {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+    }
+
+    .fs-toggle {
+        pointer-events: auto;
+        position: absolute;
+        bottom: 1rem;
+        right: 1rem;
+        width: 2.5rem;
+        height: 2.5rem;
+        background: var(--c-surface);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: var(--shadow-sm);
+        color: var(--c-text);
+        transition: background 0.2s;
+        border: 1px solid var(--c-border-light);
+    }
+
+    .fs-toggle:hover {
+        background: var(--c-bg-subtle);
+        transform: scale(1.1);
+    }
+
+    .fs-controls {
+        pointer-events: auto;
+        position: absolute;
+        bottom: 2rem;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        align-items: center;
+    }
+
+    .fs-btn {
+        background: var(--c-surface);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--c-text);
+        box-shadow: var(--shadow-lg);
+        transition: transform 0.1s;
+        border: 1px solid var(--c-border-light);
+    }
+
+    .fs-btn.play {
+        width: 4rem;
+        height: 4rem;
+        color: var(--c-primary);
+    }
+
+    .fs-btn.rewind {
+        width: 3rem;
+        height: 3rem;
+        color: var(--c-accent);
+    }
+
+    .fs-btn:hover {
+        transform: scale(1.1);
+        background: var(--c-bg-subtle);
+    }
+
+    /* Control Panel */
+    .reader-controls-container {
+        background: var(--c-surface);
+        padding: 2rem;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .progress-stats {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.875rem;
+        color: var(--c-text-light);
+        margin-bottom: 0.5rem;
+    }
+
+    .main-stat {
+        color: var(--c-primary);
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .main-progress-track {
+        height: 0.75rem;
+        background: var(--c-progress-track);
+        border-radius: var(--radius-full);
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+
+    .main-progress-fill {
+        height: 100%;
+        background: var(--c-primary);
+        transition: width 0.3s ease;
+    }
+
+    .primary-controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .control-btn {
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: var(--shadow-md);
+    }
+
+    .control-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
+
+    .control-btn:active:not(:disabled) {
+        transform: scale(0.95);
+    }
+
+    .control-btn.rewind {
+        width: 3.5rem;
+        height: 3.5rem;
+        background: var(--c-accent-light);
+        color: var(--c-accent);
+        border: 2px solid var(--c-accent-border);
+    }
+
+    .control-btn.rewind:hover:not(:disabled) {
+        background: var(--c-accent);
+        color: white;
+        border-color: var(--c-accent);
+    }
+
+    .control-btn.play-pause {
+        width: 5rem;
+        height: 5rem;
+        background: var(--c-primary);
+        color: white;
+        box-shadow: 0 10px 25px -5px var(--c-shadow-primary);
+    }
+
+    .control-btn.play-pause:hover:not(:disabled) {
+        transform: scale(1.05);
+        background: var(--c-primary-dark);
+    }
+
+    .settings-row {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .setting-group {
+        display: flex;
+        align-items: center;
+        background: var(--c-bg-subtle);
+        padding: 0.25rem 0.75rem;
+        border-radius: var(--radius-full);
+        border: 1px solid var(--c-border);
+    }
+
+    .setting-group input {
+        width: 4rem;
+        border: none;
+        background: transparent;
+        font-weight: 700;
+        color: var(--c-text);
+        text-align: center;
+        font-size: 1rem;
+    }
+
+    .setting-group input:focus {
+        outline: none;
+    }
+
+    .setting-group label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--c-text-light);
+        margin-left: 0.25rem;
+        text-transform: uppercase;
+    }
+
+    .presets-row {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+    }
+
+    .preset-btn {
+        padding: 0.4rem 1rem;
+        border-radius: var(--radius-full);
+        font-size: 0.875rem;
+        font-weight: 600;
+        background: var(--c-surface);
+        border: 1px solid var(--c-border);
+        color: var(--c-text-light);
+        transition: all 0.2s;
+    }
+
+    .preset-btn:hover {
+        border-color: var(--c-primary);
+        color: var(--c-primary);
+    }
+
+    .preset-btn.active {
+        background: var(--c-primary);
+        color: white;
+        border-color: var(--c-primary);
+    }
+
+    /* Extras */
+    .extra-settings-section {
+        border-top: 1px solid var(--c-border);
+        padding-top: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .toggle-extras {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        color: var(--c-text-light);
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .extras-panel {
+        margin-top: 1.5rem;
+        background: var(--c-bg-subtle);
+        border-radius: var(--radius-md);
+        padding: 1.5rem;
+    }
+
+    .extras-panel h4 {
+        text-align: center;
+        font-size: 0.9rem;
+        color: var(--c-text);
+        margin-bottom: 1rem;
+    }
+
+    .multipliers-grid {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .mult-group {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .mult-group input {
+        width: 3.5rem;
+        text-align: center;
+        padding: 0.25rem;
+        border-radius: 0.25rem;
+        border: 1px solid var(--c-border);
+        margin-bottom: 0.25rem;
+        background: var(--c-bg-input);
+        color: var(--c-text);
+    }
+
+    .mult-group label {
+        font-size: 0.7rem;
+        color: var(--c-text-light);
+    }
+
+    .extras-actions {
+        margin-top: 1.5rem;
+        display: flex;
+        justify-content: center;
+    }
+
+    .reset-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--c-danger);
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius-md);
+    }
+
+    .reset-btn:hover {
+        background: var(--c-danger-bg);
+    }
+
+    /* TOC */
+    .toc-section {
+        border-top: 1px solid var(--c-border);
+        padding-top: 1.5rem;
+    }
+
+    .toc-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        width: 100%;
+        font-weight: 700;
+        color: var(--c-text);
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+
+    .toc-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        max-height: 400px;
+        overflow-y: auto;
+        padding-right: 0.5rem;
+    }
+
+    .toc-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem;
+        border-radius: var(--radius-md);
+        text-align: left;
+        transition: background 0.2s;
+    }
+
+    .toc-item:hover {
+        background: var(--c-bg-subtle);
+    }
+
+    .toc-item.active {
+        background: var(--c-primary-light);
+    }
+
+    .chapter-num {
+        width: 1.75rem;
+        height: 1.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--c-border);
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--c-text-light);
+    }
+
+    .toc-item.active .chapter-num {
+        background: white;
+        color: var(--c-primary);
+    }
+
+    .chapter-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .chapter-title {
+        display: block;
+        font-weight: 500;
+        font-size: 0.95rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: var(--c-text);
+    }
+
+    .toc-item.active .chapter-title {
+        color: var(--c-primary);
+    }
+
+    .chapter-meta {
+        font-size: 0.75rem;
+        color: var(--c-text-light);
+    }
+
+    .toc-item :global(.arrow) {
+        color: var(--c-text-muted);
+    }
+
+    .back-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 1rem;
+        margin-top: 2rem;
+        color: var(--c-text-light);
+        background: var(--c-bg-subtle);
+        border-radius: var(--radius-md);
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .back-link:hover {
+        background: var(--c-border);
+        color: var(--c-text);
+    }
+
+    /* Modal */
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        padding: 1rem;
+        backdrop-filter: blur(2px);
+    }
+
+    .modal-card {
+        background: var(--c-surface);
+        padding: 2rem;
+        border-radius: var(--radius-lg);
+        width: 100%;
+        max-width: 24rem;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .modal-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .icon-danger {
+        color: var(--c-danger);
+        background: var(--c-danger-bg);
+        padding: 0.5rem;
+        border-radius: 50%;
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn-secondary,
+    .btn-danger {
+        flex: 1;
+        padding: 0.75rem;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+    }
+
+    .btn-secondary {
+        background: var(--c-surface);
+        border: 1px solid var(--c-border);
+        color: var(--c-text);
+    }
+
+    .btn-danger {
+        background: var(--c-danger);
+        color: white;
     }
 </style>
