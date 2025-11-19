@@ -168,6 +168,7 @@
             currentBookId = await epubStorage.saveBook(epubData, allWords.length)
 
             currentWordIndex = 0
+            currentChapterIndex = 0
             showLibrary = false
             await loadLibrary() // Refresh library
         } catch (error) {
@@ -194,6 +195,7 @@
             } else {
                 currentWordIndex = 0
             }
+            currentChapterIndex = getChapterIndex(currentWordIndex)
 
             await epubStorage.updateLastReadDate(book.id)
             showLibrary = false
@@ -362,6 +364,7 @@
             pauseReading()
             stopRewind()
             currentWordIndex = 0
+            currentChapterIndex = 0
             saveProgress() // Save the reset position
             showResetConfirmation = false
         } else {
@@ -400,6 +403,7 @@
         currentBookId = null
         allWords = []
         currentWordIndex = 0
+        currentChapterIndex = 0
         showLibrary = true
     }
 
