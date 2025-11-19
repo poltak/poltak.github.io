@@ -183,8 +183,7 @@ h5,
 h6 {
     font-family: var(--font-serif);
     color: var(--c-text);
-    margin-top: 2rem;
-    margin-bottom: 1rem;
+    margin: 1rem 0;
     line-height: 1.3;
 }
 
