@@ -940,102 +940,12 @@
 
 <style>
     :global(:root) {
-        --font-serif: 'Merriweather', 'Georgia', serif;
-        --font-sans: 'Inter', system-ui, sans-serif;
-        --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
-
-        /* Light Mode (Default) */
-        --c-bg: #fdfbf7;
-        --c-surface: #ffffff;
-        --c-text: #2c3e50;
-        --c-text-light: #64748b;
-        --c-text-muted: #94a3b8;
-
-        --c-primary: #3b82f6;
-        --c-primary-dark: #2563eb;
-        --c-primary-light: #eff6ff;
-        --c-primary-hover-bg: #e0f2fe;
-        --c-primary-gradient-to: #818cf8;
-        --c-shadow-primary: rgba(59, 130, 246, 0.5);
-
-        --c-accent: #f59e0b;
-        --c-accent-light: #fffbeb;
-        --c-accent-border: #fef3c7;
-
-        --c-danger: #ef4444;
-        --c-danger-bg: #fef2f2;
-        --c-danger-border: #fca5a5;
-
-        --c-success: #10b981;
-
-        --c-border: #e2e8f0;
-        --c-border-light: rgba(0, 0, 0, 0.05);
-        --c-border-dashed: #e2e8f0;
-
-        --c-bg-subtle: #f8fafc;
-        --c-bg-input: #ffffff;
-
-        --c-info-bg: #f0f9ff;
-        --c-info-border: #bae6fd;
-        --c-info-text: #0369a1;
-        --c-info-link: #0284c7;
-
-        --c-progress-track: #e2e8f0;
-        --c-context-text: #cbd5e1;
-
-        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
-
-        --radius-sm: 0.5rem;
-        --radius-md: 0.75rem;
-        --radius-lg: 1rem;
-        --radius-full: 9999px;
+        /* Variables moved to src/app.css */
     }
 
     @media (prefers-color-scheme: dark) {
         :global(:root) {
-            --c-bg: #0f172a;
-            --c-surface: #1e293b;
-            --c-text: #f1f5f9;
-            --c-text-light: #cbd5e1;
-            --c-text-muted: #64748b;
-
-            --c-primary: #60a5fa;
-            --c-primary-dark: #3b82f6;
-            --c-primary-light: rgba(59, 130, 246, 0.15);
-            --c-primary-hover-bg: rgba(59, 130, 246, 0.25);
-            --c-primary-gradient-to: #3b82f6;
-            --c-shadow-primary: rgba(96, 165, 250, 0.4);
-
-            --c-accent: #fbbf24;
-            --c-accent-light: rgba(245, 158, 11, 0.15);
-            --c-accent-border: rgba(245, 158, 11, 0.3);
-
-            --c-danger: #f87171;
-            --c-danger-bg: rgba(239, 68, 68, 0.15);
-            --c-danger-border: rgba(239, 68, 68, 0.3);
-
-            --c-success: #34d399;
-
-            --c-border: #334155;
-            --c-border-light: rgba(255, 255, 255, 0.05);
-            --c-border-dashed: #475569;
-
-            --c-bg-subtle: #334155;
-            --c-bg-input: #1e293b;
-
-            --c-info-bg: rgba(14, 165, 233, 0.15);
-            --c-info-border: rgba(14, 165, 233, 0.3);
-            --c-info-text: #7dd3fc;
-            --c-info-link: #38bdf8;
-
-            --c-progress-track: #334155;
-            --c-context-text: #64748b;
-
-            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            /* Variables moved to src/app.css */
         }
     }
 

@@ -1,5 +1,25 @@
 <script lang="ts">
     import { base } from '$app/paths'
+    import Icon from '$lib/components/icons/Icon.svelte'
+
+    const projects = [
+        {
+            title: 'Speed Reader',
+            description:
+                'A fast, distraction-free EPUB speed reader with adjustable reading speed and punctuation pausing.',
+            icon: 'book',
+            link: `${base}/speed-reader`,
+            color: 'var(--c-primary)',
+        },
+        {
+            title: 'Maze Generator',
+            description:
+                "A visual maze generator using various algorithms (Prim's, Recursive Backtracker, etc.).",
+            icon: 'maximize', // Using maximize as a placeholder for a grid-like icon
+            link: `${base}/maze-generator`,
+            color: 'var(--c-accent)',
+        },
+    ]
 </script>
 
 <h1>Fun Projects</h1>
@@ -8,28 +28,90 @@
     I'm planning to put more little browser-based side-projects I tinker with in my spare time here.
 </p>
 
-<ul>
-    <li>
-        <a href="{base}/speed-reader">Speed Reader</a> — A speed-reader that works with EPUB files.
-    </li>
-    <li>
-        <a href="{base}/maze-generator">Maze Generator</a> — A maze generator that I made for fun, which
-        I want to use to make some simple browser games with.
-    </li>
-</ul>
+<div class="projects-grid">
+    {#each projects as project}
+        <a href={project.link} class="project-card">
+            <div
+                class="icon-wrapper"
+                style="color: {project.color}; background: {project.color}15; border-color: {project.color}30"
+            >
+                <Icon name={project.icon as any} size={32} />
+            </div>
+            <div class="content">
+                <h3>{project.title}</h3>
+                <p>{project.description}</p>
+                <div class="arrow">
+                    <Icon name="arrow-right" size={20} />
+                </div>
+            </div>
+        </a>
+    {/each}
+</div>
 
 <style>
-    ul {
-        list-style: disc;
-        padding-left: 1rem;
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
     }
 
-    li {
-        margin: 0.5rem 0;
+    .project-card {
+        display: flex;
+        flex-direction: column;
+        background: var(--c-surface);
+        border: 1px solid var(--c-border);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        box-shadow: var(--shadow-sm);
+        height: 100%;
     }
 
-    a {
-        color: var(--text-color);
-        text-decoration: underline;
+    .project-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--c-primary);
+        text-decoration: none;
+    }
+
+    .icon-wrapper {
+        width: 4rem;
+        height: 4rem;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        border: 1px solid;
+    }
+
+    .content h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.25rem;
+        color: var(--c-text);
+    }
+
+    .content p {
+        font-size: 0.95rem;
+        color: var(--c-text-light);
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+    }
+
+    .arrow {
+        margin-top: auto;
+        display: flex;
+        justify-content: flex-end;
+        color: var(--c-primary);
+        opacity: 0;
+        transform: translateX(-10px);
+        transition: all 0.2s ease;
+    }
+
+    .project-card:hover .arrow {
+        opacity: 1;
+        transform: translateX(0);
     }
 </style>

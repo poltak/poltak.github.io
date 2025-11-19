@@ -23,6 +23,7 @@
         | 'alert-triangle'
         | 'maximize'
         | 'minimize'
+        | 'arrow-right'
 
     export let name: IconName
     export let size: number = 20
@@ -136,5 +137,8 @@
         <polyline points="9 3 3 3 3 9" />
         <line x1="21" y1="21" x2="14" y2="14" />
         <line x1="3" y1="3" x2="10" y2="10" />
+    {:else if name === 'arrow-right'}
+        <line x1="5" y1="12" x2="19" y2="12" />
+        <polyline points="12 5 19 12 12 19" />
     {/if}
 </svg>

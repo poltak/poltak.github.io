@@ -2,13 +2,4 @@
     let { children } = $props()
 </script>
 
-<div class="text-content-area">
-    {@render children?.()}
-</div>
-
-<style>
-    .text-content-area {
-        max-width: 720px;
-        text-align: justify;
-    }
-</style>
+{@render children?.()}
