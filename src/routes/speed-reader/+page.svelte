@@ -480,7 +480,7 @@
 
 <svelte:head>
     <title>Speed Reader</title>
-    <meta name="description" content="A fun way to read your books faster." />
+    <meta name="description" content="A fast EPUB speed reader with adjustable reading speed" />
 </svelte:head>
 
 <main class="app-container">
@@ -490,8 +490,8 @@
                 <div class="logo-circle">
                     <Icon name="book" size={32} />
                 </div>
-                <h1>Speed Reader</h1>
-                <p>Your personal book nook.</p>
+                <h1>EPUB Speed Reader</h1>
+                <p>Your personal library of speed-readable books</p>
             </div>
 
             <div class="upload-section">
@@ -506,7 +506,7 @@
                         />
                         <div class="upload-placeholder">
                             <Icon name="upload-cloud" size={32} className="mb-2" />
-                            <span>Drop an EPUB here or click to browse</span>
+                            <span>Add a new EPUB book to your library</span>
                         </div>
                     </div>
 
@@ -534,13 +534,14 @@
                     <Icon name="info" size={14} />
                 </div>
                 <div class="tip-content">
-                    <h4>Need books?</h4>
+                    <h4>Looking for books to try?</h4>
                     <p>
-                        Try <a
+                        Check out <a
                             href="https://standardebooks.org/"
                             target="_blank"
                             rel="noopener noreferrer">Standard Ebooks</a
-                        > for beautiful, free classics.
+                        > for high-quality, beautifully formatted public domain EPUB files that work
+                        perfectly with this speed reader.
                     </p>
                 </div>
             </div>
@@ -559,7 +560,7 @@
                     </div>
                 {:else}
                     <div class="library-header-row">
-                        <h2>Your Collection <span>({storedBooks.length})</span></h2>
+                        <h2>Your Library <span>({storedBooks.length})</span></h2>
                     </div>
                     <div class="book-grid">
                         {#each storedBooks as book (book.id)}
@@ -715,7 +716,6 @@
             <div class="reader-controls-container">
                 <div class="progress-stats">
                     <div class="stat">
-                        <Icon name="info" size={14} />
                         <span>Word {(currentWordIndex + 1).toLocaleString()}</span>
                     </div>
                     <div class="stat main-stat">
@@ -803,7 +803,7 @@
 
                     {#if showExtraSettings}
                         <div class="extras-panel">
-                            <h4>Pause Multipliers</h4>
+                            <h4>Punctuation Pause Multipliers</h4>
                             <div class="multipliers-grid">
                                 <div class="mult-group">
                                     <input
