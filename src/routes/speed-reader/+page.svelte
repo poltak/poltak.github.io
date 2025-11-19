@@ -1076,7 +1076,6 @@
     /* Library View */
     .library-view {
         width: 100%;
-        max-width: 64rem;
     }
 
     .library-header {
@@ -1333,7 +1332,6 @@
     /* Reader View */
     .reader-view {
         width: 100%;
-        max-width: 42rem;
         display: flex;
         flex-direction: column;
         gap: 2rem;
