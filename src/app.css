@@ -60,6 +60,7 @@
     --text-lg: 1.125rem;
 
     --content-max-width: 1000px;
+    --sidebar-width: 250px;
 }
 
 :root[class~='dark'] {
@@ -160,6 +161,13 @@ body {
     background-color: var(--c-bg);
     color: var(--c-text);
     font-family: var(--font-sans);
+
+    /* Create a split background to extend sidebar color to the left edge */
+    background: linear-gradient(
+        to right,
+        var(--c-bg-subtle) calc(50% - (var(--content-max-width) - var(--sidebar-width)) / 2),
+        var(--c-bg) calc(50% - (var(--content-max-width) - var(--sidebar-width)) / 2)
+    );
 }
 
 h1,
@@ -277,8 +285,14 @@ details details {
 /* Layout Grid */
 .site {
     display: grid;
-    grid-template-columns: minmax(200px, 1fr) minmax(auto, var(--content-max-width)) 1fr;
+    grid-template-columns: var(--sidebar-width) 1fr;
+    max-width: calc(var(--sidebar-width) + var(--content-max-width));
+    margin: 0 auto;
     min-height: 100vh;
+    /* box-shadow removed to ensure seamless blending with body background */
+    background-color: var(--c-bg); /* Ensures the boxed area has a background */
+    position: relative; /* Ensure it sits above the body gradient */
+    z-index: 1;
 }
 
 @media (max-width: 1024px) {
@@ -291,5 +305,8 @@ details details {
     .site {
         display: flex;
         flex-direction: column;
+        /* Remove the max-width constraint on mobile so it fills the screen */
+        max-width: 100%;
+        box-shadow: none;
     }
 }
