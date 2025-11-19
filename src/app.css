@@ -1,7 +1,6 @@
 body {
     line-height: 1.6;
     font-size: 18px;
-    padding: 0 10px;
 }
 
 :root {
@@ -28,12 +27,10 @@ body {
 
 h1 {
     font-size: var(--text-3xl);
-    line-height: 3.2;
     font-weight: 900;
 }
 h2 {
     font-size: var(--text-2xl);
-    line-height: 3.2;
     font-weight: 800;
 }
 
@@ -74,7 +71,7 @@ a:hover {
     grid-template-columns: [first] 10rem [padding-left] 200px [split] 5fr [padding-right] 1fr [last];
     grid-template-rows: [first] 10rem [content-top] 5fr [content-bottom] 1fr [last];
 
-    @media screen and (max-width: 768px) {
+    @media screen and (max-width: 932px) {
         display: flex;
         flex-direction: column;
     }

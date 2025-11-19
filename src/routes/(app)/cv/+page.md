@@ -258,7 +258,7 @@ Bachelor of Computer Science (First Class Honours): _2010 - 2015_
     details > summary ~ * {
         margin-left: 2rem;
 
-        @media screen and (max-width: 768px) {
+        @media screen and (max-width: 932px) {
             margin-left: 1rem;
         }
     }

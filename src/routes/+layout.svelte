@@ -28,7 +28,7 @@
         position: sticky;
         top: 0;
 
-        @media screen and (max-width: 768px) {
+        @media screen and (max-width: 932px) {
             position: static;
             padding-right: 0;
             padding-bottom: 1rem;
@@ -40,12 +40,12 @@
         grid-row: content-top / content-bottom;
         padding: 2rem 5rem;
 
-        @media screen and (max-width: 768px) {
+        @media screen and (max-width: 932px) {
             padding: 2rem 1rem;
         }
 
         @media screen and (max-width: 1024px) {
-            padding: 2rem 2rem;
+            padding: 0;
         }
     }
 
@@ -53,7 +53,7 @@
         border-right: 1px solid var(--border-color);
         height: fit-content;
 
-        @media screen and (max-width: 768px) {
+        @media screen and (max-width: 932px) {
             border-bottom: 1px solid var(--border-color);
             border-right: none;
         }
@@ -68,7 +68,7 @@
         width: max-content;
         min-height: 21vh;
 
-        @media screen and (max-width: 768px) {
+        @media screen and (max-width: 932px) {
             flex-direction: row;
             justify-content: center;
             align-items: center;
@@ -92,7 +92,7 @@
             color: #666;
         }
 
-        @media screen and (max-width: 768px) {
+        @media screen and (max-width: 932px) {
             margin: 0;
         }
     }
