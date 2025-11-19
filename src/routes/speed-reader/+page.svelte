@@ -1211,6 +1211,7 @@
     }
 
     .book-card {
+        cursor: pointer;
         background: var(--c-surface);
         padding: 1.5rem;
         border-radius: var(--radius-lg);
@@ -1337,11 +1338,11 @@
     .reader-stage {
         position: relative;
         background: var(--c-surface);
-        border-radius: 1.5rem;
+        border-radius: var(--radius-lg);
         box-shadow:
             var(--shadow-lg),
             inset 0 0 0 1px var(--c-border-light);
-        height: 400px;
+        height: 660px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1363,10 +1364,12 @@
         color: var(--c-context-text);
         font-family: var(--font-mono);
         font-size: 1.5rem;
-        height: 3rem;
+        height: 12rem;
         display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
         gap: 1rem;
-        overflow: hidden;
         opacity: 0.6;
     }
 
