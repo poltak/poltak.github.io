@@ -63,6 +63,11 @@
     --sidebar-width: 250px;
 }
 
+html {
+    /* Prevent layout shifts when scrollbars appear/disappear */
+    scrollbar-gutter: stable;
+}
+
 :root[class~='dark'] {
     --c-bg: #0f172a;
     --c-surface: #1e293b;
