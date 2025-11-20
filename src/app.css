@@ -159,6 +159,7 @@ html {
 }
 
 body {
+    width: fit-content;
     line-height: 1.6;
     font-size: 16px;
     padding: 0;
@@ -173,6 +174,14 @@ body {
         var(--c-bg-subtle) calc(50% - (var(--content-max-width) - var(--sidebar-width)) / 2),
         var(--c-bg) calc(50% - (var(--content-max-width) - var(--sidebar-width)) / 2)
     );
+
+    @media (min-width: 576px) and (max-width: 1024px) {
+        width: unset;
+    }
+
+    @media (max-width: 576px) {
+        font-size: 18px;
+    }
 }
 
 h1,
@@ -212,7 +221,7 @@ p {
 a {
     color: var(--c-primary);
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 700;
     transition: color 0.2s;
 }
 
@@ -242,7 +251,7 @@ details {
 }
 
 summary {
-    padding: 1rem 1.5rem;
+    padding: 0.5rem 1.5rem;
     cursor: pointer;
     font-weight: 600;
     background: var(--c-bg-subtle);

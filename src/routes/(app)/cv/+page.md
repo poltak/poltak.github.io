@@ -251,6 +251,10 @@ Bachelor of Computer Science (First Class Honours): _2010 - 2015_
 </details>
 
 <style>
+    h2 {
+        font-size: var(--text-xl);
+    }
+
     h2, h3, h4 {
         display: inline-block;
     }

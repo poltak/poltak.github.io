@@ -102,7 +102,6 @@
         color: var(--c-text-light);
         font-weight: 500;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
     }
 
     .nav-links {
@@ -150,11 +149,15 @@
     .content-area {
         grid-column: 2 / 3;
         padding: 4rem 2rem;
-        width: 100%;
+        /* width: 100%; */
 
         @media (max-width: 768px) {
             grid-column: 1 / -1;
             padding: 2rem 1rem;
+        }
+
+        @media (min-width: 576px) and (max-width: 1024px) {
+            padding: 2rem 4rem;
         }
     }
 
