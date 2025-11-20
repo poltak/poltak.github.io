@@ -33,7 +33,7 @@
     let showResetConfirmation = $state(false)
 
     // Number of surrounding words to show on each side
-    let surroundingWordsCount = $state(10)
+    let surroundingWordsCount = $state(5)
 
     // Punctuation pause multipliers
     let periodMultiplier = $state(3)
@@ -45,7 +45,7 @@
     let showExtraSettings = $state(false)
 
     // Table of contents visibility
-    let showTableOfContents = $state(true)
+    let showTableOfContents = $state(false)
 
     // Fullscreen functionality
     let isFullscreen = $state(false)
@@ -534,11 +534,11 @@
             </div>
 
             <div class="tip-card">
-                <div class="tip-icon">
-                    <Icon name="info" size={14} />
-                </div>
                 <div class="tip-content">
-                    <h4>Looking for books to try?</h4>
+                    <div class="tip-header-container">
+                        <Icon name="info" size={14} />
+                        <h4>Looking for books to try?</h4>
+                    </div>
                     <p>
                         Check out <a
                             href="https://standardebooks.org/"
@@ -686,7 +686,7 @@
                 <!-- Overlay Controls (Fullscreen/Rewind when fullscreen) -->
                 <div class="reader-overlay">
                     {#if isFullscreen}
-                        <div class="fs-controls">
+                        <div class="fs-controls fs-controls-rewind">
                             <button
                                 onmousedown={startRewind}
                                 onmouseup={stopRewind}
@@ -699,7 +699,9 @@
                             >
                                 <Icon name="rewind" size={24} />
                             </button>
+                        </div>
 
+                        <div class="fs-controls fs-controls-play-pause">
                             <button
                                 onclick={togglePlayPause}
                                 class="fs-btn play"
@@ -759,6 +761,17 @@
                 <div class="settings-row">
                     <div class="setting-group">
                         <input
+                            id="context"
+                            type="number"
+                            bind:value={surroundingWordsCount}
+                            min="0"
+                            max="100"
+                            step="1"
+                        />
+                        <label for="context">Context</label>
+                    </div>
+                    <div class="setting-group">
+                        <input
                             id="wpm"
                             type="number"
                             bind:value={wordsPerMinute}
@@ -768,17 +781,6 @@
                             step="10"
                         />
                         <label for="wpm">WPM</label>
-                    </div>
-                    <div class="setting-group">
-                        <input
-                            id="context"
-                            type="number"
-                            bind:value={surroundingWordsCount}
-                            min="0"
-                            max="100"
-                            step="1"
-                        />
-                        <label for="context">Context</label>
                     </div>
                 </div>
 
@@ -1007,7 +1009,7 @@
     }
 
     .library-header h1 {
-        font-size: 2.5rem;
+        font-size: 2rem;
         color: var(--c-text);
         margin-bottom: 0.5rem;
     }
@@ -1058,6 +1060,7 @@
         align-items: center;
         color: var(--c-text-light);
         pointer-events: none;
+        text-align: center;
     }
 
     .status-message {
@@ -1110,6 +1113,13 @@
         color: var(--c-info-link);
         font-weight: 600;
         text-decoration: underline;
+    }
+
+    .tip-header-container {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 1rem;
     }
 
     /* Book Grid */
@@ -1260,6 +1270,14 @@
         justify-content: center;
         padding: 2rem;
         overflow: hidden;
+
+        @media screen and (orientation: landscape) {
+            height: 300px;
+        }
+
+        @media screen and (display-mode: fullscreen) {
+            border-radius: 0;
+        }
     }
 
     .word-display {
@@ -1319,7 +1337,7 @@
     .chapter-time {
         position: absolute;
         bottom: 0.75rem;
-        right: 1rem;
+        left: 0.75rem;
         font-size: 0.75rem;
         background: rgba(0, 0, 0, 0.6);
         color: white;
@@ -1337,11 +1355,11 @@
     .fs-toggle {
         pointer-events: auto;
         position: absolute;
-        bottom: 1rem;
-        right: 1rem;
+        bottom: 0.75rem;
+        right: 0.75rem;
         width: 2.5rem;
         height: 2.5rem;
-        background: var(--c-surface);
+        background: var(--c-bg-input);
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -1357,16 +1375,22 @@
         transform: scale(1.1);
     }
 
+    .fs-controls-rewind {
+        left: 0.75rem;
+    }
+
+    .fs-controls-play-pause {
+        right: 0.75rem;
+    }
+
     .fs-controls {
-        pointer-events: auto;
         position: absolute;
-        bottom: 2rem;
-        left: 0;
-        right: 0;
+        right: 0.75rem;
         display: flex;
+        flex-direction: column;
         justify-content: center;
-        gap: 2rem;
-        align-items: center;
+        height: 100%;
+        pointer-events: auto;
     }
 
     .fs-btn {
@@ -1493,6 +1517,12 @@
         justify-content: center;
         gap: 1.5rem;
         margin-bottom: 1.5rem;
+
+        @media screen and (max-width: 576px) {
+            flex-direction: column;
+            margin: 2rem auto;
+            width: 10rem;
+        }
     }
 
     .setting-group {
@@ -1529,7 +1559,7 @@
     .presets-row {
         display: flex;
         justify-content: center;
-        gap: 0.5rem;
+        gap: 1rem;
         flex-wrap: wrap;
         margin-bottom: 2rem;
     }
