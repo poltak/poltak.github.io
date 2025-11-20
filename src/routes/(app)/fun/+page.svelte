@@ -5,8 +5,7 @@
     const projects = [
         {
             title: 'Speed Reader',
-            description:
-                'A fast, distraction-free EPUB speed reader with adjustable reading speed and punctuation pausing.',
+            description: 'A local-only, free EPUB speed reader.',
             icon: 'book',
             link: `${base}/speed-reader`,
             color: 'var(--c-primary)',
@@ -14,7 +13,7 @@
         {
             title: 'Maze Generator',
             description:
-                "A visual maze generator using various algorithms (Prim's, Recursive Backtracker, etc.).",
+                'A visual maze generator using various algorithms. I want to use this as a starting point for some simple browser-baesd games.',
             icon: 'maximize', // Using maximize as a placeholder for a grid-like icon
             link: `${base}/maze-generator`,
             color: 'var(--c-accent)',
