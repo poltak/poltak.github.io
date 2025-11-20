@@ -5,7 +5,7 @@
 
 My preferred contact method is via email.
 
-You can reach me at [jonathan.samosir@gmail.com](mailto:jonathan.samosir@gmail.com)
+[jonathan.samosir@gmail.com](mailto:jonathan.samosir@gmail.com)
 
 <br />
 

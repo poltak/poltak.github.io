@@ -1,6 +1,10 @@
 body {
     line-height: 1.6;
     font-size: 18px;
+
+    @media screen and (max-width: 576px) {
+        padding: 0 10px;
+    }
 }
 
 :root {
