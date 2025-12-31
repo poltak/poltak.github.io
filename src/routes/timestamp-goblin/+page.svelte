@@ -26,15 +26,12 @@
 <p>Timestamp Goblin does not collect, transmit, sell, or share personal data.</p>
 
 <p>
-    The extension stores YouTube watch progress (video ID and timestamp, and optionally video
-    title/channel name for display) only on your device using Chrome’s local extension storage. This
-    data is not sent to any server.
+    The extension stores YouTube video progress timestamps and metadata for display (video ID,
+    timestamp, video title, duration, and channel name) only on your device using Chrome’s local
+    extension storage. This data is not sent to any server.
 </p>
 
-<p>
-    You can delete this data at any time by removing the extension or using its clear controls (if
-    available).
-</p>
+<p>You can delete this data at any time by removing the extension.</p>
 
 <p>Contact: <a href="mailto:jonathan.samosir@gmail.com">jonathan.samosir@gmail.com</a></p>
 
