@@ -1,30 +1,5 @@
 <script lang="ts">
-    type IconName =
-        | 'book'
-        | 'upload'
-        | 'info'
-        | 'file-text'
-        | 'settings'
-        | 'play'
-        | 'pause'
-        | 'refresh'
-        | 'chevron-up'
-        | 'chevron-down'
-        | 'chevron-right'
-        | 'menu'
-        | 'alert-circle'
-        | 'upload-cloud'
-        | 'moon'
-        | 'sun'
-        | 'x'
-        | 'trash-2'
-        | 'arrow-left'
-        | 'rewind'
-        | 'alert-triangle'
-        | 'maximize'
-        | 'minimize'
-        | 'arrow-right'
-
+    import type { IconName } from './types'
     export let name: IconName
     export let size: number = 20
     export let strokeWidth: number = 2

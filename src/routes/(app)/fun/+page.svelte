@@ -1,8 +1,17 @@
 <script lang="ts">
     import { base } from '$app/paths'
     import Icon from '$lib/components/icons/Icon.svelte'
+    import type { IconName } from '$lib/components/icons/types'
+    import goblinIcon from '$lib/assets/goblin-128.png'
 
-    const projects = [
+    type Project = {
+        title: string
+        description: string
+        link: string
+        color: string
+    } & ({ icon: IconName } | { image: string })
+
+    const projects: Project[] = [
         {
             title: 'Speed Reader',
             description: 'A local-only, free EPUB speed reader.',
@@ -18,6 +27,14 @@
             link: `${base}/maze-generator`,
             color: 'var(--c-accent)',
         },
+        {
+            title: 'Timestamp Goblin',
+            description:
+                'A simple Chrome extension that persists and auto-restores the progress of YouTube videos.',
+            image: goblinIcon,
+            link: `${base}/timestamp-goblin`,
+            color: 'var(--c-danger)',
+        },
     ]
 </script>
 
@@ -28,13 +45,17 @@
 </p>
 
 <div class="projects-grid">
-    {#each projects as project}
+    {#each projects as project (project.title)}
         <a href={project.link} class="project-card">
             <div
                 class="icon-wrapper"
                 style="color: {project.color}; background: {project.color}15; border-color: {project.color}30"
             >
-                <Icon name={project.icon as any} size={32} />
+                {#if 'image' in project}
+                    <img src={project.image} alt={project.title} class="project-icon-img" />
+                {:else}
+                    <Icon name={project.icon} size={32} />
+                {/if}
             </div>
             <div class="content">
                 <h3>{project.title}</h3>
@@ -65,7 +86,6 @@
         text-decoration: none;
         transition: all 0.2s ease;
         box-shadow: var(--shadow-sm);
-        height: 100%;
     }
 
     .project-card:hover {
@@ -84,6 +104,12 @@
         justify-content: center;
         margin-bottom: 1.5rem;
         border: 1px solid;
+    }
+
+    .project-icon-img {
+        width: 75%;
+        height: 75%;
+        object-fit: contain;
     }
 
     .content h3 {
