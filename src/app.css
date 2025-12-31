@@ -168,13 +168,6 @@ body {
     color: var(--c-text);
     font-family: var(--font-sans);
 
-    /* Create a split background to extend sidebar color to the left edge */
-    background: linear-gradient(
-        to right,
-        var(--c-bg-subtle) calc(50% - (var(--content-max-width) - var(--sidebar-width)) / 2),
-        var(--c-bg) calc(50% - (var(--content-max-width) - var(--sidebar-width)) / 2)
-    );
-
     @media (min-width: 576px) and (max-width: 1024px) {
         width: unset;
     }
