@@ -1,5 +1,18 @@
 <h1>Timestamp Goblin</h1>
 
+<a
+    class="chrome-store-link"
+    href="https://chromewebstore.google.com/detail/timestamp-goblin/amhjjgahmkpgmppkkddkcjflgkbhnfhj"
+>
+    <img
+        src="https://fonts.gstatic.com/s/i/productlogos/chrome_store/v7/192px.svg"
+        alt="Chrome Web Store logo"
+        width="24"
+        height="24"
+    />
+    Chrome Web Store listing
+</a>
+
 <p>
     This is a simple Chrome extension that persists and auto-restores the progress of YouTube
     videos.
@@ -36,3 +49,11 @@
 <p>Contact: <a href="mailto:jonathan.samosir@gmail.com">jonathan.samosir@gmail.com</a></p>
 
 <p>Last updated: 2025-12-31</p>
+
+<style>
+    .chrome-store-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+</style>
