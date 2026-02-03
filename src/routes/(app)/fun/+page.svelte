@@ -20,6 +20,14 @@
             color: 'var(--c-primary)',
         },
         {
+            title: 'Kindle Clippings Converter',
+            description:
+                'Upload your Kindle \"My Clippings.txt\" and export highlights as CSV or JSON.',
+            icon: 'file-text',
+            link: `${base}/fun/kindle-highlights`,
+            color: 'var(--c-primary-dark)',
+        },
+        {
             title: 'Maze Generator',
             description:
                 'A visual maze generator using various algorithms. I want to use this as a starting point for some simple browser-baesd games.',
