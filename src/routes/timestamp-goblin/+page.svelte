@@ -1,5 +1,3 @@
-<h1>Timestamp Goblin</h1>
-
 <a
     class="chrome-store-link"
     href="https://chromewebstore.google.com/detail/timestamp-goblin/amhjjgahmkpgmppkkddkcjflgkbhnfhj"
@@ -12,11 +10,6 @@
     />
     Chrome Web Store listing
 </a>
-
-<p>
-    This is a simple Chrome extension that persists and auto-restores the progress of YouTube
-    videos.
-</p>
 
 <p>
     I watch a lot of longer YouTube videos and I found it very annoying to lose my progress when I

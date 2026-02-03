@@ -44,9 +44,9 @@
     }
 </script>
 
-<h1>Maze Generator</h1>
-
 <p>This is a maze generator that I made for fun.</p>
+
+<p>I'm hoping to use this as a starting point for some simple browser-based games.</p>
 
 <div class="maze-info">
     <p>Starting point: {startingPoint[0] + 1}, {startingPoint[1] + 1}</p>

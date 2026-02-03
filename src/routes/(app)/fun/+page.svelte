@@ -16,7 +16,7 @@
             title: 'Speed Reader',
             description: 'A local-only, free EPUB speed reader.',
             icon: 'book',
-            link: `${base}/speed-reader`,
+            link: `${base}/fun/speed-reader`,
             color: 'var(--c-primary)',
         },
         {
@@ -32,7 +32,7 @@
             description:
                 'A visual maze generator using various algorithms. I want to use this as a starting point for some simple browser-baesd games.',
             icon: 'maximize', // Using maximize as a placeholder for a grid-like icon
-            link: `${base}/maze-generator`,
+            link: `${base}/fun/maze-generator`,
             color: 'var(--c-accent)',
         },
         {
@@ -40,7 +40,7 @@
             description:
                 'A simple Chrome extension that persists and auto-restores the progress of YouTube videos.',
             image: goblinIcon,
-            link: `${base}/timestamp-goblin`,
+            link: `${base}/fun/timestamp-goblin`,
             color: 'var(--c-danger)',
         },
     ]

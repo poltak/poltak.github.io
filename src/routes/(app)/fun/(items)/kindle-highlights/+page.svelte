@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { base } from '$app/paths'
     import { parseClippings, type NormalizedClipping } from 'kindle-highlights-parser'
     import { toCsv } from 'kindle-highlights-parser/outputs/csv'
     import { toJson } from 'kindle-highlights-parser/outputs/json'
@@ -123,28 +122,17 @@
     <title>Kindle Clippings Converter</title>
 </svelte:head>
 
-<section class="hero">
-    <div class="hero-text">
-        <p class="eyebrow">Fun / Kindle</p>
-        <h1>Kindle Clippings Converter</h1>
-        <p class="note">
-            Built on my
-            <a
-                href="https://www.npmjs.com/package/kindle-highlights-parser"
-                target="_blank"
-                rel="noopener noreferrer"
-            >
-                kindle-highlights-parser
-            </a>
-            package.
-        </p>
-        <p class="lede">
-            Upload your Kindle <span>My Clippings.txt</span> file and export your highlights as CSV or
-            JSON, ready for spreadsheets, Notion, or further processing.
-        </p>
-    </div>
-    <a class="back-link" href="{base}/fun">Back to Fun</a>
-</section>
+<p class="note">
+    Built on my
+    <a
+        href="https://www.npmjs.com/package/kindle-highlights-parser"
+        target="_blank"
+        rel="noopener noreferrer"
+    >
+        kindle-highlights-parser
+    </a>
+    package.
+</p>
 
 <section class="card">
     <h2>1. Upload your file</h2>
@@ -242,43 +230,8 @@
             var(--c-bg);
     }
 
-    .hero {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 2rem;
-        margin-bottom: 2rem;
-        flex-wrap: wrap;
-    }
-
-    .hero-text {
-        max-width: 650px;
-    }
-
-    .eyebrow {
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: var(--c-text-muted);
-        margin-bottom: 0.5rem;
-    }
-
-    .lede {
-        font-size: 1.1rem;
-        color: var(--c-text-light);
-    }
-
-    .lede span {
-        font-family: var(--font-mono);
-        background: var(--c-primary-light);
-        color: var(--c-primary-dark);
-        padding: 0.15rem 0.4rem;
-        border-radius: var(--radius-sm);
-    }
-
     .note {
-        margin: 0 0 0.75rem 0;
+        margin: 0 0 1.5rem 0;
         color: var(--c-text-muted);
         font-size: 0.95rem;
     }
@@ -291,23 +244,6 @@
 
     .note a:hover {
         text-decoration: underline;
-    }
-
-    .back-link {
-        color: var(--c-primary-dark);
-        text-decoration: none;
-        font-weight: 600;
-        background: var(--c-primary-light);
-        padding: 0.5rem 1rem;
-        border-radius: var(--radius-full);
-        transition:
-            transform 0.2s ease,
-            box-shadow 0.2s ease;
-    }
-
-    .back-link:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-sm);
     }
 
     .card {
