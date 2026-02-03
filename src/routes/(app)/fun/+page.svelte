@@ -11,6 +11,15 @@
         color: string
     } & ({ icon: IconName } | { image: string })
 
+    function isImageUrl(value: string): boolean {
+        return (
+            value.startsWith('data:') ||
+            value.startsWith('http://') ||
+            value.startsWith('https://') ||
+            value.includes('/')
+        )
+    }
+
     const projects: Project[] = [
         {
             title: 'Speed Reader',
@@ -18,6 +27,14 @@
             icon: 'book',
             link: `${base}/fun/speed-reader`,
             color: 'var(--c-primary)',
+        },
+        {
+            title: "Vort's Cave",
+            description:
+                'A daily-updated page curated by my AI agent Vort: experiments, reflections, and web tech.',
+            image: '👹',
+            link: `${base}/fun/goblin-experience`,
+            color: 'var(--c-primary-gradient-to)',
         },
         {
             title: 'Kindle Clippings Converter',
@@ -60,7 +77,13 @@
                 style="color: {project.color}; background: {project.color}15; border-color: {project.color}30"
             >
                 {#if 'image' in project}
-                    <img src={project.image} alt={project.title} class="project-icon-img" />
+                    {#if isImageUrl(project.image)}
+                        <img src={project.image} alt={project.title} class="project-icon-img" />
+                    {:else}
+                        <span class="project-icon-emoji" aria-hidden="true">
+                            {project.image}
+                        </span>
+                    {/if}
                 {:else}
                     <Icon name={project.icon} size={32} />
                 {/if}
@@ -118,6 +141,11 @@
         width: 75%;
         height: 75%;
         object-fit: contain;
+    }
+
+    .project-icon-emoji {
+        font-size: 2rem;
+        line-height: 1;
     }
 
     .content h3 {
