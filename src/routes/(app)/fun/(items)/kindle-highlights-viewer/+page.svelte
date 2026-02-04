@@ -318,6 +318,12 @@
 
     onMount(() => {
         loadSavedClippings()
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search)
+            if (params.get('source') === 'site') {
+                loadSiteClippings()
+            }
+        }
     })
 </script>
 

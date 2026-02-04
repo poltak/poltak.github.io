@@ -6,6 +6,8 @@ I've been hooked on computers and software since I was a kid, starting with a cl
 
 Fast forward to today, and I’ve spent over a decade as a professional remote software developer. Software isn't just a career for me; it’s a craft I’m still obsessed with. I’m constantly evolving, tinkering, and remolding myself to work with different technologies and constraints. It's been a hell of a journey so far, and I’m just getting started.
 
+I recently set up a Kindle highlights browser. You can [browse my personal Kindle clippings](/fun/kindle-highlights-viewer?source=site) if you're curious about what I've read over the years. I stopped using a Kindle ~1 year ago for reading, in favour of an iPad Mini, so these are currently static until I figure out how to incorporate my highlights from there.
+
 <style>
 p {
     line-height: 2rem;
