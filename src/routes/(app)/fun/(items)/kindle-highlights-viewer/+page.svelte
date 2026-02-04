@@ -1,8 +1,7 @@
 <script lang="ts">
+    import MiniSearch from 'minisearch'
     import { parseClippings, type NormalizedClipping } from 'kindle-highlights-parser'
     import { onMount } from 'svelte'
-
-    type GroupBy = 'title' | 'author'
 
     let normalized: NormalizedClipping[] = []
     let errorMessage = ''
@@ -11,13 +10,18 @@
     let fileInput: HTMLInputElement | null = null
     let isSaving = false
     let isLoadingStatic = false
-    let groupBy: GroupBy = 'title'
-    let selectedGroup = ''
     let pageIndex = 0
     let pageSize = 25
-    let grouped: { key: string; items: NormalizedClipping[] }[] = []
-    let selectedItems: NormalizedClipping[] = []
+    let filteredItems: NormalizedClipping[] = []
     let totalPages = 1
+    let searchQuery = ''
+    let typeFilter: 'all' | 'Highlight' | 'Note' = 'all'
+    let titleFilter = 'all'
+    let authorFilter = 'all'
+    let uniqueTitles: string[] = []
+    let uniqueAuthors: string[] = []
+    let miniSearch: MiniSearch | null = null
+    let idToItem = new Map<string, NormalizedClipping>()
 
     async function handleFileUpload(event: Event) {
         const input = event.currentTarget as HTMLInputElement
@@ -37,7 +41,7 @@
         try {
             const text = await file.text()
             const result = parseClippings(text)
-            normalized = result.normalized
+            normalized = result.normalized.filter((item) => item.type !== 'Bookmark')
             if (normalized.length === 0) {
                 errorMessage =
                     'No clippings found. Check that this is a Kindle "My Clippings.txt" file.'
@@ -62,7 +66,7 @@
             }
             const text = await response.text()
             const result = parseClippings(text)
-            normalized = result.normalized
+            normalized = result.normalized.filter((item) => item.type !== 'Bookmark')
             sourceFileName = 'Jon\'s "My Clippings.txt"'
             if (normalized.length === 0) {
                 errorMessage = 'No clippings found in the site file. Check the uploaded content.'
@@ -153,7 +157,6 @@
         }
         normalized = []
         sourceFileName = ''
-        selectedGroup = ''
         pageIndex = 0
         statusMessage = ''
         try {
@@ -186,36 +189,103 @@
 
     $: {
         normalized
-        groupBy
-        const map = new Map<string, NormalizedClipping[]>()
+        const titleSet = new Set<string>()
+        const authorSet = new Set<string>()
         for (const item of normalized) {
-            const key =
-                groupBy === 'author'
-                    ? item.author?.trim() || 'Unknown Author'
-                    : item.title?.trim() || 'Untitled'
-            const list = map.get(key)
-            if (list) {
-                list.push(item)
-            } else {
-                map.set(key, [item])
-            }
+            titleSet.add(item.title?.trim() || 'Untitled')
+            authorSet.add(item.author?.trim() || 'Unknown Author')
         }
-        grouped = Array.from(map.entries())
-            .map(([key, items]) => ({ key, items }))
-            .sort((a, b) => a.key.localeCompare(b.key))
-
-        if (!grouped.find((group) => group.key === selectedGroup)) {
-            selectedGroup = grouped[0]?.key ?? ''
+        uniqueTitles = Array.from(titleSet).sort((a, b) => a.localeCompare(b))
+        uniqueAuthors = Array.from(authorSet).sort((a, b) => a.localeCompare(b))
+        if (titleFilter !== 'all' && !titleSet.has(titleFilter)) {
+            titleFilter = 'all'
+        }
+        if (authorFilter !== 'all' && !authorSet.has(authorFilter)) {
+            authorFilter = 'all'
+        }
+        if (titleFilter !== 'all' && authorFilter !== 'all') {
+            authorFilter = 'all'
         }
         pageIndex = 0
     }
 
     $: {
-        grouped
-        selectedGroup
-        selectedItems = grouped.find((group) => group.key === selectedGroup)?.items ?? []
-        totalPages = Math.max(1, Math.ceil(selectedItems.length / pageSize))
+        normalized
+        idToItem = new Map()
+        if (normalized.length === 0) {
+            miniSearch = null
+        } else {
+            const documents = normalized.map((item, index) => {
+                const id = String(item.sourceIndex ?? index)
+                idToItem.set(id, item)
+                return {
+                    id,
+                    title: item.title ?? '',
+                    author: item.author ?? '',
+                    content: item.content ?? '',
+                    type: item.type ?? '',
+                    groupTitle: item.title?.trim() || 'Untitled',
+                    groupAuthor: item.author?.trim() || 'Unknown Author',
+                }
+            })
+
+            miniSearch = new MiniSearch({
+                fields: ['title', 'author', 'content'],
+                storeFields: ['id', 'title', 'author', 'type', 'groupTitle', 'groupAuthor'],
+                searchOptions: {
+                    boost: { title: 2, author: 1.5 },
+                    prefix: true,
+                    fuzzy: 0.2,
+                },
+            })
+            miniSearch.addAll(documents)
+        }
+    }
+
+    $: {
+        searchQuery
+        typeFilter
+        titleFilter
+        authorFilter
+        miniSearch
+
+        const query = searchQuery.trim()
+        if (query && miniSearch) {
+            const results = miniSearch.search(query, {
+                filter: (result) => {
+                    if (typeFilter !== 'all' && result.type !== typeFilter) return false
+                    if (titleFilter !== 'all' && result.groupTitle !== titleFilter) return false
+                    if (authorFilter !== 'all' && result.groupAuthor !== authorFilter) return false
+                    return true
+                },
+            })
+            filteredItems = results
+                .map((result) => idToItem.get(String(result.id)))
+                .filter((item): item is NormalizedClipping => Boolean(item))
+        } else {
+            filteredItems = normalized.filter((item) => {
+                if (typeFilter !== 'all' && item.type !== typeFilter) return false
+                if (titleFilter !== 'all' && (item.title?.trim() || 'Untitled') !== titleFilter)
+                    return false
+                if (
+                    authorFilter !== 'all' &&
+                    (item.author?.trim() || 'Unknown Author') !== authorFilter
+                )
+                    return false
+                return true
+            })
+        }
+
+        totalPages = Math.max(1, Math.ceil(filteredItems.length / pageSize))
         pageIndex = Math.min(pageIndex, totalPages - 1)
+    }
+
+    function resetFilters() {
+        titleFilter = 'all'
+        authorFilter = 'all'
+        typeFilter = 'all'
+        searchQuery = ''
+        pageIndex = 0
     }
 
     onMount(() => {
@@ -236,9 +306,7 @@
     <div class="viewer-header">
         <div>
             <h2>Upload &amp; browse</h2>
-            <p class="viewer-subtitle">
-                {selectedItems.length} items in {selectedGroup || '—'}
-            </p>
+            <p class="viewer-subtitle">{filteredItems.length} items</p>
         </div>
     </div>
     <div class="upload-panel">
@@ -300,19 +368,67 @@
     </div>
 
     <div class="viewer-controls">
-        <label class="field">
-            <span>Group by</span>
-            <select bind:value={groupBy} disabled={!normalized.length}>
-                <option value="title">Book title</option>
-                <option value="author">Author</option>
-            </select>
+        <label class="field field-wide">
+            <span>Search</span>
+            <input
+                type="search"
+                placeholder="Search titles, authors, or highlight text"
+                bind:value={searchQuery}
+                disabled={!normalized.length}
+            />
         </label>
+        <div class="field">
+            <span>Book title</span>
+            <div class="select-wrap">
+                <select bind:value={titleFilter} disabled={!normalized.length}>
+                    <option value="all">All titles</option>
+                    {#each uniqueTitles as title}
+                        <option value={title}>{title}</option>
+                    {/each}
+                </select>
+                {#if titleFilter !== 'all'}
+                    <button
+                        type="button"
+                        class="clear-filter"
+                        on:click={() => (titleFilter = 'all')}
+                        aria-label="Clear book title filter"
+                    >
+                        ×
+                    </button>
+                {/if}
+            </div>
+        </div>
+        <div class="field">
+            <span>Author</span>
+            <div class="select-wrap">
+                <select
+                    bind:value={authorFilter}
+                    disabled={!normalized.length || titleFilter !== 'all'}
+                >
+                    <option value="all">All authors</option>
+                    {#each uniqueAuthors as author}
+                        <option value={author}>{author}</option>
+                    {/each}
+                </select>
+                {#if authorFilter !== 'all'}
+                    <button
+                        type="button"
+                        class="clear-filter"
+                        on:click={() => (authorFilter = 'all')}
+                        aria-label="Clear author filter"
+                        disabled={titleFilter !== 'all'}
+                    >
+                        ×
+                    </button>
+                {/if}
+            </div>
+        </div>
         <label class="field">
-            <span>{groupBy === 'author' ? 'Author' : 'Book'}</span>
-            <select bind:value={selectedGroup} disabled={!normalized.length}>
-                {#each grouped as group (group.key)}
-                    <option value={group.key}>{group.key} ({group.items.length})</option>
-                {/each}
+            <span>Type</span>
+            <select bind:value={typeFilter} disabled={!normalized.length}>
+                <option value="all">All types</option>
+                <option value="Highlight">Highlight</option>
+                <option value="Note">Note</option>
             </select>
         </label>
         <label class="field">
@@ -346,7 +462,7 @@
     </div>
 
     <div class="viewer-list">
-        {#each selectedItems.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize) as item (item.sourceIndex)}
+        {#each filteredItems.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize) as item (item.sourceIndex)}
             <article class="viewer-item">
                 <p class="viewer-content">{item.content || '—'}</p>
                 <div class="viewer-meta">
@@ -551,6 +667,10 @@
         margin-bottom: 1.5rem;
     }
 
+    .field-wide {
+        grid-column: span 2;
+    }
+
     .field {
         display: flex;
         flex-direction: column;
@@ -566,7 +686,46 @@
         text-transform: uppercase;
     }
 
-    select {
+    .select-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .select-wrap select {
+        padding-right: 2.25rem;
+    }
+
+    .clear-filter {
+        position: absolute;
+        right: 0.5rem;
+        border: none;
+        background: var(--c-bg-subtle);
+        color: var(--c-text-light);
+        font-size: 1rem;
+        font-weight: 700;
+        width: 1.6rem;
+        height: 1.6rem;
+        border-radius: 999px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .clear-filter:hover {
+        background: var(--c-primary-light);
+        color: var(--c-primary-dark);
+    }
+
+    .clear-filter:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    select,
+    input[type='search'] {
         border-radius: var(--radius-md);
         border: 1px solid var(--c-border);
         padding: 0.5rem 0.75rem;
@@ -638,6 +797,10 @@
     @media (max-width: 720px) {
         .viewer-controls {
             grid-template-columns: 1fr;
+        }
+
+        .field-wide {
+            grid-column: span 1;
         }
 
         .upload-card,
