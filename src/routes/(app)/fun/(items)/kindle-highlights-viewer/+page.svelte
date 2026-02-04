@@ -22,6 +22,7 @@
     let uniqueAuthors: string[] = []
     let miniSearch: MiniSearch | null = null
     let idToItem = new Map<string, NormalizedClipping>()
+    let highlightTokens: string[] = []
 
     async function handleFileUpload(event: Event) {
         const input = event.currentTarget as HTMLInputElement
@@ -250,6 +251,12 @@
         miniSearch
 
         const query = searchQuery.trim()
+        highlightTokens = query
+            ? query
+                  .split(/\s+/)
+                  .map((token) => token.trim())
+                  .filter((token) => token.length > 1)
+            : []
         if (query && miniSearch) {
             const results = miniSearch.search(query, {
                 filter: (result) => {
@@ -280,6 +287,27 @@
         pageIndex = Math.min(pageIndex, totalPages - 1)
     }
 
+    function escapeHtml(value: string): string {
+        return value
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;')
+    }
+
+    function escapeRegExp(value: string): string {
+        return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    }
+
+    function highlightText(value?: string): string {
+        if (!value) return '—'
+        const safe = escapeHtml(value)
+        if (!highlightTokens.length) return safe
+        const pattern = new RegExp(`(${highlightTokens.map(escapeRegExp).join('|')})`, 'gi')
+        return safe.replace(pattern, '<mark>$1</mark>')
+    }
+
     function resetFilters() {
         titleFilter = 'all'
         authorFilter = 'all'
@@ -306,7 +334,6 @@
     <div class="viewer-header">
         <div>
             <h2>Upload &amp; browse</h2>
-            <p class="viewer-subtitle">{filteredItems.length} items</p>
         </div>
     </div>
     <div class="upload-panel">
@@ -460,11 +487,14 @@
             </button>
         </div>
     </div>
+    <p class="viewer-count">{filteredItems.length} items</p>
 
     <div class="viewer-list">
         {#each filteredItems.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize) as item (item.sourceIndex)}
             <article class="viewer-item">
-                <p class="viewer-content">{item.content || '—'}</p>
+                <p class="viewer-content">
+                    {@html highlightText(item.content)}
+                </p>
                 <div class="viewer-meta">
                     <span>{item.title}</span>
                     {#if item.author}
@@ -631,11 +661,6 @@
         margin-bottom: 1.25rem;
     }
 
-    .viewer-subtitle {
-        margin: 0.25rem 0 0;
-        color: var(--c-text-light);
-    }
-
     .viewer-actions {
         display: grid;
         gap: 1rem;
@@ -665,6 +690,12 @@
         gap: 1rem;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         margin-bottom: 1.5rem;
+    }
+
+    .viewer-count {
+        margin: 0 0 1rem 0;
+        color: var(--c-text-light);
+        font-weight: 600;
     }
 
     .field-wide {
@@ -781,6 +812,13 @@
         font-size: 1rem;
         overflow-wrap: anywhere;
         word-break: break-word;
+    }
+
+    .viewer-content mark {
+        background: rgba(245, 158, 11, 0.3);
+        color: inherit;
+        padding: 0 0.15rem;
+        border-radius: 0.2rem;
     }
 
     .viewer-meta {
