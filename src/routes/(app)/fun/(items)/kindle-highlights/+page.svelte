@@ -122,6 +122,12 @@
     <title>Kindle Clippings Converter</title>
 </svelte:head>
 
+<p class="viewer-link">
+    Check out my
+    <a href="./kindle-highlights-viewer">Kindle Clippings Viewer</a>
+    page if you want to browse through your clippings in a simple interface.
+</p>
+
 <p class="note">
     Built on my
     <a
@@ -159,6 +165,9 @@
 
 <section class="card">
     <h2>2. Choose output</h2>
+    <p class="note">
+        Feel free to <a href="/contact">contact me</a> if you need a different output format.
+    </p>
     <div class="controls">
         <div class="toggle-group" role="group" aria-label="Output format">
             <button

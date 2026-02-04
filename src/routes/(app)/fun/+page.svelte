@@ -45,6 +45,14 @@
             color: 'var(--c-primary-dark)',
         },
         {
+            title: 'Kindle Clippings Viewer',
+            description:
+                'Browse highlights by book or author with pagination.',
+            icon: 'book',
+            link: `${base}/fun/kindle-highlights-viewer`,
+            color: 'var(--c-primary)',
+        },
+        {
             title: 'Maze Generator',
             description:
                 'A visual maze generator using various algorithms. I want to use this as a starting point for some simple browser-baesd games.',
