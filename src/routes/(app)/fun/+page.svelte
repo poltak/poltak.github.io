@@ -48,7 +48,7 @@
             title: 'Kindle Clippings Viewer',
             description:
                 'Browse highlights by book or author with pagination.',
-            icon: 'book',
+            image: '📓',
             link: `${base}/fun/kindle-highlights-viewer`,
             color: 'var(--c-primary)',
         },

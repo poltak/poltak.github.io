@@ -10,6 +10,7 @@
     let sourceFileName = ''
     let fileInput: HTMLInputElement | null = null
     let isSaving = false
+    let isLoadingStatic = false
     let groupBy: GroupBy = 'title'
     let selectedGroup = ''
     let pageIndex = 0
@@ -47,6 +48,31 @@
                 error instanceof Error
                     ? error.message
                     : 'Something went wrong while parsing the file.'
+        }
+    }
+
+    async function loadSiteClippings() {
+        isLoadingStatic = true
+        statusMessage = ''
+        errorMessage = ''
+        try {
+            const response = await fetch('/My%20Clippings.txt')
+            if (!response.ok) {
+                throw new Error('Unable to load the site clippings file.')
+            }
+            const text = await response.text()
+            const result = parseClippings(text)
+            normalized = result.normalized
+            sourceFileName = 'Jon\'s "My Clippings.txt"'
+            if (normalized.length === 0) {
+                errorMessage = 'No clippings found in the site file. Check the uploaded content.'
+            }
+        } catch (error) {
+            normalized = []
+            errorMessage =
+                error instanceof Error ? error.message : 'Unable to load the site clippings file.'
+        } finally {
+            isLoadingStatic = false
         }
     }
 
@@ -206,19 +232,37 @@
     browser.
 </p>
 
-<section class="card upload-card">
-    <h2>1. Upload your file</h2>
+<section class="card viewer-card">
+    <div class="viewer-header">
+        <div>
+            <h2>Upload &amp; browse</h2>
+            <p class="viewer-subtitle">
+                {selectedItems.length} items in {selectedGroup || '—'}
+            </p>
+        </div>
+    </div>
     <div class="upload-panel">
-        <label class="file-input" for="clippings">
-            <input
-                id="clippings"
-                type="file"
-                accept=".txt"
-                on:change={handleFileUpload}
-                bind:this={fileInput}
-            />
-            <span>Choose &quot;My Clippings.txt&quot;</span>
-        </label>
+        <div class="upload-row">
+            <label class="file-input" for="clippings">
+                <input
+                    id="clippings"
+                    type="file"
+                    accept=".txt"
+                    on:change={handleFileUpload}
+                    bind:this={fileInput}
+                />
+                <span>Choose &quot;My Clippings.txt&quot;</span>
+            </label>
+            <span class="upload-or">OR</span>
+            <button
+                type="button"
+                class="ghost upload-alt"
+                on:click={loadSiteClippings}
+                disabled={isLoadingStatic}
+            >
+                {isLoadingStatic ? 'Loading...' : 'Browse my own personal highlights'}
+            </button>
+        </div>
         {#if sourceFileName}
             <p class="file-name">Selected: {sourceFileName}</p>
         {/if}
@@ -230,9 +274,7 @@
     {#if statusMessage}
         <p class="status">{statusMessage}</p>
     {/if}
-</section>
 
-<section class="card viewer-card">
     <div class="viewer-actions">
         <div class="action-card">
             <button
@@ -349,7 +391,6 @@
         box-sizing: border-box;
     }
 
-    .upload-card,
     .viewer-card {
         max-width: 1000px;
         width: 100%;
@@ -363,12 +404,32 @@
         gap: 0.75rem;
     }
 
+    .upload-row {
+        display: grid;
+        align-items: center;
+        gap: 0.75rem;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    }
+
+    .upload-or {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        color: var(--c-text-muted);
+        text-align: center;
+        align-self: center;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     .file-input {
         border: 1px dashed var(--c-border-dashed);
         border-radius: var(--radius-md);
-        padding: 1rem;
+        padding: 0.75rem 1rem;
         cursor: pointer;
-        display: inline-flex;
+        display: flex;
         align-items: center;
         gap: 0.75rem;
         font-weight: 600;
@@ -377,6 +438,11 @@
         transition:
             border-color 0.2s ease,
             transform 0.2s ease;
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+        height: 56px;
+        box-sizing: border-box;
     }
 
     .file-input:hover {
@@ -423,6 +489,16 @@
         font-size: 0.95rem;
         line-height: 1;
         color: var(--c-text-light);
+        width: 100%;
+        height: 56px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .upload-alt {
+        border-radius: var(--radius-md);
     }
 
     .ghost:hover {
@@ -571,6 +647,10 @@
 
         .viewer-item {
             padding: 0.9rem;
+        }
+
+        .upload-row {
+            grid-template-columns: 1fr;
         }
     }
 
