@@ -12,7 +12,6 @@
     <nav class="nav-bar">
         <div class="nav-header">
             <a href="{base}/" class="site-title">Jon Samosir</a>
-            <span class="site-subtitle">Software Engineer</span>
         </div>
         <div class="nav-links">
             <a class="nav-link" class:active={isActive('/')} href="{base}/">About</a>
@@ -75,6 +74,13 @@
             gap: 1rem;
             text-align: left;
         }
+
+        @media (max-width: 520px) {
+            flex-direction: column;
+            align-items: stretch;
+            text-align: center;
+            gap: 0.75rem;
+        }
     }
 
     .nav-header {
@@ -112,6 +118,12 @@
         @media (max-width: 768px) {
             flex-direction: row;
             gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        @media (max-width: 520px) {
+            gap: 0.5rem;
         }
     }
 
@@ -131,6 +143,10 @@
         @media (max-width: 768px) {
             padding: 0.25rem 0.5rem;
             font-size: 0.9rem;
+        }
+
+        @media (max-width: 520px) {
+            padding: 0.35rem 0.75rem;
         }
     }
 
@@ -163,6 +179,9 @@
 
     .content-wrapper {
         animation: fade-in 0.5s ease-out;
+        max-width: var(--content-max-width);
+        width: 100%;
+        margin: 0 auto;
     }
 
     @keyframes fade-in {
