@@ -502,9 +502,28 @@
                     {@html highlightText(item.content)}
                 </p>
                 <div class="viewer-meta">
-                    <span>{item.title}</span>
+                    <button
+                        type="button"
+                        class="meta-link"
+                        on:click={() => {
+                            titleFilter = item.title?.trim() || 'Untitled'
+                            authorFilter = 'all'
+                        }}
+                    >
+                        {item.title}
+                    </button>
                     {#if item.author}
-                        <span>· {item.author}</span>
+                        <span>·</span>
+                        <button
+                            type="button"
+                            class="meta-link"
+                            on:click={() => {
+                                authorFilter = item.author?.trim() || 'Unknown Author'
+                                titleFilter = 'all'
+                            }}
+                        >
+                            {item.author}
+                        </button>
                     {/if}
                     {#if item.type}
                         <span>· {item.type}</span>
@@ -836,6 +855,21 @@
         overflow-wrap: anywhere;
         word-break: break-word;
         max-width: 100%;
+    }
+
+    .meta-link {
+        border: none;
+        background: none;
+        padding: 0;
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+    }
+
+    .meta-link:hover {
+        color: var(--c-primary);
     }
 
     @media (max-width: 720px) {
