@@ -2,7 +2,7 @@
     import { parseEpub, type EpubData, type TableOfContents } from 'poltak-epub-parser'
     import { epubStorage, type StoredBook, type ReadingProgress } from '$lib/storage/epub-storage'
     import Icon from '$lib/components/icons/Icon.svelte'
-    import { getPunctuationMultiplier } from '$lib/punctuation-utils'
+    import { SpeedReaderEngine } from '$lib/speed-reader-engine'
     import { onMount } from 'svelte'
 
     let fileInput = $state<HTMLInputElement>()
@@ -14,7 +14,6 @@
     let wordsPerMinute = $state(250)
     let currentWordIndex = $state(0)
     let allWords = $state<string[]>([])
-    let readingInterval = $state<number | null>(null)
     let storedBooks = $state<StoredBook[]>([])
     let showLibrary = $state(true)
     let isLoadingLibrary = $state(false)
@@ -22,7 +21,6 @@
 
     // Rewind functionality
     let isRewinding = $state(false)
-    let rewindInterval = $state<number | null>(null)
     // Track whether reading should resume after rewinding
     let resumeAfterRewind = false
 
@@ -114,6 +112,21 @@
     // Auto-save progress every 10 seconds while reading
     let progressSaveInterval: number | null = null
 
+    const engine = new SpeedReaderEngine({
+        onUpdate: (state) => {
+            allWords = state.allWords
+            currentWordIndex = state.currentWordIndex
+            currentChapterIndex = state.currentChapterIndex
+            isPlaying = state.isPlaying
+            isRewinding = state.isRewinding
+            wordsPerMinute = state.wordsPerMinute
+            periodMultiplier = state.periodMultiplier
+            commaMultiplier = state.commaMultiplier
+            semicolonMultiplier = state.semicolonMultiplier
+            exclamationMultiplier = state.exclamationMultiplier
+        },
+    })
+
     onMount(async () => {
         try {
             await epubStorage.init()
@@ -159,8 +172,7 @@
         try {
             epubData = await parseEpub(file)
 
-            // Split all text into words for speed reading
-            allWords = epubData.allText.split(/\s+/).filter((word) => word.trim().length > 0)
+            engine.loadBook(epubData.allText, epubData.tableOfContents)
 
             // Save the book to storage
             currentBookId = await epubStorage.saveBook(epubData, allWords.length)
@@ -183,17 +195,18 @@
         try {
             epubData = book.epubData
             currentBookId = book.id
-            allWords = epubData.allText.split(/\s+/).filter((word) => word.trim().length > 0)
+            engine.loadBook(epubData.allText, epubData.tableOfContents)
 
             // Load saved progress
             const progress = await epubStorage.getProgress(book.id)
             if (progress) {
                 currentWordIndex = progress.currentWordIndex
                 wordsPerMinute = progress.wordsPerMinute
+                engine.setWordsPerMinute(progress.wordsPerMinute)
+                engine.navigateToWord(progress.currentWordIndex)
             } else {
                 currentWordIndex = 0
             }
-            currentChapterIndex = getChapterIndex(currentWordIndex)
 
             await epubStorage.updateLastReadDate(book.id)
             showLibrary = false
@@ -244,8 +257,7 @@
 
     function startReading() {
         if (allWords.length === 0) return
-        isPlaying = true
-        updateReadingSpeed()
+        engine.start()
 
         // Start auto-save interval
         if (progressSaveInterval) {
@@ -255,11 +267,7 @@
     }
 
     function pauseReading() {
-        isPlaying = false
-        if (readingInterval) {
-            clearTimeout(readingInterval)
-            readingInterval = null
-        }
+        engine.pause()
 
         // Stop auto-save interval and save current progress
         if (progressSaveInterval) {
@@ -269,85 +277,23 @@
         saveProgress()
     }
 
-    function scheduleNextWord() {
-        if (currentWordIndex >= allWords.length - 1) {
-            pauseReading()
-            return
-        }
-
-        // Get the current word to check for punctuation
-        const currentWordText = allWords[currentWordIndex] || ''
-        const multiplier = getPunctuationMultiplier(
-            currentWordText,
-            periodMultiplier,
-            commaMultiplier,
-            semicolonMultiplier,
-            exclamationMultiplier,
-        )
-
-        // Calculate interval in milliseconds with punctuation pause
-        const baseIntervalMs = Math.max(60000 / wordsPerMinute, 50) // Minimum 50ms interval
-        const actualIntervalMs = baseIntervalMs * multiplier
-
-        readingInterval = setTimeout(() => {
-            if (!isPlaying) return // Safety check in case reading was paused
-
-            currentWordIndex++
-
-            // Detect chapter change & pause if a new chapter is reached
-            const newChap = getChapterIndex(currentWordIndex)
-            if (newChap !== currentChapterIndex) {
-                currentChapterIndex = newChap
-                pauseReading()
-                return // don't schedule next word until user resumes
-            }
-
-            scheduleNextWord() // Schedule the next word
-        }, actualIntervalMs)
-    }
-
     function updateReadingSpeed() {
-        if (readingInterval) {
-            clearTimeout(readingInterval)
-            readingInterval = null
-        }
-
-        if (!isPlaying) return
-
-        scheduleNextWord()
+        engine.setWordsPerMinute(wordsPerMinute)
     }
 
     function startRewind() {
         if (allWords.length === 0 || currentWordIndex <= 0) return
 
-        // If currently playing, pause and remember to resume later
         resumeAfterRewind = isPlaying
         if (isPlaying) {
             pauseReading()
         }
 
-        isRewinding = true
-
-        // Use faster speed for rewinding
-        const rewindSpeed = Math.min(wordsPerMinute * 2, 800) // 2x speed, max 800 WPM
-        const intervalMs = Math.max(60000 / rewindSpeed, 25) // Minimum 25ms interval
-
-        clearInterval(rewindInterval!)
-        rewindInterval = setInterval(() => {
-            if (currentWordIndex <= 0) {
-                stopRewind()
-                return
-            }
-            currentWordIndex--
-        }, intervalMs)
+        engine.startRewind()
     }
 
     function stopRewind() {
-        isRewinding = false
-        if (rewindInterval) {
-            clearInterval(rewindInterval)
-            rewindInterval = null
-        }
+        engine.stopRewind()
 
         // Resume reading if it was playing before rewinding
         if (resumeAfterRewind) {
@@ -361,8 +307,7 @@
             // Confirmed reset
             pauseReading()
             stopRewind()
-            currentWordIndex = 0
-            currentChapterIndex = 0
+            engine.reset()
             saveProgress() // Save the reset position
             showResetConfirmation = false
         } else {
@@ -376,23 +321,20 @@
     }
 
     function navigateToChapter(wordStartIndex: number) {
-        const wasPlaying = isPlaying
-        if (isPlaying) {
-            pauseReading()
-        }
-
-        currentWordIndex = Math.min(wordStartIndex, allWords.length - 1)
-        currentChapterIndex = getChapterIndex(currentWordIndex)
-
-        if (wasPlaying) {
-            startReading()
-        }
+        engine.navigateToWord(wordStartIndex)
     }
 
     function handleWpmChange() {
-        if (isPlaying) {
-            updateReadingSpeed()
-        }
+        updateReadingSpeed()
+    }
+
+    function handleMultiplierChange() {
+        engine.setPunctuationMultipliers({
+            periodMultiplier,
+            commaMultiplier,
+            semicolonMultiplier,
+            exclamationMultiplier,
+        })
     }
 
     function backToLibrary() {
@@ -402,23 +344,14 @@
         showResetConfirmation = false
         epubData = null
         currentBookId = null
-        allWords = []
-        currentWordIndex = 0
-        currentChapterIndex = 0
+        engine.loadBook('', [])
         showLibrary = true
     }
 
     // Effect for cleanup only
     $effect(() => {
         return () => {
-            if (readingInterval) {
-                clearTimeout(readingInterval)
-                readingInterval = null
-            }
-            if (rewindInterval) {
-                clearInterval(rewindInterval)
-                rewindInterval = null
-            }
+            engine.cleanup()
             if (progressSaveInterval) {
                 clearInterval(progressSaveInterval)
                 progressSaveInterval = null
@@ -452,15 +385,6 @@
         document.addEventListener('fullscreenchange', handler)
         return () => document.removeEventListener('fullscreenchange', handler)
     })
-
-    function getChapterIndex(wordIndex: number): number {
-        if (!epubData) return 0
-        // Assumes tableOfContents is sorted by wordStartIndex / order
-        for (let i = epubData.tableOfContents.length - 1; i >= 0; i--) {
-            if (wordIndex >= epubData.tableOfContents[i].wordStartIndex) return i
-        }
-        return 0
-    }
 
     function handleHoldStart(event: MouseEvent | TouchEvent) {
         // Don't trigger hold-to-pause if clicking on interactive elements
@@ -835,6 +759,7 @@
                                         id="mult-period"
                                         type="number"
                                         bind:value={periodMultiplier}
+                                        oninput={handleMultiplierChange}
                                         min="1"
                                         max="10"
                                         step="0.5"
@@ -846,6 +771,7 @@
                                         id="mult-comma"
                                         type="number"
                                         bind:value={commaMultiplier}
+                                        oninput={handleMultiplierChange}
                                         min="1"
                                         max="10"
                                         step="0.5"
@@ -857,6 +783,7 @@
                                         id="mult-semi"
                                         type="number"
                                         bind:value={semicolonMultiplier}
+                                        oninput={handleMultiplierChange}
                                         min="1"
                                         max="10"
                                         step="0.5"
@@ -868,6 +795,7 @@
                                         id="mult-exclaim"
                                         type="number"
                                         bind:value={exclamationMultiplier}
+                                        oninput={handleMultiplierChange}
                                         min="1"
                                         max="10"
                                         step="0.5"
