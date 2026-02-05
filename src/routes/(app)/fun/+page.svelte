@@ -124,12 +124,12 @@
         padding: 1.5rem;
         text-decoration: none;
         transition: all 0.2s ease;
-        box-shadow: var(--shadow-sm);
+        box-shadow: 6px 6px 0 var(--shadow-block);
     }
 
     .project-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-lg);
+        transform: translate(-4px, -4px);
+        box-shadow: 10px 10px 0 var(--shadow-block);
         border-color: var(--c-primary);
         text-decoration: none;
     }
