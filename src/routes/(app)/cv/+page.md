@@ -1,3 +1,15 @@
+<script>
+    const handlePrint = () => {
+        if (typeof window !== 'undefined') {
+            window.print()
+        }
+    }
+</script>
+
+<div class="cv-actions">
+    <button class="cv-download" on:click={handlePrint}>Download PDF</button>
+</div>
+
 <details open>
 <summary>
 
@@ -251,6 +263,28 @@ Bachelor of Computer Science (First Class Honours): _2010 - 2015_
 </details>
 
 <style>
+    .cv-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin: 0 0 1rem 0;
+    }
+
+    .cv-download {
+        border: 1px solid var(--c-border);
+        background: var(--c-surface);
+        color: var(--c-primary);
+        padding: 0.5rem 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        cursor: pointer;
+        box-shadow: 6px 6px 0 var(--shadow-block);
+    }
+
+    .cv-download:hover {
+        background: var(--c-primary-light);
+    }
+
     h2 {
         font-size: var(--text-xl);
     }

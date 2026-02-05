@@ -806,6 +806,51 @@ hr {
     margin: 2rem 0;
 }
 
+@media print {
+    :root {
+        color-scheme: light;
+    }
+
+    body {
+        background: white !important;
+        color: #111 !important;
+    }
+
+    .nav-area,
+    .theme-picker {
+        display: none !important;
+    }
+
+    .content-area {
+        grid-column: 1 / -1;
+        padding: 1.5rem;
+    }
+
+    .content-wrapper {
+        max-width: 100%;
+        margin: 0;
+    }
+
+    a {
+        color: #111 !important;
+        text-decoration: none;
+    }
+
+    .cv-download {
+        display: none !important;
+    }
+
+    details {
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    summary::after,
+    details[open] summary::after {
+        content: '' !important;
+    }
+}
+
 a:hover {
     color: var(--c-primary-dark);
     text-decoration: underline;
