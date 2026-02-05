@@ -941,16 +941,6 @@
 </main>
 
 <style>
-    :global(:root) {
-        /* Variables moved to src/app.css */
-    }
-
-    @media (prefers-color-scheme: dark) {
-        :global(:root) {
-            /* Variables moved to src/app.css */
-        }
-    }
-
     /* Reset & Base */
     .app-container {
         font-family: var(--font-sans);
@@ -1160,6 +1150,7 @@
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
+        line-clamp: 2;
         overflow: hidden;
         color: var(--c-text);
     }

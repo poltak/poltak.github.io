@@ -94,21 +94,22 @@
 <div
     class="theme-picker"
     aria-label="Theme picker"
+    role="presentation"
     class:open={pickerOpen}
-    on:mouseenter={() => (pickerOpen = true)}
-    on:mouseleave={() => (pickerOpen = false)}
+    onmouseenter={() => (pickerOpen = true)}
+    onmouseleave={() => (pickerOpen = false)}
 >
     <button
         type="button"
         class="theme-toggle"
         style={`--swatch:${themes.find((t) => t.id === currentTheme)?.color ?? '#00d4ff'}`}
         aria-label="Open theme picker"
-        on:click={(event) => {
+        onclick={(event) => {
             event.stopPropagation()
             pickerOpen = !pickerOpen
             shouldCloseOnClick = false
         }}
-        on:touchstart={(event) => {
+        ontouchstart={(event) => {
             event.stopPropagation()
             shouldCloseOnClick = false
             pickerOpen = !pickerOpen
@@ -123,7 +124,7 @@
                     class:active={currentTheme === theme.id}
                     style={`--swatch:${theme.color}`}
                     aria-label={`Switch to ${theme.label} theme`}
-                    on:click={(event) => {
+                    onclick={(event) => {
                         event.stopPropagation()
                         applyTheme(theme.id)
                         shouldCloseOnClick = true

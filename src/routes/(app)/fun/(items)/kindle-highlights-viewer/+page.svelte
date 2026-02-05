@@ -839,7 +839,7 @@
         word-break: break-word;
     }
 
-    .viewer-content mark {
+    :global(.viewer-content mark) {
         background: rgba(245, 158, 11, 0.3);
         color: inherit;
         padding: 0 0.15rem;
@@ -881,7 +881,6 @@
             grid-column: span 1;
         }
 
-        .upload-card,
         .viewer-card {
             padding: 1.25rem;
         }

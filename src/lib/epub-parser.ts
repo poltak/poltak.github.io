@@ -1,4 +1,4 @@
-import { ZipReader, BlobReader, TextWriter } from '@zip.js/zip.js'
+import { ZipReader, BlobReader, TextWriter, type Entry, type FileEntry } from '@zip.js/zip.js'
 
 export interface Chapter {
     id: string
@@ -76,7 +76,7 @@ export class EpubParser {
         const entries = await this.zipReader.getEntries()
         const containerEntry = entries.find((entry) => entry.filename === 'META-INF/container.xml')
 
-        if (!containerEntry || !containerEntry.getData) {
+        if (!this.isFileEntry(containerEntry)) {
             throw new Error('Container.xml not found')
         }
 
@@ -100,7 +100,7 @@ export class EpubParser {
         const entries = await this.zipReader.getEntries()
         const opfEntry = entries.find((entry) => entry.filename === this.opfPath)
 
-        if (!opfEntry || !opfEntry.getData) {
+        if (!this.isFileEntry(opfEntry)) {
             throw new Error('OPF file not found')
         }
 
@@ -175,7 +175,7 @@ export class EpubParser {
             const fullPath = basePath + manifestItem.href
             const chapterEntry = entries.find((entry) => entry.filename === fullPath)
 
-            if (!chapterEntry || !chapterEntry.getData) continue
+            if (!this.isFileEntry(chapterEntry)) continue
 
             const textWriter = new TextWriter()
             const chapterHtml = await chapterEntry.getData(textWriter)
@@ -220,7 +220,7 @@ export class EpubParser {
             const entries = await this.zipReader.getEntries()
             const ncxEntry = entries.find((entry) => entry.filename === fullPath)
 
-            if (!ncxEntry || !ncxEntry.getData) return
+            if (!this.isFileEntry(ncxEntry)) return
 
             const textWriter = new TextWriter()
             const ncxContent = await ncxEntry.getData(textWriter)
@@ -353,5 +353,9 @@ export class EpubParser {
             .join(' ')
             .replace(/\s+/g, ' ')
             .trim()
+    }
+
+    private isFileEntry(entry: Entry | undefined): entry is FileEntry {
+        return Boolean(entry) && entry?.directory === false
     }
 }
