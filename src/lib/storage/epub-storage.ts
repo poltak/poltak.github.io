@@ -1,4 +1,4 @@
-import type { EpubData } from '$lib/epub-parser'
+import type { EpubData } from 'poltak-epub-parser'
 
 export interface SerializableEpubData {
     title: string

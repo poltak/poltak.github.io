@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { EpubParser, type EpubData, type TableOfContents } from '$lib/epub-parser'
+    import { parseEpub, type EpubData, type TableOfContents } from 'poltak-epub-parser'
     import { epubStorage, type StoredBook, type ReadingProgress } from '$lib/storage/epub-storage'
     import Icon from '$lib/components/icons/Icon.svelte'
     import { getPunctuationMultiplier } from '$lib/punctuation-utils'
@@ -111,8 +111,6 @@
         )
     })
 
-    const parser = new EpubParser()
-
     // Auto-save progress every 10 seconds while reading
     let progressSaveInterval: number | null = null
 
@@ -159,7 +157,7 @@
         errorMessage = ''
 
         try {
-            epubData = await parser.parseFile(file)
+            epubData = await parseEpub(file)
 
             // Split all text into words for speed reading
             allWords = epubData.allText.split(/\s+/).filter((word) => word.trim().length > 0)
@@ -496,6 +494,16 @@
                 </div>
                 <h1>EPUB Speed Reader</h1>
                 <p>Your personal library of speed-readable books</p>
+                <p class="built-on">
+                    Built on
+                    <a
+                        href="https://www.npmjs.com/package/poltak-epub-parser"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        poltak-epub-parser
+                    </a>
+                </p>
             </div>
 
             <div class="upload-section">
@@ -1007,6 +1015,26 @@
     .library-header p {
         color: var(--c-text-light);
         font-size: 1.125rem;
+    }
+
+    .built-on {
+        margin-top: 0.75rem;
+        font-size: 0.95rem;
+        color: var(--c-text-light);
+    }
+
+    .built-on a {
+        color: var(--c-primary);
+        text-decoration: none;
+        border-bottom: 1px dashed var(--c-border);
+        transition:
+            color 0.2s,
+            border-color 0.2s;
+    }
+
+    .built-on a:hover {
+        color: var(--c-primary-dark);
+        border-color: var(--c-primary);
     }
 
     .upload-card {

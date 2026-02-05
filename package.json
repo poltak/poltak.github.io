@@ -39,9 +39,9 @@
         "vitest": "^4.0.18"
     },
     "dependencies": {
-        "@zip.js/zip.js": "^2.8.16",
         "kindle-highlights-parser": "^0.1.2",
         "minisearch": "^7.2.0",
+        "poltak-epub-parser": "^0.1.1",
         "seedrandom": "^3.0.5"
     }
 }
