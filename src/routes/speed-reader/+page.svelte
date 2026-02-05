@@ -397,6 +397,9 @@
 
     function backToLibrary() {
         pauseReading()
+        stopRewind()
+        resumeAfterRewind = false
+        showResetConfirmation = false
         epubData = null
         currentBookId = null
         allWords = []
@@ -476,6 +479,13 @@
         if (wasPlayingBeforeHold) {
             wasPlayingBeforeHold = false
             startReading()
+        }
+    }
+
+    function handleBookCardKeydown(event: KeyboardEvent, book: StoredBook) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault()
+            openStoredBook(book)
         }
     }
 </script>
@@ -590,6 +600,7 @@
                                 role="button"
                                 tabindex="0"
                                 onclick={() => openStoredBook(book)}
+                                onkeydown={(event) => handleBookCardKeydown(event, book)}
                             >
                                 <div class="book-info">
                                     <h3 class="book-title">{book.title}</h3>
@@ -1169,6 +1180,11 @@
         transform: translateY(-4px);
         box-shadow: var(--shadow-lg);
         border-color: var(--c-primary-light);
+    }
+
+    .book-card:focus-visible {
+        outline: 2px solid var(--c-primary);
+        outline-offset: 3px;
     }
 
     .book-title {
