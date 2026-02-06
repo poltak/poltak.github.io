@@ -872,7 +872,7 @@
         color: var(--c-primary);
     }
 
-    @media (max-width: 720px) {
+    @media (max-width: 768px) {
         .viewer-controls {
             grid-template-columns: 1fr;
         }
@@ -894,7 +894,7 @@
         }
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 576px) {
         .viewer-actions {
             grid-template-columns: 1fr;
         }

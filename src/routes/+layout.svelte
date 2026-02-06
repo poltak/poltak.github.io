@@ -21,7 +21,6 @@
     let currentTheme = $state('cyan')
     let pickerOpen = $state(false)
     let shouldCloseOnClick = false
-    let isMobile = $state(false)
 
     function applyTheme(theme: string) {
         currentTheme = theme
@@ -43,13 +42,6 @@
             document.documentElement.classList.toggle('dark', event.matches)
         })
 
-        const updateMobile = () => {
-            isMobile = window.matchMedia('(max-width: 768px)').matches
-        }
-
-        updateMobile()
-        window.addEventListener('resize', updateMobile)
-
         const closeOnOutside = (event: MouseEvent | TouchEvent) => {
             const target = event.target as HTMLElement | null
             if (!target?.closest('.theme-picker')) {
@@ -65,7 +57,6 @@
         return () => {
             document.removeEventListener('click', closeOnOutside, true)
             document.removeEventListener('touchstart', closeOnOutside, true)
-            window.removeEventListener('resize', updateMobile)
         }
     })
 </script>
@@ -195,7 +186,7 @@
             padding: 0;
         }
 
-        @media (max-width: 520px) {
+        @media (max-width: 576px) {
             flex-direction: column;
             align-items: stretch;
             gap: 0.75rem;
@@ -223,7 +214,7 @@
             position: relative;
         }
 
-        @media (min-width: 769px) and (max-width: 1024px) {
+        @media (min-width: 993px) and (max-width: 1024px) {
             width: 100%;
             box-sizing: border-box;
         }
@@ -266,12 +257,12 @@
             min-width: 0;
         }
 
-        @media (min-width: 769px) and (max-width: 1024px) {
+        @media (min-width: 993px) and (max-width: 1024px) {
             width: 100%;
             box-sizing: border-box;
         }
 
-        @media (max-width: 520px) {
+        @media (max-width: 576px) {
             gap: 0.5rem;
         }
     }
@@ -298,7 +289,7 @@
             width: 100%;
         }
 
-        @media (max-width: 520px) {
+        @media (max-width: 576px) {
             padding: 0.35rem 0.75rem;
         }
     }
@@ -332,7 +323,7 @@
             padding: 2rem 1rem;
         }
 
-        @media (min-width: 576px) and (max-width: 1024px) {
+        @media (min-width: 576px) and (max-width: 992px) {
             padding: 2rem 4rem;
         }
     }

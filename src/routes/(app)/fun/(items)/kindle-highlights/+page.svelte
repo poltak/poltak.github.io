@@ -473,7 +473,7 @@
         color: var(--c-text);
     }
 
-    @media (max-width: 720px) {
+    @media (max-width: 768px) {
         .controls {
             flex-direction: column;
             align-items: flex-start;
