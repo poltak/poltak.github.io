@@ -148,10 +148,11 @@
         box-shadow: 8px 0 0 var(--shadow-block);
 
         @media (max-width: 1024px) {
-            align-items: center;
+            align-items: stretch;
+            padding: 1.5rem 1rem;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 992px) {
             grid-column: 1 / -1;
             border-right: none;
             border-bottom: 1px solid var(--c-border);
@@ -167,26 +168,27 @@
         display: flex;
         flex-direction: column;
         gap: 2rem;
-        text-align: right;
         border: 1px solid var(--c-border);
         padding: 1.25rem 1.5rem;
         background: var(--c-surface);
         box-shadow: 10px 10px 0 var(--shadow-block);
         border-radius: var(--radius-md);
+        text-align: center;
 
         @media (max-width: 1024px) {
-            text-align: center;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 992px) {
             position: static;
             flex-direction: row;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
             width: 100%;
-            max-width: 600px;
-            gap: 1rem;
-            text-align: left;
+            max-width: 768px;
+            gap: 0.75rem;
             box-shadow: none;
             border: none;
             background: transparent;
@@ -196,7 +198,6 @@
         @media (max-width: 520px) {
             flex-direction: column;
             align-items: stretch;
-            text-align: center;
             gap: 0.75rem;
             padding: 1rem;
             border: none;
@@ -214,13 +215,17 @@
         box-shadow: 6px 6px 0 var(--shadow-block);
         border-radius: var(--radius-md);
 
-        @media (max-width: 768px) {
+        @media (max-width: 992px) {
             flex-direction: row;
             align-items: center;
             justify-content: center;
             gap: 0.75rem;
             position: relative;
-            padding-right: 3rem;
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            width: 100%;
+            box-sizing: border-box;
         }
     }
 
@@ -250,14 +255,20 @@
         box-shadow: 6px 6px 0 var(--shadow-block);
         border-radius: var(--radius-md);
 
-        @media (max-width: 768px) {
-            flex-direction: row;
-            gap: 1rem;
-            flex-wrap: wrap;
-            justify-content: stretch;
+        @media (max-width: 992px) {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.5rem;
             background: transparent;
             box-shadow: none;
             padding: 0;
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            width: 100%;
+            box-sizing: border-box;
         }
 
         @media (max-width: 520px) {
@@ -281,11 +292,10 @@
         text-align: center;
         box-sizing: border-box;
 
-        @media (max-width: 768px) {
+        @media (max-width: 992px) {
             padding: 0.25rem 0.5rem;
             font-size: 0.9rem;
-            width: auto;
-            flex: 1 1 0;
+            width: 100%;
         }
 
         @media (max-width: 520px) {
@@ -317,7 +327,7 @@
         grid-column: 2 / 3;
         padding: 4rem 2rem;
 
-        @media (max-width: 768px) {
+        @media (max-width: 992px) {
             grid-column: 1 / -1;
             padding: 2rem 1rem;
         }

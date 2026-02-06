@@ -937,11 +937,11 @@ details details {
 
 @media (max-width: 1024px) {
     .site {
-        grid-template-columns: 200px 1fr;
+        grid-template-columns: 280px 1fr;
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
     .site {
         display: flex;
         flex-direction: column;
