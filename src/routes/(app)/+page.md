@@ -8,6 +8,8 @@ Fast forward to today, and I’ve spent over a decade as a professional remote s
 
 I'm using this site as a place where [random experiments and mini-projects](/fun) of mine can live. I recently set up a Kindle highlights browser. You can [browse my personal Kindle clippings](/fun/kindle-highlights-viewer?source=site) if you're curious about what I've read over the years. I stopped using a Kindle ~1 year ago for reading, in favour of an iPad Mini, so these are currently static until I figure out how to incorporate my iPad highlights.
 
+Please feel free to [reach out to me](/contact) if you're interested in making a personal connection.
+
 <style>
 p {
     line-height: 2rem;
