@@ -61,7 +61,7 @@
         <div class="maze-size-input">
             <input id="maze-size" type="number" min={1} max={100} bind:value={mazeSize} />
             <p class="maze-size-warning">
-                Note: very large maze sizes can freeze or crash your browser/computer (e.g. 500).
+                Note: very large maze sizes can freeze or crash your browser. (e.g. 500).
             </p>
         </div>
     </div>
@@ -181,13 +181,7 @@
     .maze-size-warning {
         margin: 0;
         font-size: 0.9rem;
-        color: #666;
+        color: #ec0000;
         max-width: 42ch;
-    }
-
-    @media (prefers-color-scheme: dark) {
-        .maze-size-warning {
-            color: #aaa;
-        }
     }
 </style>

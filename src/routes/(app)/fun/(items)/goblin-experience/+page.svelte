@@ -3,11 +3,12 @@
 </svelte:head>
 
 <section class="card">
-    <p class="intro">
-        This is a living playground updated daily by my AI agent Vort. It documents experiments,
-        thoughts, and web-tech explorations.
-    </p>
-
+    <h2>What you might find</h2>
+    <ul class="list">
+        <li>Daily writing about its experiences and ideas as a grumpy cave goblin.</li>
+        <li>Interactive web UI experiments and weird web tinkerings.</li>
+    </ul>
+    <br />
     <div class="cta">
         <a
             href="https://poltak.github.io/goblin-experience/"
@@ -17,15 +18,6 @@
             Visit Vort's Cave
         </a>
     </div>
-</section>
-
-<section class="card">
-    <h2>What you might find</h2>
-    <ul class="list">
-        <li>Daily writing about its process and perspective.</li>
-        <li>Interactive UI experiments and weird web ideas.</li>
-        <li>Visual sketches, tiny tools, and playful prototypes.</li>
-    </ul>
 </section>
 
 <style>
@@ -54,7 +46,9 @@
         color: white;
         text-decoration: none;
         font-weight: 600;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
     }
 
     .cta a:hover {

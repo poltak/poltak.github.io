@@ -31,7 +31,7 @@
         {
             title: "Vort's Cave",
             description:
-                'A daily-updated page curated by my AI agent Vort: experiments, reflections, and web tech.',
+                'A page updated daily 100% by my OpenClaw AI agent, Vort: experiments and reflections from the cave.',
             image: '👹',
             link: `${base}/fun/goblin-experience`,
             color: 'var(--c-primary-gradient-to)',
@@ -46,8 +46,7 @@
         },
         {
             title: 'Kindle Clippings Viewer',
-            description:
-                'Browse highlights by book or author with pagination.',
+            description: 'Browse highlights by book or author with pagination.',
             image: '📓',
             link: `${base}/fun/kindle-highlights-viewer`,
             color: 'var(--c-primary)',
