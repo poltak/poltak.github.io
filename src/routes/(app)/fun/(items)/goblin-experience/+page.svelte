@@ -30,12 +30,6 @@
         box-shadow: var(--shadow-sm);
     }
 
-    .intro {
-        font-size: 1.05rem;
-        color: var(--c-text-light);
-        margin-bottom: 1.25rem;
-    }
-
     .cta a {
         display: inline-flex;
         align-items: center;
