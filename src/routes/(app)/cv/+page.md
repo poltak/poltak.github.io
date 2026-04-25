@@ -10,6 +10,12 @@
     <button class="cv-download" on:click={handlePrint}>Download PDF</button>
 </div>
 
+<section class="cv-hero">
+    <p class="cv-prompt">&gt;_</p>
+    <h1>Résumé</h1>
+    <p class="cv-section-index">02 / RÉSUMÉ</p>
+</section>
+
 <details open>
 <summary>
 
@@ -263,30 +269,71 @@ Bachelor of Computer Science (First Class Honours): _2010 - 2015_
 </details>
 
 <style>
+    :global(.content-wrapper:has(.cv-hero)) {
+        max-width: 1120px;
+    }
+
+    :global(.content-wrapper:has(.cv-hero)),
+    :global(.content-wrapper:has(.cv-hero) *) {
+        font-family: var(--font-mono);
+    }
+
     .cv-actions {
         display: flex;
         justify-content: flex-end;
-        margin: 0 0 1rem 0;
+        margin: 0 0 1.25rem 0;
     }
 
     .cv-download {
         border: 1px solid var(--c-border);
-        background: var(--c-surface);
+        background: transparent;
         color: var(--c-primary);
-        padding: 0.5rem 1rem;
+        padding: 0.75rem 1.35rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.16em;
         cursor: pointer;
-        box-shadow: 6px 6px 0 var(--shadow-block);
+        box-shadow: none;
     }
 
     .cv-download:hover {
         background: var(--c-primary-light);
     }
 
+    .cv-hero {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: baseline;
+        gap: 1.5rem;
+        margin: 0 0 2rem;
+        padding: 0 0 0.9rem;
+        border-bottom: 1px dashed var(--c-border-dashed);
+    }
+
+    .cv-prompt,
+    .cv-section-index {
+        color: var(--c-primary);
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        margin: 0;
+        text-transform: uppercase;
+    }
+
+    .cv-hero h1 {
+        color: var(--c-text);
+        font-family: var(--font-sans);
+        font-size: clamp(2.75rem, 7vw, 4.25rem);
+        font-weight: 400;
+        margin: 0;
+        letter-spacing: 0.04em;
+    }
+
     h2 {
-        font-size: var(--text-xl);
+        color: var(--c-primary);
+        font-family: var(--font-mono);
+        font-size: 1.35rem;
+        font-weight: 800;
+        letter-spacing: 0.02em;
     }
 
     h2, h3, h4 {
@@ -305,7 +352,122 @@ Bachelor of Computer Science (First Class Honours): _2010 - 2015_
     }
 
     h4 {
+        color: var(--c-text-muted);
+        font-family: var(--font-mono);
+        font-size: 0.88rem;
+        letter-spacing: 0.08em;
         margin-top: 0.5rem;
         margin-bottom: 0;
+        text-transform: uppercase;
+    }
+
+    details {
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    details > summary {
+        border: none;
+        padding: 0;
+    }
+
+    details > summary::after {
+        display: none;
+    }
+
+    details details {
+        border: 1px solid var(--c-border);
+        margin: 1rem 0;
+        padding: 0;
+    }
+
+    details details summary {
+        display: grid;
+        grid-template-columns: 5.5rem 1fr auto;
+        gap: 1.5rem;
+        align-items: center;
+        min-height: 5.4rem;
+        padding: 1rem 1.5rem;
+        border-bottom: 1px dashed var(--c-border-dashed);
+    }
+
+    details details summary::before {
+        content: '▰';
+        display: grid;
+        place-items: center;
+        width: 4.5rem;
+        height: 4.5rem;
+        color: var(--c-primary);
+        border: 1px solid var(--c-border);
+        font-size: 2rem;
+        line-height: 1;
+    }
+
+    details details summary br {
+        display: none;
+    }
+
+    details details summary::after {
+        display: block;
+        color: var(--c-text-light);
+        grid-column: 3;
+        grid-row: 1;
+    }
+
+    details details h3 {
+        color: var(--c-primary);
+        font-family: var(--font-mono);
+        font-size: 1.35rem;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    details details h3 a {
+        color: inherit;
+    }
+
+    details details > *:not(summary) {
+        margin: 1.35rem 2rem 1.8rem 7rem;
+        max-width: 86ch;
+    }
+
+    details details p {
+        color: var(--c-text-light);
+        line-height: 1.65;
+    }
+
+    details details p strong,
+    details details p em {
+        color: var(--c-primary);
+    }
+
+    details details ul {
+        color: var(--c-text-light);
+        padding-left: 1.1rem;
+    }
+
+    details details li::marker {
+        color: var(--c-primary);
+    }
+
+    @media screen and (max-width: 768px) {
+        .cv-hero {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+
+        details details summary {
+            grid-template-columns: 1fr auto;
+        }
+
+        details details summary::before {
+            display: none;
+        }
+
+        details details > *:not(summary) {
+            margin: 1.25rem;
+        }
     }
 </style>

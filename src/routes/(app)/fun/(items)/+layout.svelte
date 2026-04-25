@@ -29,8 +29,10 @@
         align-items: flex-start;
         justify-content: space-between;
         gap: 2rem;
-        margin-bottom: 2rem;
+        margin-bottom: 2.5rem;
         flex-wrap: wrap;
+        border-bottom: 1px solid var(--c-border-light);
+        padding-bottom: 1.5rem;
     }
 
     .hero-text {
@@ -39,10 +41,10 @@
 
     .eyebrow {
         text-transform: uppercase;
-        letter-spacing: 0.1em;
+        letter-spacing: 0.16em;
         font-size: 0.75rem;
-        font-weight: 700;
-        color: var(--c-text-muted);
+        font-weight: 800;
+        color: var(--c-accent);
         margin-bottom: 0.5rem;
     }
 
@@ -52,18 +54,24 @@
     }
 
     .back-link {
-        color: var(--c-primary-dark);
+        color: var(--c-primary);
         text-decoration: none;
-        font-weight: 600;
+        font-weight: 750;
         background: var(--c-primary-light);
-        padding: 0.5rem 1rem;
+        padding: 0.55rem 1rem;
         border-radius: var(--radius-full);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: 1px solid transparent;
+        transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease,
+            border-color 0.2s ease;
     }
 
     .back-link:hover {
         transform: translateY(-2px);
         box-shadow: var(--shadow-sm);
+        border-color: var(--c-border-light);
+        text-decoration: none;
     }
 
     .fun-body {

@@ -13,6 +13,5 @@ Please feel free to [reach out to me](/contact) if you're interested in making a
 <style>
 p {
     line-height: 2rem;
-    text-align: justify;
 }
 </style>

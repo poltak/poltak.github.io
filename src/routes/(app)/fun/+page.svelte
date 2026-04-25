@@ -70,11 +70,15 @@
     ]
 </script>
 
-<h1>Fun Projects</h1>
+<section class="fun-intro">
+    <p class="eyebrow">Experiments</p>
+    <h1>Fun Projects</h1>
 
-<p>
-    I'm planning to put more little browser-based side-projects I tinker with in my spare time here.
-</p>
+    <p>
+        I'm planning to put more little browser-based side-projects I tinker with in my spare time
+        here.
+    </p>
+</section>
 
 <div class="projects-grid">
     {#each projects as project (project.title)}
@@ -109,27 +113,42 @@
 <style>
     .projects-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 1.5rem;
-        margin-top: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+        gap: 0;
+        margin-top: 3rem;
+        border-top: 1px solid var(--c-border-light);
+        border-left: 1px solid var(--c-border-light);
+    }
+
+    .fun-intro {
+        max-width: 760px;
+    }
+
+    .eyebrow {
+        margin: 0 0 0.75rem;
+        color: var(--c-accent);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
     }
 
     .project-card {
         display: flex;
         flex-direction: column;
-        background: var(--c-surface);
-        border: 1px solid var(--c-border);
-        border-radius: var(--radius-lg);
-        padding: 1.5rem;
+        min-height: 240px;
+        border-right: 1px solid var(--c-border-light);
+        border-bottom: 1px solid var(--c-border-light);
+        padding: 1.35rem;
         text-decoration: none;
-        transition: all 0.2s ease;
-        box-shadow: 6px 6px 0 var(--shadow-block);
+        transition:
+            transform 0.2s ease,
+            background 0.2s ease;
     }
 
     .project-card:hover {
-        transform: translate(-4px, -4px);
-        box-shadow: 10px 10px 0 var(--shadow-block);
-        border-color: var(--c-primary);
+        background: var(--c-primary-light);
+        transform: translateY(-2px);
         text-decoration: none;
     }
 
@@ -140,7 +159,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1.25rem;
         border: 1px solid;
     }
 
@@ -159,6 +178,7 @@
         margin: 0 0 0.5rem 0;
         font-size: 1.25rem;
         color: var(--c-text);
+        letter-spacing: 0;
     }
 
     .content p {
@@ -173,13 +193,12 @@
         display: flex;
         justify-content: flex-end;
         color: var(--c-primary);
-        opacity: 0;
-        transform: translateX(-10px);
+        opacity: 0.7;
         transition: all 0.2s ease;
     }
 
     .project-card:hover .arrow {
         opacity: 1;
-        transform: translateX(0);
+        transform: translateX(4px);
     }
 </style>
