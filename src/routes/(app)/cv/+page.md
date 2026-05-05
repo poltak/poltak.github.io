@@ -6,14 +6,13 @@
     }
 </script>
 
-<div class="cv-actions">
-    <button class="cv-download" on:click={handlePrint}>Download PDF</button>
-</div>
-
 <section class="cv-hero">
     <p class="cv-prompt">&gt;_</p>
     <h1>Résumé</h1>
     <p class="cv-section-index">02 / RÉSUMÉ</p>
+    <div class="cv-actions">
+        <button class="cv-download" on:click={handlePrint}>Download PDF</button>
+    </div>
 </section>
 
 <details open>
@@ -280,8 +279,9 @@ Bachelor of Computer Science (First Class Honours): _2010 - 2015_
 
     .cv-actions {
         display: flex;
-        justify-content: flex-end;
-        margin: 0 0 1.25rem 0;
+        grid-column: 2 / -1;
+        justify-content: flex-start;
+        margin: -0.35rem 0 0;
     }
 
     .cv-download {
@@ -304,7 +304,8 @@ Bachelor of Computer Science (First Class Honours): _2010 - 2015_
         display: grid;
         grid-template-columns: auto 1fr auto;
         align-items: baseline;
-        gap: 1.5rem;
+        column-gap: 1.5rem;
+        row-gap: 0.85rem;
         margin: 0 0 2rem;
         padding: 0 0 0.9rem;
         border-bottom: 1px dashed var(--c-border-dashed);
@@ -456,6 +457,11 @@ Bachelor of Computer Science (First Class Honours): _2010 - 2015_
         .cv-hero {
             grid-template-columns: 1fr;
             gap: 0.5rem;
+        }
+
+        .cv-actions {
+            grid-column: 1;
+            margin-top: 0.25rem;
         }
 
         details details summary {
