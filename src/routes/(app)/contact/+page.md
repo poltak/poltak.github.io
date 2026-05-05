@@ -5,7 +5,7 @@
     <header class="terminal-hero">
         <p class="terminal-prompt">&gt;_</p>
         <h1>Contact me</h1>
-        <p class="terminal-index">04 / Contact</p>
+        <p class="terminal-index">03 / Contact</p>
     </header>
 
     <div class="contact-copy">
@@ -33,6 +33,7 @@
     </aside>
 
     <p class="response-note"><span></span>Usually replying within 1-2 business days.</p>
+
 </section>
 
 <style>

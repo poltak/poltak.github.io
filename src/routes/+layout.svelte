@@ -2,11 +2,29 @@
     import '../app.css'
     import { base } from '$app/paths'
     import { page } from '$app/stores'
-    import { onMount } from 'svelte'
+    import { cubicOut } from 'svelte/easing'
+    import { onMount, tick } from 'svelte'
+    import { fade } from 'svelte/transition'
 
     let { children } = $props()
 
-    const isActive = (path: string) => $page.url.pathname === `${base}${path}`
+    const navItems = [
+        { path: '/', glyph: '[]', label: 'About' },
+        { path: '/cv', glyph: '#', label: 'Résumé' },
+        { path: '/contact', glyph: '@', label: 'Contact' },
+        { path: '/fun', glyph: './', label: 'Fun' },
+    ]
+
+    const isActive = (path: string) => {
+        const pathname = $page.url.pathname
+        const target = `${base}${path}`
+
+        if (path === '/') {
+            return pathname === target
+        }
+
+        return pathname === target || pathname.startsWith(`${target}/`)
+    }
 
     const themes = [
         { id: 'cyan', label: 'Cyan', color: '#00d4ff' },
@@ -18,8 +36,15 @@
         { id: 'violet', label: 'Violet', color: '#7c5cff' },
     ]
 
+    type ColorMode = 'light' | 'dark'
+
     let currentTheme = $state('cyan')
+    let colorMode = $state<ColorMode>('dark')
     let pickerOpen = $state(false)
+    let reduceMotion = $state(false)
+    let navLinksElement: HTMLDivElement
+    let navLinkElements: HTMLAnchorElement[] = []
+    let navIndicatorStyle = $state('opacity: 0;')
     let shouldCloseOnClick = false
 
     function applyTheme(theme: string) {
@@ -30,6 +55,47 @@
         }
     }
 
+    function applyColorMode(mode: ColorMode, persist = true) {
+        colorMode = mode
+        if (typeof document !== 'undefined') {
+            document.documentElement.classList.toggle('dark', mode === 'dark')
+            if (persist) {
+                localStorage.setItem('color-mode', mode)
+            }
+        }
+    }
+
+    function toggleColorMode() {
+        applyColorMode(colorMode === 'dark' ? 'light' : 'dark')
+    }
+
+    async function updateNavIndicator() {
+        await tick()
+
+        const activeIndex = navItems.findIndex((item) => isActive(item.path))
+        const activeElement = navLinkElements[activeIndex]
+
+        if (!navLinksElement || !activeElement) {
+            navIndicatorStyle = 'opacity: 0;'
+            return
+        }
+
+        const containerRect = navLinksElement.getBoundingClientRect()
+        const activeRect = activeElement.getBoundingClientRect()
+
+        navIndicatorStyle = [
+            'opacity: 1',
+            `width: ${activeRect.width}px`,
+            `height: ${activeRect.height}px`,
+            `transform: translate3d(${activeRect.left - containerRect.left}px, ${activeRect.top - containerRect.top}px, 0)`,
+        ].join(';')
+    }
+
+    $effect(() => {
+        $page.url.pathname
+        updateNavIndicator()
+    })
+
     onMount(() => {
         const saved = localStorage.getItem('theme')
         const theme = saved || 'cyan'
@@ -37,10 +103,28 @@
         document.documentElement.dataset.theme = theme
 
         const media = window.matchMedia('(prefers-color-scheme: dark)')
-        document.documentElement.classList.toggle('dark', media.matches)
-        media.addEventListener('change', (event) => {
-            document.documentElement.classList.toggle('dark', event.matches)
-        })
+        const savedColorMode = localStorage.getItem('color-mode')
+        applyColorMode(
+            savedColorMode === 'light' || savedColorMode === 'dark'
+                ? savedColorMode
+                : media.matches
+                  ? 'dark'
+                  : 'light',
+            false,
+        )
+        const syncColorPreference = (event: MediaQueryListEvent) => {
+            if (!localStorage.getItem('color-mode')) {
+                applyColorMode(event.matches ? 'dark' : 'light', false)
+            }
+        }
+        media.addEventListener('change', syncColorPreference)
+
+        const motionMedia = window.matchMedia('(prefers-reduced-motion: reduce)')
+        reduceMotion = motionMedia.matches
+        const syncMotionPreference = (event: MediaQueryListEvent) => {
+            reduceMotion = event.matches
+        }
+        motionMedia.addEventListener('change', syncMotionPreference)
 
         const closeOnOutside = (event: MouseEvent | TouchEvent) => {
             const target = event.target as HTMLElement | null
@@ -52,11 +136,15 @@
                 }
             }
         }
+        window.addEventListener('resize', updateNavIndicator)
         document.addEventListener('click', closeOnOutside, true)
         document.addEventListener('touchstart', closeOnOutside, true)
         return () => {
+            window.removeEventListener('resize', updateNavIndicator)
             document.removeEventListener('click', closeOnOutside, true)
             document.removeEventListener('touchstart', closeOnOutside, true)
+            media.removeEventListener('change', syncColorPreference)
+            motionMedia.removeEventListener('change', syncMotionPreference)
         }
     })
 </script>
@@ -65,38 +153,33 @@
     <nav class="nav-bar">
         <div class="nav-header">
             <a href="{base}/" class="site-title">Jon<br />Samosir</a>
-            <p class="site-role">Software Developer</p>
         </div>
-        <div class="nav-links">
-            <a class="nav-link" class:active={isActive('/')} href="{base}/">
-                <span class="nav-glyph">[]</span>
-                <span>About</span>
-            </a>
-            <a class="nav-link" class:active={isActive('/cv')} href="{base}/cv">
-                <span class="nav-glyph">#</span>
-                <span>Résumé</span>
-            </a>
-            <a class="nav-link" class:active={isActive('/contact')} href="{base}/contact">
-                <span class="nav-glyph">@</span>
-                <span>Contact</span>
-            </a>
-            <a class="nav-link" class:active={isActive('/fun')} href="{base}/fun">
-                <span class="nav-glyph">./</span>
-                <span>Projects / Fun</span>
-            </a>
+        <div class="nav-links" bind:this={navLinksElement}>
+            <span class="nav-active-indicator" style={navIndicatorStyle}></span>
+            {#each navItems as item, index}
+                <a
+                    class="nav-link"
+                    class:active={isActive(item.path)}
+                    href="{base}{item.path}"
+                    bind:this={navLinkElements[index]}
+                >
+                    <span class="nav-glyph">{item.glyph}</span>
+                    <span>{item.label}</span>
+                </a>
+            {/each}
         </div>
         <div class="sidebar-panel sidebar-stats" aria-label="Site metadata">
             <div>
                 <span>Location</span>
-                <strong>Earth</strong>
+                <strong>Viet Nam</strong>
             </div>
             <div>
                 <span>Focus</span>
-                <strong>Remote Dev</strong>
+                <strong>Cool Software</strong>
             </div>
             <div>
-                <span>Stack</span>
-                <strong>TypeScript<br />React<br />SvelteKit</strong>
+                <span>Interests</span>
+                <strong>Information<br />Languages<br />Ideas</strong>
             </div>
             <div>
                 <span>Status</span>
@@ -104,28 +187,43 @@
             </div>
             <div>
                 <span>Updated</span>
-                <strong>Apr 2026</strong>
+                <strong>May 2026</strong>
             </div>
         </div>
         <div class="sidebar-panel color-panel" aria-label="Color mode">
             <div class="panel-title">Color Mode</div>
             <div class="mode-row">
-                <span>Light</span>
-                <span class="mode-switch"><i></i></span>
-                <span>Dark</span>
+                <span class:active={colorMode === 'light'}>Light</span>
+                <button
+                    type="button"
+                    class="mode-switch"
+                    class:light={colorMode === 'light'}
+                    aria-label={`Switch to ${colorMode === 'dark' ? 'light' : 'dark'} mode`}
+                    aria-pressed={colorMode === 'dark'}
+                    onclick={toggleColorMode}
+                >
+                    <i></i>
+                </button>
+                <span class:active={colorMode === 'dark'}>Dark</span>
             </div>
-            <p>Dark mode enabled</p>
         </div>
         <div class="sidebar-footer">
-            <p>© 2026 Jon Samosir</p>
-            <p>// Handcrafted with code</p>
+            <p>© 2026 poltak</p>
         </div>
     </nav>
 </div>
 
 <div class="content-area">
     <div class="content-wrapper">
-        {@render children?.()}
+        {#key $page.url.pathname}
+            <div
+                class="route-transition"
+                in:fade={{ duration: reduceMotion ? 0 : 50, easing: cubicOut }}
+                out:fade={{ duration: reduceMotion ? 0 : 50, easing: cubicOut }}
+            >
+                {@render children?.()}
+            </div>
+        {/key}
     </div>
     <footer class="terminal-footer" aria-label="Site footer">
         <span>jon@poltak:~$ <i></i></span>
@@ -274,17 +372,8 @@
         text-decoration: none;
     }
 
-    .site-role {
-        color: var(--c-text-muted);
-        font-family: var(--font-mono);
-        font-size: 0.82rem;
-        font-weight: 800;
-        letter-spacing: 0.08em;
-        margin: 0;
-        text-transform: uppercase;
-    }
-
     .nav-links {
+        position: relative;
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
@@ -310,7 +399,24 @@
         }
     }
 
+    .nav-active-indicator {
+        position: absolute;
+        left: 0;
+        top: 0;
+        z-index: 0;
+        border: 1px solid var(--c-border);
+        background: var(--c-primary-light);
+        pointer-events: none;
+        transition:
+            transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+            width 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+            height 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+            opacity 0.16s ease;
+    }
+
     .nav-link {
+        position: relative;
+        z-index: 1;
         color: var(--c-text-light);
         text-decoration: none;
         font-family: var(--font-mono);
@@ -350,8 +456,8 @@
 
     .nav-link.active {
         color: var(--c-primary);
-        border-color: var(--c-border);
-        background: var(--c-primary-light);
+        border-color: transparent;
+        background: transparent;
         font-weight: 750;
     }
 
@@ -429,9 +535,17 @@
         font-size: 0.78rem;
     }
 
+    .mode-row span.active {
+        color: var(--c-primary);
+    }
+
     .mode-row span:last-child {
         color: var(--c-text-light);
         text-align: right;
+    }
+
+    .mode-row span:last-child.active {
+        color: var(--c-primary);
     }
 
     .mode-switch {
@@ -439,6 +553,9 @@
         height: 1.4rem;
         border: 1px solid var(--c-border-light);
         background: var(--c-primary-light);
+        padding: 0;
+        cursor: pointer;
+        font: inherit;
     }
 
     .mode-switch i {
@@ -450,18 +567,28 @@
         background: var(--c-primary);
         border-radius: 50%;
         transform: translateY(-50%);
+        transition: right 0.18s ease;
     }
 
-    .color-panel p,
+    .mode-switch.light i {
+        right: calc(100% - 1.1rem);
+    }
+
+    .mode-switch:focus-visible {
+        outline: 2px solid var(--c-primary);
+        outline-offset: 3px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .mode-switch i {
+            transition: none;
+        }
+    }
+
     .sidebar-footer p {
         color: var(--c-text-muted);
         font-size: 0.78rem;
         margin: 0;
-    }
-
-    .color-panel p {
-        color: color-mix(in srgb, var(--c-primary) 70%, var(--c-text-light));
-        text-align: center;
     }
 
     .sidebar-footer {
@@ -474,12 +601,17 @@
     }
 
     @media (max-width: 992px) {
-        .site-role,
         .nav-glyph,
         .nav-link.active::after,
         .sidebar-panel,
         .sidebar-footer {
             display: none;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .nav-active-indicator {
+            transition: none;
         }
     }
 
@@ -508,6 +640,10 @@
         padding: 0;
         box-sizing: border-box;
         flex: 1 0 auto;
+    }
+
+    .route-transition {
+        will-change: opacity, transform;
     }
 
     .terminal-footer {

@@ -74,7 +74,7 @@
     <header class="terminal-hero">
         <p class="terminal-prompt">&gt;_</p>
         <h1>Fun Projects</h1>
-        <p class="terminal-index">03 / Experiments</p>
+        <p class="terminal-index">04 / Experiments</p>
     </header>
 
     <h1>Fun Projects</h1>

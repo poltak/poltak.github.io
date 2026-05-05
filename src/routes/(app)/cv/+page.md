@@ -10,10 +10,11 @@
     <p class="cv-prompt">&gt;_</p>
     <h1>Résumé</h1>
     <p class="cv-section-index">02 / RÉSUMÉ</p>
-    <div class="cv-actions">
-        <button class="cv-download" on:click={handlePrint}>Download PDF</button>
-    </div>
 </section>
+
+<div class="cv-actions">
+    <button class="cv-download" on:click={handlePrint}>Download PDF</button>
+</div>
 
 <details open>
 <summary>
@@ -280,7 +281,7 @@ Bachelor of Computer Science (First Class Honours): _2010 - 2015_
     .cv-actions {
         display: flex;
         grid-column: 2 / -1;
-        justify-content: flex-start;
+        justify-content: flex-end;
         margin: -0.35rem 0 0;
     }
 
