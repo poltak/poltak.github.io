@@ -80,7 +80,7 @@
     <h1>Fun Projects</h1>
 
     <p>
-        I tinker with small, browser-based side projects in my spare time. These are
+        I have tinkered with small, browser-based side projects in my spare time. These are
         <strong>experiments</strong>, utilities, and ideas I build for fun and to learn.
     </p>
 </section>
@@ -119,8 +119,9 @@
 <aside class="open-source-note">
     <span>&gt;_</span>
     <p>
-        Most of these projects are open source. Check them out on
-        <a href="https://github.com/poltak">GitHub</a> and feel free to star, fork, or contribute!
+        These projects are open source. Check them out on <a href="https://github.com/poltak"
+            >GitHub</a
+        >.
     </p>
 </aside>
 

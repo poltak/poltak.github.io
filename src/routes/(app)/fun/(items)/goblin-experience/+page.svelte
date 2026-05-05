@@ -22,12 +22,10 @@
 
 <style>
     .card {
-        background: var(--c-surface);
-        border-radius: var(--radius-lg);
+        background: transparent;
         border: 1px solid var(--c-border);
         padding: 1.75rem;
         margin-bottom: 1.5rem;
-        box-shadow: var(--shadow-sm);
     }
 
     .cta a {
@@ -35,19 +33,18 @@
         align-items: center;
         justify-content: center;
         padding: 0.6rem 1.4rem;
-        border-radius: var(--radius-full);
-        background: var(--c-primary);
-        color: white;
+        border: 1px solid var(--c-border);
+        background: var(--c-primary-light);
+        color: var(--c-primary);
         text-decoration: none;
-        font-weight: 600;
-        transition:
-            transform 0.2s ease,
-            box-shadow 0.2s ease;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        transition: border-color 0.2s ease;
     }
 
     .cta a:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
+        border-color: var(--c-primary);
     }
 
     .list {

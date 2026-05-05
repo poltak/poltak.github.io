@@ -234,11 +234,6 @@
 </section>
 
 <style>
-    :global(body) {
-        background: radial-gradient(circle at top, rgba(59, 130, 246, 0.08), transparent 45%),
-            var(--c-bg);
-    }
-
     .note {
         margin: 0 0 1.5rem 0;
         color: var(--c-text-muted);
@@ -256,12 +251,10 @@
     }
 
     .card {
-        background: var(--c-surface);
-        border-radius: var(--radius-lg);
+        background: transparent;
         border: 1px solid var(--c-border);
         padding: 1.75rem;
         margin-bottom: 1.5rem;
-        box-shadow: var(--shadow-sm);
     }
 
     .upload-panel {
@@ -272,7 +265,6 @@
 
     .file-input {
         border: 1px dashed var(--c-border-dashed);
-        border-radius: var(--radius-md);
         padding: 1rem;
         cursor: pointer;
         display: inline-flex;
@@ -311,7 +303,6 @@
         background: var(--c-danger-bg);
         border: 1px solid var(--c-danger-border);
         color: var(--c-danger);
-        border-radius: var(--radius-md);
     }
 
     .controls {
@@ -326,7 +317,7 @@
         display: inline-flex;
         gap: 0.5rem;
         background: var(--c-bg-subtle);
-        border-radius: var(--radius-full);
+        border: 1px solid var(--c-border-light);
         padding: 0.25rem;
     }
 
@@ -334,7 +325,6 @@
         border: none;
         background: transparent;
         padding: 0.4rem 1rem;
-        border-radius: var(--radius-full);
         font-weight: 600;
         font-size: 0.95rem;
         line-height: 1;
@@ -365,7 +355,6 @@
     .ghost {
         border: 1px solid var(--c-border);
         background: transparent;
-        border-radius: var(--radius-full);
         padding: 0.45rem 1.1rem;
         cursor: pointer;
         font-weight: 600;
@@ -419,16 +408,15 @@
 
     .actions button,
     .actions a {
-        border: none;
-        border-radius: var(--radius-full);
+        border: 1px solid var(--c-border);
         padding: 0.5rem 1.25rem;
         font-weight: 600;
         font-size: 0.95rem;
         line-height: 1;
         cursor: pointer;
         text-decoration: none;
-        background: var(--c-primary);
-        color: white;
+        background: var(--c-primary-light);
+        color: var(--c-primary);
         transition:
             transform 0.2s ease,
             box-shadow 0.2s ease;
@@ -440,7 +428,7 @@
     .actions button:hover,
     .actions a:hover {
         transform: translateY(-1px);
-        box-shadow: var(--shadow-md);
+        border-color: var(--c-primary);
     }
 
     .actions a.disabled {
@@ -463,7 +451,6 @@
         width: 95%;
         min-height: 260px;
         margin-top: 1rem;
-        border-radius: var(--radius-md);
         border: 1px solid var(--c-border);
         padding: 1rem;
         font-family: var(--font-mono);

@@ -331,11 +331,6 @@
     <title>Kindle Clippings Viewer</title>
 </svelte:head>
 
-<p class="note">
-    Upload your Kindle clippings and browse by book or author. Everything stays local in your
-    browser.
-</p>
-
 <section class="card viewer-card">
     <div class="viewer-header">
         <div>
@@ -541,24 +536,11 @@
 </section>
 
 <style>
-    :global(body) {
-        background: radial-gradient(circle at top, rgba(59, 130, 246, 0.08), transparent 45%),
-            var(--c-bg);
-    }
-
-    .note {
-        margin: 0 0 1.5rem 0;
-        color: var(--c-text-muted);
-        font-size: 0.95rem;
-    }
-
     .card {
-        background: var(--c-surface);
-        border-radius: var(--radius-lg);
+        background: transparent;
         border: 1px solid var(--c-border);
         padding: 1.75rem;
         margin-bottom: 1.5rem;
-        box-shadow: var(--shadow-sm);
         box-sizing: border-box;
     }
 
@@ -597,7 +579,6 @@
 
     .file-input {
         border: 1px dashed var(--c-border-dashed);
-        border-radius: var(--radius-md);
         padding: 0.75rem 1rem;
         cursor: pointer;
         display: flex;
@@ -641,7 +622,6 @@
         background: var(--c-danger-bg);
         border: 1px solid var(--c-danger-border);
         color: var(--c-danger);
-        border-radius: var(--radius-md);
     }
 
     .status {
@@ -653,7 +633,6 @@
     .ghost {
         border: 1px solid var(--c-border);
         background: transparent;
-        border-radius: var(--radius-full);
         padding: 0.45rem 1.1rem;
         cursor: pointer;
         font-weight: 600;
@@ -666,10 +645,6 @@
         display: flex;
         align-items: center;
         justify-content: center;
-    }
-
-    .upload-alt {
-        border-radius: var(--radius-md);
     }
 
     .ghost:hover {
@@ -698,9 +673,8 @@
         flex-direction: column;
         gap: 0.5rem;
         padding: 0.75rem 1rem;
-        border-radius: var(--radius-md);
         border: 1px solid var(--c-border);
-        background: var(--c-bg-subtle);
+        background: transparent;
     }
 
     .action-help {
@@ -755,14 +729,13 @@
     .clear-filter {
         position: absolute;
         right: 0.5rem;
-        border: none;
+        border: 1px solid var(--c-border-light);
         background: var(--c-bg-subtle);
         color: var(--c-text-light);
         font-size: 1rem;
         font-weight: 700;
         width: 1.6rem;
         height: 1.6rem;
-        border-radius: 999px;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
@@ -782,7 +755,6 @@
 
     select,
     input[type='search'] {
-        border-radius: var(--radius-md);
         border: 1px solid var(--c-border);
         padding: 0.5rem 0.75rem;
         font-size: 0.95rem;
@@ -802,7 +774,6 @@
     .pager button {
         border: 1px solid var(--c-border);
         background: transparent;
-        border-radius: var(--radius-full);
         padding: 0.4rem 1rem;
         cursor: pointer;
         font-weight: 600;
@@ -824,9 +795,8 @@
 
     .viewer-item {
         padding: 1rem;
-        border-radius: var(--radius-md);
         border: 1px solid var(--c-border);
-        background: var(--c-bg-subtle);
+        background: transparent;
         width: 100%;
         box-sizing: border-box;
         overflow: hidden;

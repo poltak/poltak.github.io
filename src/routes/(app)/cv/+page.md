@@ -8,8 +8,8 @@
 
 <section class="cv-hero">
     <p class="cv-prompt">&gt;_</p>
-    <h1>Résumé</h1>
-    <p class="cv-section-index">02 / RÉSUMÉ</p>
+    <h1>Resume</h1>
+    <p class="cv-section-index">02 / RESUME</p>
 </section>
 
 <div class="cv-actions">

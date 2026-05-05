@@ -10,7 +10,7 @@
 
     const navItems = [
         { path: '/', glyph: '[]', label: 'About' },
-        { path: '/cv', glyph: '#', label: 'Résumé' },
+        { path: '/cv', glyph: '#', label: 'Resume' },
         { path: '/contact', glyph: '@', label: 'Contact' },
         { path: '/fun', glyph: './', label: 'Fun' },
     ]

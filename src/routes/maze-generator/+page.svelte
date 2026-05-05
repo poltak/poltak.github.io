@@ -123,24 +123,21 @@
 
 <style>
     :root {
-        --maze-wall-color: #222;
-        --maze-cell-bg: #fff;
-        --maze-start-bg: #e11d48;
-        --maze-end-bg: #2563eb;
-    }
-
-    @media (prefers-color-scheme: dark) {
-        :root {
-            --maze-wall-color: #eee;
-            --maze-cell-bg: #18181b;
-            --maze-start-bg: #f87171;
-            --maze-end-bg: #60a5fa;
-        }
+        --maze-wall-color: var(--c-primary);
+        --maze-cell-bg: var(--c-bg-input);
+        --maze-start-bg: var(--c-danger);
+        --maze-end-bg: var(--c-accent);
     }
 
     .maze {
         display: flex;
         flex-direction: column-reverse;
+        max-width: 100%;
+        overflow: auto;
+        border: 1px solid var(--c-border);
+        background: var(--c-bg-subtle);
+        padding: 0.75rem;
+        box-sizing: content-box;
     }
 
     .row {
@@ -157,19 +154,66 @@
     }
 
     .maze-controls {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        border: 1px solid #ccc;
-        padding: 10px;
-        border-radius: 5px;
+        display: grid;
+        gap: 1rem;
+        border: 1px solid var(--c-border);
+        padding: 1rem;
+        margin: 1.5rem 0;
+        background: transparent;
+    }
+
+    .maze-controls h3 {
+        margin: 0;
+        color: var(--c-primary);
+        font-size: 1rem;
+        text-transform: uppercase;
     }
 
     .control {
-        display: flex;
-        flex-direction: row;
-        gap: 10px;
-        align-items: flex-start;
+        display: grid;
+        grid-template-columns: minmax(7rem, auto) minmax(0, 1fr);
+        gap: 0.75rem;
+        align-items: start;
+    }
+
+    .control label {
+        color: var(--c-text-muted);
+        font-size: 0.8rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    input,
+    select {
+        width: 100%;
+        border: 1px solid var(--c-border);
+        background: var(--c-bg-input);
+        color: var(--c-text);
+        font: inherit;
+        padding: 0.45rem 0.65rem;
+        box-sizing: border-box;
+    }
+
+    button {
+        border: 1px solid var(--c-border);
+        background: var(--c-primary-light);
+        color: var(--c-primary);
+        cursor: pointer;
+        font: inherit;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        padding: 0.5rem 0.85rem;
+        text-transform: uppercase;
+    }
+
+    button:hover {
+        border-color: var(--c-primary);
+    }
+
+    .control > button {
+        grid-column: 2;
+        justify-self: start;
     }
 
     .maze-size-input {
@@ -181,7 +225,29 @@
     .maze-size-warning {
         margin: 0;
         font-size: 0.9rem;
-        color: #ec0000;
+        color: var(--c-danger);
         max-width: 42ch;
+    }
+
+    .maze-info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin: 1rem 0;
+        color: var(--c-text-muted);
+    }
+
+    .maze-info p {
+        margin: 0;
+    }
+
+    @media (max-width: 640px) {
+        .control {
+            grid-template-columns: 1fr;
+        }
+
+        .control > button {
+            grid-column: 1;
+        }
     }
 </style>
