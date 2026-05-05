@@ -66,22 +66,22 @@
 }
 
 :root[data-theme='cyan'] {
-    --c-bg: #eef2f5;
-    --c-surface: #f6f9fb;
-    --c-text: #0f1c24;
-    --c-text-light: #243640;
-    --c-text-muted: #4a6573;
+    --c-bg: #fbfaf6;
+    --c-surface: #fffdf8;
+    --c-text: #111b21;
+    --c-text-light: #293740;
+    --c-text-muted: #6b7479;
 
-    --c-primary: #008fb0;
-    --c-primary-dark: #00758f;
-    --c-primary-light: rgba(0, 143, 176, 0.12);
-    --c-primary-hover-bg: rgba(0, 143, 176, 0.18);
-    --c-primary-gradient-to: #00a9cc;
-    --c-shadow-primary: rgba(0, 143, 176, 0.35);
+    --c-primary: #12914d;
+    --c-primary-dark: #0d743d;
+    --c-primary-light: rgba(18, 145, 77, 0.1);
+    --c-primary-hover-bg: rgba(18, 145, 77, 0.16);
+    --c-primary-gradient-to: #18b860;
+    --c-shadow-primary: rgba(18, 145, 77, 0.22);
 
-    --c-accent: #2aa84a;
-    --c-accent-light: rgba(42, 168, 74, 0.12);
-    --c-accent-border: rgba(42, 168, 74, 0.35);
+    --c-accent: #12914d;
+    --c-accent-light: rgba(18, 145, 77, 0.12);
+    --c-accent-border: rgba(18, 145, 77, 0.3);
 
     --c-danger: #c73333;
     --c-danger-bg: rgba(199, 51, 51, 0.12);
@@ -89,17 +89,17 @@
 
     --c-success: #1f9e72;
 
-    --c-border: rgba(0, 143, 176, 0.35);
-    --c-border-light: rgba(0, 143, 176, 0.18);
-    --c-border-dashed: rgba(0, 143, 176, 0.4);
+    --c-border: rgba(18, 145, 77, 0.32);
+    --c-border-light: rgba(17, 27, 33, 0.18);
+    --c-border-dashed: rgba(18, 145, 77, 0.36);
 
-    --c-bg-subtle: #e3edf2;
+    --c-bg-subtle: #f2f0ea;
     --c-bg-input: #ffffff;
 
-    --c-info-bg: rgba(0, 143, 176, 0.12);
-    --c-info-border: rgba(0, 143, 176, 0.3);
-    --c-info-text: #0b5b70;
-    --c-info-link: #008fb0;
+    --c-info-bg: rgba(18, 145, 77, 0.12);
+    --c-info-border: rgba(18, 145, 77, 0.3);
+    --c-info-text: #0d743d;
+    --c-info-link: #12914d;
 
     --c-progress-track: rgba(0, 143, 176, 0.25);
     --c-context-text: #5c7785;

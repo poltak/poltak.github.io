@@ -127,6 +127,14 @@
     <div class="content-wrapper">
         {@render children?.()}
     </div>
+    <footer class="terminal-footer" aria-label="Site footer">
+        <span>jon@poltak:~$ <i></i></span>
+        <nav>
+            <a href="https://github.com/poltak">GitHub ↗</a>
+            <a href="https://www.linkedin.com/in/jsamosir/">LinkedIn ↗</a>
+            <a href="https://x.com/poltak_">X / Twitter ↗</a>
+        </nav>
+    </footer>
 </div>
 
 <div
@@ -201,8 +209,6 @@
         border: 1px solid var(--c-border-light);
         padding: 1.35rem 1.25rem;
         background: color-mix(in srgb, var(--c-bg-subtle) 38%, transparent);
-        max-height: calc(100vh - 3rem);
-        overflow: auto;
 
         @media (max-width: 1024px) {
             width: 100%;
@@ -367,13 +373,13 @@
     .sidebar-panel,
     .sidebar-footer {
         border: 1px solid var(--c-border-light);
-        padding: 0.9rem;
+        padding: 0.8rem;
         font-family: var(--font-mono);
     }
 
     .sidebar-stats {
         display: grid;
-        gap: 0.65rem;
+        gap: 0.52rem;
     }
 
     .sidebar-stats div {
@@ -411,7 +417,7 @@
 
     .color-panel {
         display: grid;
-        gap: 0.8rem;
+        gap: 0.65rem;
     }
 
     .mode-row {
@@ -480,6 +486,9 @@
     .content-area {
         grid-column: 2 / 3;
         padding: 4.5rem 4rem 4rem 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
 
         @media (max-width: 992px) {
             grid-column: 1 / -1;
@@ -498,6 +507,44 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+        flex: 1 0 auto;
+    }
+
+    .terminal-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        max-width: var(--content-max-width);
+        margin-top: 2rem;
+        padding: 1.1rem 0 0;
+        border-top: 1px solid var(--c-border-light);
+        color: var(--c-primary);
+        font-family: var(--font-mono);
+        font-size: 0.88rem;
+        flex-wrap: wrap;
+    }
+
+    .terminal-footer span i {
+        display: inline-block;
+        width: 0.55rem;
+        height: 1rem;
+        margin-left: 0.25rem;
+        background: var(--c-primary);
+        vertical-align: -0.15rem;
+    }
+
+    .terminal-footer nav {
+        display: flex;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .terminal-footer a {
+        color: var(--c-primary);
+        font-family: var(--font-mono);
+        font-size: 0.86rem;
+        font-weight: 700;
     }
 
     .theme-picker {
