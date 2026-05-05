@@ -71,12 +71,17 @@
 </script>
 
 <section class="fun-intro">
-    <p class="eyebrow">Experiments</p>
+    <header class="terminal-hero">
+        <p class="terminal-prompt">&gt;_</p>
+        <h1>Fun Projects</h1>
+        <p class="terminal-index">03 / Experiments</p>
+    </header>
+
     <h1>Fun Projects</h1>
 
     <p>
-        I'm planning to put more little browser-based side-projects I tinker with in my spare time
-        here.
+        I tinker with small, browser-based side projects in my spare time. These are
+        <strong>experiments</strong>, utilities, and ideas I build for fun and to learn.
     </p>
 </section>
 
@@ -102,44 +107,90 @@
             <div class="content">
                 <h3>{project.title}</h3>
                 <p>{project.description}</p>
-                <div class="arrow">
-                    <Icon name="arrow-right" size={20} />
+                <div class="project-action">
+                    <span>View project</span>
+                    <Icon name="arrow-right" size={18} />
                 </div>
             </div>
         </a>
     {/each}
 </div>
 
+<aside class="open-source-note">
+    <span>&gt;_</span>
+    <p>
+        Most of these projects are open source. Check them out on
+        <a href="https://github.com/poltak">GitHub</a> and feel free to star, fork, or contribute!
+    </p>
+</aside>
+
 <style>
+    :global(.content-wrapper:has(.fun-intro)),
+    :global(.content-wrapper:has(.fun-intro) *) {
+        font-family: var(--font-mono);
+    }
+
     .projects-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
-        gap: 0;
-        margin-top: 3rem;
-        border-top: 1px solid var(--c-border-light);
-        border-left: 1px solid var(--c-border-light);
+        gap: 1.5rem;
+        margin-top: 2rem;
     }
 
     .fun-intro {
-        max-width: 760px;
+        max-width: 100%;
     }
 
-    .eyebrow {
-        margin: 0 0 0.75rem;
-        color: var(--c-accent);
-        font-size: 0.78rem;
+    .terminal-hero {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: baseline;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px dashed var(--c-border-dashed);
+    }
+
+    .terminal-prompt,
+    .terminal-index {
+        color: var(--c-primary);
         font-weight: 800;
-        letter-spacing: 0.16em;
+        letter-spacing: 0.08em;
+        margin: 0;
         text-transform: uppercase;
+    }
+
+    .terminal-hero h1 {
+        color: var(--c-text);
+        font-family: var(--font-sans);
+        font-size: clamp(2.75rem, 7vw, 4.25rem);
+        font-weight: 400;
+        letter-spacing: 0.04em;
+        margin: 0;
+    }
+
+    .fun-intro > h1 {
+        display: none;
+    }
+
+    .fun-intro > p {
+        color: var(--c-text-light);
+        font-size: 1.05rem;
+        line-height: 1.75;
+        max-width: 72ch;
+        margin: 0;
+    }
+
+    .fun-intro strong {
+        color: var(--c-primary);
     }
 
     .project-card {
         display: flex;
         flex-direction: column;
-        min-height: 240px;
-        border-right: 1px solid var(--c-border-light);
-        border-bottom: 1px solid var(--c-border-light);
-        padding: 1.35rem;
+        min-height: 250px;
+        border: 1px solid var(--c-border);
+        padding: 1.3rem;
         text-decoration: none;
         transition:
             transform 0.2s ease,
@@ -153,9 +204,9 @@
     }
 
     .icon-wrapper {
-        width: 4rem;
-        height: 4rem;
-        border-radius: var(--radius-md);
+        width: 3.8rem;
+        height: 3.8rem;
+        border-radius: 0;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -175,10 +226,11 @@
     }
 
     .content h3 {
-        margin: 0 0 0.5rem 0;
+        margin: 0 0 0.8rem 0;
         font-size: 1.25rem;
-        color: var(--c-text);
-        letter-spacing: 0;
+        color: var(--c-primary);
+        font-family: var(--font-mono);
+        letter-spacing: 0.02em;
     }
 
     .content p {
@@ -188,17 +240,63 @@
         line-height: 1.5;
     }
 
-    .arrow {
+    .project-action {
         margin-top: auto;
         display: flex;
-        justify-content: flex-end;
+        align-items: center;
+        gap: 0.5rem;
+        justify-content: flex-start;
+        border-top: 1px dashed var(--c-border-dashed);
+        padding-top: 0.8rem;
         color: var(--c-primary);
-        opacity: 0.7;
+        font-size: 0.8rem;
+        font-weight: 800;
+        text-transform: uppercase;
         transition: all 0.2s ease;
     }
 
-    .project-card:hover .arrow {
-        opacity: 1;
+    .project-card:hover .project-action {
         transform: translateX(4px);
+    }
+
+    .open-source-note {
+        display: grid;
+        grid-template-columns: 3.6rem 1fr;
+        gap: 1.2rem;
+        align-items: center;
+        margin-top: 1.5rem;
+        padding: 1rem 1.25rem;
+        border: 1px dashed var(--c-border-dashed);
+    }
+
+    .open-source-note span {
+        display: grid;
+        place-items: center;
+        width: 3rem;
+        height: 3rem;
+        border: 1px solid var(--c-border);
+        color: var(--c-primary);
+        font-weight: 800;
+    }
+
+    .open-source-note p {
+        color: var(--c-text-light);
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .open-source-note a {
+        color: var(--c-primary);
+    }
+
+    @media (max-width: 768px) {
+        .terminal-hero {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+
+        .open-source-note {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
