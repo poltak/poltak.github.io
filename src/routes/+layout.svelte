@@ -152,7 +152,7 @@
 <div class="nav-area">
     <nav class="nav-bar">
         <div class="nav-header">
-            <a href="{base}/" class="site-title">Jon<br />Samosir</a>
+            <a href="{base}/" class="site-title">Jon Samosir</a>
         </div>
         <div class="nav-links" bind:this={navLinksElement}>
             <span class="nav-active-indicator" style={navIndicatorStyle}></span>
@@ -348,6 +348,7 @@
             justify-content: center;
             gap: 0.75rem;
             position: relative;
+            padding: 0.75rem 0 1.4rem;
         }
 
         @media (min-width: 993px) and (max-width: 1024px) {
@@ -382,6 +383,7 @@
         @media (max-width: 992px) {
             display: flex;
             flex-direction: row;
+            justify-content: space-around;
             flex-wrap: wrap;
             gap: 0.5rem;
             padding: 0;
