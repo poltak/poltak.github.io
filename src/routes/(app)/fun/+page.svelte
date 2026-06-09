@@ -67,6 +67,14 @@
             link: `${base}/fun/timestamp-goblin`,
             color: 'var(--c-danger)',
         },
+        {
+            title: 'Hoi An Embroidery+Craft Workshops',
+            description:
+                "A simple site I made for my wife's own embroidery and other craft workshops.",
+            image: '🧵',
+            link: 'https://hoian-embroidery.com',
+            color: 'var(--c-primary)',
+        },
     ]
 </script>
 
