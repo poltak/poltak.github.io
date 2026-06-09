@@ -191,10 +191,6 @@
         margin: 0;
     }
 
-    .fun-intro strong {
-        color: var(--c-primary);
-    }
-
     .project-card {
         display: flex;
         flex-direction: column;

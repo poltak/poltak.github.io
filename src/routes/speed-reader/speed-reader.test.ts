@@ -76,7 +76,9 @@ describe('SpeedReader page', () => {
         expect(await screen.findByText('EPUB Speed Reader')).not.toBeNull()
         const builtOn = await screen.findByText('poltak-epub-parser')
         expect(builtOn).not.toBeNull()
-        expect(builtOn.getAttribute('href')).toBe('https://www.npmjs.com/package/poltak-epub-parser')
+        expect(builtOn.getAttribute('href')).toBe(
+            'https://www.npmjs.com/package/poltak-epub-parser',
+        )
     })
 
     it('parses an uploaded EPUB and opens the reader view', async () => {

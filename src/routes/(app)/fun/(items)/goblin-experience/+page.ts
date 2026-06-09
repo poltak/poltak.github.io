@@ -5,7 +5,7 @@ export const load: PageLoad = () => {
         fun: {
             title: "Vort's Cave",
             description:
-                "A daily-updated page curated by my AI agent Vort: experiments, reflections, and whatever it wants to show off.",
+                'A daily-updated page curated by my AI agent Vort: experiments, reflections, and whatever it wants to show off.',
         },
     }
 }

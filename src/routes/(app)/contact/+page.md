@@ -126,25 +126,6 @@
         margin: 0;
     }
 
-    .response-note {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        max-width: 86ch;
-        margin: 1.5rem 0 0;
-        padding: 1rem 1.25rem;
-        border: 1px solid var(--c-border-light);
-        color: var(--c-text);
-    }
-
-    .response-note span {
-        width: 0.45rem;
-        height: 0.45rem;
-        border-radius: 50%;
-        background: var(--c-primary);
-        flex: 0 0 auto;
-    }
-
     @media (max-width: 768px) {
         .terminal-hero {
             grid-template-columns: 1fr;

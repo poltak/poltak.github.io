@@ -110,7 +110,7 @@
     })
 
     // Auto-save progress every 10 seconds while reading
-    let progressSaveInterval: number | null = null
+    let progressSaveInterval: ReturnType<typeof setInterval> | null = null
 
     const engine = new SpeedReaderEngine({
         onUpdate: (state) => {
@@ -486,8 +486,8 @@
                             href="https://standardebooks.org/"
                             target="_blank"
                             rel="noopener noreferrer">Standard Ebooks</a
-                        > for high-quality, beautifully formatted public domain EPUB files that work
-                        perfectly with this speed reader.
+                        > for high-quality, beautifully formatted public domain EPUB files that work perfectly
+                        with this speed reader.
                     </p>
                 </div>
             </div>
