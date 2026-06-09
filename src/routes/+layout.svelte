@@ -179,7 +179,7 @@
             </div>
             <div>
                 <span>Interests</span>
-                <strong>Information<br />Languages<br />Ideas</strong>
+                <strong>Communication<br />PKM<br />Efficiency</strong>
             </div>
             <div>
                 <span>Status</span>
@@ -187,7 +187,7 @@
             </div>
             <div>
                 <span>Updated</span>
-                <strong>May 2026</strong>
+                <strong>June 2026</strong>
             </div>
         </div>
         <div class="sidebar-panel color-panel" aria-label="Color mode">
@@ -226,7 +226,7 @@
         {/key}
     </div>
     <footer class="terminal-footer" aria-label="Site footer">
-        <span>jon@poltak:~$ <i></i></span>
+        <span>jon@poltak:~% <i></i></span>
         <nav>
             <a href="https://github.com/poltak">GitHub ↗</a>
             <a href="https://www.linkedin.com/in/jsamosir/">LinkedIn ↗</a>

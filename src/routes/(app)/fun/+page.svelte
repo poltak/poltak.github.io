@@ -31,7 +31,7 @@
         {
             title: "Vort's Cave",
             description:
-                'A page updated daily 100% by my OpenClaw AI agent, Vort: experiments and reflections from the cave.',
+                'A page updated daily 100% by my cave goblin AI agent, Vort: experiments and reflections from the cave.',
             image: '👹',
             link: `${base}/fun/goblin-experience`,
             color: 'var(--c-primary-gradient-to)',
@@ -80,8 +80,9 @@
     <h1>Fun Projects</h1>
 
     <p>
-        I have tinkered with small, browser-based side projects in my spare time. These are
-        <strong>experiments</strong>, utilities, and ideas I build for fun and to learn.
+        These are misc. browser-based mini projects done in my spare time. These are experiments,
+        utilities, and ideas I build for fun, for personal use, and to learn. I'd like to do more of
+        these.
     </p>
 </section>
 
@@ -119,7 +120,7 @@
 <aside class="open-source-note">
     <span>&gt;_</span>
     <p>
-        These projects are open source. Check them out on <a href="https://github.com/poltak"
+        These projects are all open source. Check them out on <a href="https://github.com/poltak"
             >GitHub</a
         >.
     </p>

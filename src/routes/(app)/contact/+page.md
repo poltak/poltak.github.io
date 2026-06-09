@@ -24,15 +24,12 @@
     <aside class="terminal-callout">
         <span class="callout-icon">△</span>
         <div>
-            <h2>Let’s build something cool.</h2>
+            <h2>Let’s make something cool.</h2>
             <p>
-                I’m always open to interesting conversations, collaborations, or just talking about
-                tech and ideas.
+                I’m always open to interesting conversations, collaborations, or just talking about ideas.
             </p>
         </div>
     </aside>
-
-    <p class="response-note"><span></span>Usually replying within 1-2 business days.</p>
 
 </section>
 
