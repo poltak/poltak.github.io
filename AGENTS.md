@@ -22,9 +22,9 @@ Quickstart for fresh sessions in personal webiste `poltak.github.io`.
 - Fun landing: `src/routes/(app)/fun/+page.svelte`
 - Shared fun header/layout: `src/routes/(app)/fun/(items)/+layout.svelte`
 - Fun subpages (examples):
-  - `kindle-highlights` – converter
-  - `kindle-highlights-viewer` – viewer with search & filters
-  - `goblin-experience` (Vort’s Cave - separate project's GH pages)
+    - `kindle-highlights` – converter
+    - `kindle-highlights-viewer` – viewer with search & filters
+    - `goblin-experience` (Vort’s Cave - separate project's GH pages)
 - Wrapper routes exist for non-fun pages to appear under `/fun/*`.
 
 ## Static Assets
@@ -43,4 +43,3 @@ Quickstart for fresh sessions in personal webiste `poltak.github.io`.
 ## Svelte Runes Mode
 
 - This project uses Svelte 5 runes mode; avoid `$:` in components under runes unless valid. Prefer `$derived` or proper reactive blocks as currently used in components.
-
