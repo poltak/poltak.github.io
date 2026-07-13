@@ -1,11 +1,3 @@
-<script>
-    const handlePrint = () => {
-        if (typeof window !== 'undefined') {
-            window.print()
-        }
-    }
-</script>
-
 <section class="cv-hero">
     <p class="cv-prompt">&gt;_</p>
     <h1>Resume</h1>
@@ -13,8 +5,20 @@
 </section>
 
 <div class="cv-actions">
-    <button class="cv-download" on:click={handlePrint}>Download PDF</button>
+    <a class="cv-download" href="/Jonathan_Samosir_Resume.pdf" download>Download PDF</a>
 </div>
+
+<section class="cv-summary">
+
+## Senior Full-Stack Product Engineer
+
+Product-focused software engineer with 10+ years of remote experience shipping web and mobile applications.
+Strongest in complex TypeScript codebases, end-to-end feature ownership, browser extensions, React Native/Expo,
+search and data-heavy product work, testing and CI.
+
+Availability: remote only; part-time preferred (I do lots of other stuff away from computers), full-time considered.
+
+</section>
 
 <details open>
 <summary>
@@ -22,6 +26,52 @@
 ## Work experience
 
 </summary>
+
+<details open>
+<summary>
+
+### [WorldBrain / Memex](https://memex.garden/)
+
+</summary>
+
+Software for organizing, searching, annotating, sharing, and collaborating on online content.
+
+Full-Stack Product Engineer: _2017 - now_
+
+_**Platforms:** Web extensions, iOS + Android (React Native), RAG, web apps, Firebase, Supabase, Cloudflare_
+
+#### Highlights
+
+- One of few primary contributors to the current 2,582-commit codebase; authored more than 900 commits across a system containing more than 3,500 TypeScript/TSX files.
+- Recent implementation of new Memex v2 full content semantic+lexical search, and search eval harness.
+- Core architect of the codebase, coming up with simple, scalable ways of laying out where different types of our code lives in our monorepo to reduce the amount of questions needed about any new code or updates to existing code.
+- Worked in a fully remote team distributed across four continents.
+- Mentored two Google Summer of Code contributors and two other Rails Girls Summer of Code contributors in 2018.
+
+<br />
+</details>
+
+<details open>
+<summary>
+
+### Freelance client work
+
+<br />
+</summary>
+
+Practical web maintenance and AI-assisted automation work for client businesses.
+
+Freelance Web Developer & Automation Engineer: _2025 - now_
+
+_**Platforms:** WordPress, Laravel, RunCloud, OpenClaw_
+
+#### Highlights
+
+- **Zest Digital:** Maintained existing WordPress and Laravel sites for a marketing agency, and resolved urgent production issues across its RunCloud-managed server setup.
+- **Real-estate client:** Built an OpenClaw email automation that intercepts new property listings from an agent, uses online research to assess each one against the client's criteria, and filters out roughly 90% before review.
+
+<br />
+</details>
 
 <details open>
 <summary>
@@ -35,14 +85,14 @@ A curated knowledge base of >200 supplements and >1000 supplement brands using m
 different data sources ingested from all over the Internet. Monetized by affiliate links
 to products on Amazon.
 
-Full-Stack Web Developer: _2025 - now_
+Full-Stack Web Developer: _2025_
 
 _**Platforms:** Web app (TypeScript, React, Cloudflare)_
 
 #### Highlights
 
-- Came up with novel ways of managing the knowledge base data without using a database and avoiding Airtable API fees.
-- Learning to automate the process of data ingestion using AI tools.
+- Designed a data workflow that avoided a conventional database and recurring Airtable API fees.
+- Automated data ingestion and curation across many Internet sources with AI-assisted workflows.
 
 <br />
 </details>
@@ -63,8 +113,8 @@ _**Platforms:** iOS + Android (React Native), web app_
 
 #### Highlights
 
-- Going from nothing to a working app in 2 weeks.
-- Learning how to use Supabase after years of using Firebase.
+- Shipped working React Native and web applications from zero in two weeks.
+- Built authentication and data services with Supabase after years of Firebase experience.
 
 <br />
 </details>
@@ -85,31 +135,8 @@ _**Platforms:** iOS_
 
 #### Highlights
 
-- Learning how to build a native iOS app in a new language (Swift).
-- Going from nothing to a working app in 4 weeks.
-- Designing the app to store everything locally, to avoid needing a server.
-
-<br />
-</details>
-
-<details open>
-<summary>
-
-### [Memex](https://memex.garden/)
-
-</summary>
-
-Software for organizing, recalling, sharing, and collaboration with your online knowledge.
-
-Full-Stack Web+Mobile Developer: _2017 - now_
-
-_**Platforms:** Web extension, iOS + Android (React Native), web app_
-
-#### Highlights
-
-- Working and coordinating in a fully remote team, with members located over 4 different continents.
-- Managing a large codebase with a large amount of TypeScript code shared, running over 5 different platforms: iOS, Android, browser, Node, Firebase, Cloudflare.
-- Learning the importance of automated testing.
+- Shipped a working native iOS app in Swift from zero in four weeks.
+- Designed it as a local-first product that required no application server.
 
 <br />
 </details>
@@ -128,8 +155,8 @@ Frontend Web Developer / Game Designer: _2021_
 #### Highlights
 
 - Building it in 100% browser-native tech. No transpilation or build tools.
-- First time building a game. Had to learn how to do level design and ways to make the gameplay fun and compelling while still having an educational focus.
-- Achieving 3rd place out of 37 entries in the competition.
+- Designed the game and levels to make fraction practice engaging while preserving its educational focus.
+- Placed 3rd out of 37 entries in the competition.
 
 <br />
 </details>
@@ -147,9 +174,8 @@ Frontend Web Developer: _2016_
 
 #### Highlights
 
-- First time working on a big, established project where I had to figure out how things already worked to add my own contributions.
-- First time working with a fully remote team.
-- Learning how to use Draft.js to build a highly customizable text editor.
+- Learned an established product architecture and conventions before shipping production contributions.
+- Built rich-text editing functionality with React and Draft.js in a fully remote team.
 
 <br />
 </details>
@@ -169,12 +195,24 @@ _**Platforms:** iOS + Android app (Cordova + MeteorJS)_
 
 #### Highlights
 
-- First real project where we built up an active user base from nothing.
-- Being able to put a lot of tech (JS ES6, CSS, MongoDB, Docker) that I had tinkered with and spent a lot of time reading about into real use.
-- Having to constantly learn new tech to be able to solve different problems that came up.
+- Helped grow the product from zero to an active user base.
+- Owned problems across JavaScript, CSS, MongoDB, Docker, Cordova, and MeteorJS.
 
 <br />
 </details>
+</details>
+
+<details open>
+<summary>
+
+## Recognition
+
+</summary>
+
+- Co-authored _An Evaluation of Data Stream Processing Systems for Data Driven Applications_, Procedia Computer Science 80 (2016), 439-449. [DOI: 10.1016/j.procs.2016.05.322](https://doi.org/10.1016/j.procs.2016.05.322)
+- Mentored two Google Summer of Code contributors and two more Rails Girls Summer of Code contributors on separate Memex projects in 2018.
+- Memex's public open-source repository has approximately 4,700 GitHub stars and 358 forks.
+
 </details>
 
 <details open>

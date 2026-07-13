@@ -171,23 +171,19 @@
         <div class="sidebar-panel sidebar-stats" aria-label="Site metadata">
             <div>
                 <span>Location</span>
-                <strong>Viet Nam</strong>
+                <strong>Hoi An<br />Viet Nam</strong>
             </div>
             <div>
-                <span>Focus</span>
-                <strong>Cool Software</strong>
-            </div>
-            <div>
-                <span>Interests</span>
-                <strong>Communication<br />PKM<br />Efficiency</strong>
+                <span>Role</span>
+                <strong>Senior Product<br />Engineer</strong>
             </div>
             <div>
                 <span>Status</span>
-                <strong><i></i>Building</strong>
+                <strong><i></i>Open to remote collaboration</strong>
             </div>
             <div>
                 <span>Updated</span>
-                <strong>June 2026</strong>
+                <strong>July 2026</strong>
             </div>
         </div>
         <div class="sidebar-panel color-panel" aria-label="Color mode">
