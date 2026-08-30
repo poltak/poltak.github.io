@@ -1,0 +1,1 @@
+import{yt as e}from"../chunks/SUyAD25S.js";import"../chunks/xihTtKlq.js";import"../chunks/DofREKW2.js";import{t}from"../chunks/5YQDqtkj.js";var n=e({load:()=>r}),r=()=>({fun:{title:`Timestamp Goblin`,description:`A Chrome extension that remembers and restores YouTube playback progress.`}});function i(e){t(e,{})}export{i as component,n as universal};
