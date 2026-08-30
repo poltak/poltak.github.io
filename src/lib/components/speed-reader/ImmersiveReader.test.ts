@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ImmersiveReader from './ImmersiveReader.svelte'
+import { READER_SETTINGS_STORAGE_KEY } from '$lib/speed-reader/immersive-settings'
 
 const projectRoot = process.env.INIT_CWD ?? process.cwd()
 const componentSource = readFileSync(
@@ -31,6 +32,18 @@ const baseProps = {
 }
 
 let activeFullscreenElement: Element | null
+let storedReaderSettings: string | null = null
+let originalLocalStorageDescriptor: PropertyDescriptor | undefined
+
+const readerStorage = {
+    getItem: () => storedReaderSettings,
+    setItem: (_key: string, value: string) => {
+        storedReaderSettings = value
+    },
+    removeItem: () => {
+        storedReaderSettings = null
+    },
+}
 
 function installFullscreenMocks() {
     Object.defineProperty(document, 'fullscreenElement', {
@@ -62,11 +75,16 @@ function setPagedMeasurements(container: HTMLElement, viewport: HTMLElement) {
     const content = container.querySelector('.paged-content')
     if (!(content instanceof HTMLElement)) throw new Error('Paged content was not rendered')
 
+    let scrollWidth = 1500
+    const scrollTo = vi.fn()
     Object.defineProperty(viewport, 'clientWidth', { configurable: true, value: 500 })
-    Object.defineProperty(content, 'scrollWidth', { configurable: true, value: 1500 })
+    Object.defineProperty(content, 'scrollWidth', {
+        configurable: true,
+        get: () => scrollWidth,
+    })
     Object.defineProperty(viewport, 'scrollTo', {
         configurable: true,
-        value: vi.fn(),
+        value: scrollTo,
     })
     Object.defineProperty(viewport, 'getBoundingClientRect', {
         configurable: true,
@@ -83,12 +101,26 @@ function setPagedMeasurements(container: HTMLElement, viewport: HTMLElement) {
         }),
     })
     window.dispatchEvent(new Event('resize'))
+
+    return {
+        scrollTo,
+        setScrollWidth: (nextWidth: number) => {
+            scrollWidth = nextWidth
+        },
+    }
 }
 
 describe('ImmersiveReader fullscreen', () => {
     beforeEach(() => {
         vi.clearAllMocks()
         activeFullscreenElement = null
+        storedReaderSettings = null
+        originalLocalStorageDescriptor = Object.getOwnPropertyDescriptor(window, 'localStorage')
+        Object.defineProperty(window, 'localStorage', {
+            configurable: true,
+            value: readerStorage,
+        })
+        window.localStorage.removeItem(READER_SETTINGS_STORAGE_KEY)
         installFullscreenMocks()
     })
 
@@ -97,6 +129,11 @@ describe('ImmersiveReader fullscreen', () => {
         Reflect.deleteProperty(HTMLElement.prototype, 'requestFullscreen')
         Reflect.deleteProperty(document, 'exitFullscreen')
         Reflect.deleteProperty(document, 'fullscreenElement')
+        if (originalLocalStorageDescriptor) {
+            Object.defineProperty(window, 'localStorage', originalLocalStorageDescriptor)
+        } else {
+            Reflect.deleteProperty(window, 'localStorage')
+        }
     })
 
     it('requests fullscreen and switches to continuous chapter flow', async () => {
@@ -119,6 +156,61 @@ describe('ImmersiveReader fullscreen', () => {
         await fireEvent.click(screen.getByRole('button', { name: 'Exit fullscreen' }))
         expect(document.exitFullscreen).toHaveBeenCalledOnce()
         expect(screen.getByRole('button', { name: 'Full screen' })).not.toBeNull()
+    })
+
+    it('changes and persists reading settings in the normal reader', async () => {
+        const { container } = render(ImmersiveReader, baseProps)
+
+        const settingsToggle = screen.getByRole('button', { name: 'Reading settings' })
+        await fireEvent.click(settingsToggle)
+        expect(settingsToggle.getAttribute('aria-controls')).toBe('immersive-reading-settings')
+        expect(document.getElementById('immersive-reading-settings')).not.toBeNull()
+        expect((screen.getByRole('slider', { name: 'Text size' }) as HTMLInputElement).value).toBe(
+            '100',
+        )
+        expect((screen.getByRole('combobox', { name: 'Font' }) as HTMLSelectElement).value).toBe(
+            'serif',
+        )
+
+        await fireEvent.click(screen.getByRole('button', { name: 'Center' }))
+        await fireEvent.input(screen.getByRole('slider', { name: 'Text size' }), {
+            target: { value: '150' },
+        })
+        await fireEvent.change(screen.getByRole('combobox', { name: 'Font' }), {
+            target: { value: 'sans' },
+        })
+        await fireEvent.click(screen.getByRole('button', { name: 'Sepia' }))
+
+        const reader = container.querySelector('.immersive-reader')
+        expect(reader).not.toBeNull()
+        expect(reader?.getAttribute('data-reading-theme')).toBe('sepia')
+        expect(reader?.classList.contains('reading-align-center')).toBe(true)
+        expect(reader?.getAttribute('style')).toContain('--reader-text-scale: 150%')
+        expect(JSON.parse(window.localStorage.getItem(READER_SETTINGS_STORAGE_KEY) ?? '')).toEqual({
+            textAlign: 'center',
+            textScale: 150,
+            font: 'sans',
+            theme: 'sepia',
+        })
+    })
+
+    it('refreshes fullscreen pagination when font or text size changes', async () => {
+        const { container } = render(ImmersiveReader, baseProps)
+        const viewport = await enterFullscreen()
+        const measurement = setPagedMeasurements(container, viewport)
+        await waitFor(() => expect(screen.getByText('Page 1 of 3')).not.toBeNull())
+
+        measurement.scrollTo.mockClear()
+        await fireEvent.click(screen.getByRole('button', { name: 'Reading settings' }))
+        await waitFor(() => expect(measurement.scrollTo).toHaveBeenCalled())
+
+        measurement.setScrollWidth(2000)
+        await fireEvent.change(screen.getByRole('combobox', { name: 'Font' }), {
+            target: { value: 'mono' },
+        })
+
+        await waitFor(() => expect(screen.getByText('Page 1 of 4')).not.toBeNull())
+        expect(measurement.scrollTo).toHaveBeenCalled()
     })
 
     it('keeps reader surfaces within narrow viewports in its CSS contract', () => {

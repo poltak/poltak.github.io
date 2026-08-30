@@ -6,6 +6,18 @@
         getPointerPageTurn,
         type PageTurn,
     } from '$lib/speed-reader/immersive-pagination'
+    import {
+        DEFAULT_READER_SETTINGS,
+        READER_FONT_OPTIONS,
+        READER_TEXT_ALIGN_OPTIONS,
+        READER_THEME_OPTIONS,
+        getReaderFontStack,
+        loadReaderSettings,
+        saveReaderSettings,
+        type ReaderSettings,
+        type ReaderTextAlign,
+        type ReaderTheme,
+    } from '$lib/speed-reader/immersive-settings'
     import { splitPlainTextIntoParagraphs } from '$lib/speed-reader/reader-content'
     import { onMount, tick } from 'svelte'
 
@@ -53,12 +65,17 @@
     let currentPage = $state(0)
     let pageCount = $state(1)
     let pageWidth = $state(0)
+    let settingsOpen = $state(false)
+    let readerSettings = $state<ReaderSettings>({ ...DEFAULT_READER_SETTINGS })
     let pointerStart: { id: number; x: number; y: number } | null = null
     let paginationGeneration = 0
     let openAtLastPageAfterChapterChange = false
     let previousRootOverflow: string | null = null
     const canTurnPrevious = $derived(currentPage > 0 || chapterIndex > 0)
     const canTurnNext = $derived(currentPage < pageCount - 1 || chapterIndex < chapterCount - 1)
+    const readerStyle = $derived(
+        `--reader-font-family: ${getReaderFontStack(readerSettings.font)}; --reader-text-scale: ${readerSettings.textScale}%;`,
+    )
 
     function getFullscreenElement(): Element | null {
         const webkitDocument = document as WebkitDocument
@@ -236,6 +253,40 @@
         turnPage(turn)
     }
 
+    function updateReaderSetting<K extends keyof ReaderSettings>(key: K, value: ReaderSettings[K]) {
+        readerSettings[key] = value
+        saveReaderSettings(readerSettings)
+
+        if ((key === 'font' || key === 'textScale') && isFullscreen && fullscreenMode === 'paged') {
+            void refreshPagination()
+        }
+    }
+
+    function updateTextScale(event: Event) {
+        const input = event.currentTarget as HTMLInputElement
+        updateReaderSetting('textScale', Number(input.value))
+    }
+
+    function updateFont(event: Event) {
+        const select = event.currentTarget as HTMLSelectElement
+        if (READER_FONT_OPTIONS.some((option) => option.id === select.value)) {
+            updateReaderSetting('font', select.value as ReaderSettings['font'])
+        }
+    }
+
+    function updateTextAlign(textAlign: ReaderTextAlign) {
+        updateReaderSetting('textAlign', textAlign)
+    }
+
+    function updateTheme(theme: ReaderTheme) {
+        updateReaderSetting('theme', theme)
+    }
+
+    function toggleReadingSettings() {
+        settingsOpen = !settingsOpen
+        if (isFullscreen && fullscreenMode === 'paged') void refreshPagination()
+    }
+
     function setFullscreenMode(mode: FullscreenMode) {
         if (mode === fullscreenMode) return
 
@@ -252,6 +303,8 @@
     }
 
     onMount(() => {
+        readerSettings = loadReaderSettings()
+
         const handleFullscreenChange = () => syncFullscreenState()
         document.addEventListener('fullscreenchange', handleFullscreenChange)
         document.addEventListener('webkitfullscreenchange', handleFullscreenChange)
@@ -348,10 +401,80 @@
     </nav>
 {/snippet}
 
+{#snippet readingSettingsPanel()}
+    <section id="immersive-reading-settings" class="reading-settings" aria-label="Reading settings">
+        <div class="reading-settings-grid">
+            <fieldset class="reading-setting-group">
+                <legend>Text alignment</legend>
+                <div class="reading-setting-options" role="group" aria-label="Text alignment">
+                    {#each READER_TEXT_ALIGN_OPTIONS as option}
+                        <button
+                            type="button"
+                            class:active={readerSettings.textAlign === option.id}
+                            aria-pressed={readerSettings.textAlign === option.id}
+                            onclick={() => updateTextAlign(option.id)}
+                        >
+                            {option.label}
+                        </button>
+                    {/each}
+                </div>
+            </fieldset>
+
+            <div class="reading-setting-group">
+                <label for="immersive-text-size">
+                    <span>Text size</span>
+                    <output for="immersive-text-size">{readerSettings.textScale}%</output>
+                </label>
+                <input
+                    id="immersive-text-size"
+                    type="range"
+                    min="50"
+                    max="200"
+                    step="5"
+                    value={readerSettings.textScale}
+                    aria-label="Text size"
+                    oninput={updateTextScale}
+                />
+            </div>
+
+            <div class="reading-setting-group">
+                <label for="immersive-font">Font</label>
+                <select id="immersive-font" value={readerSettings.font} onchange={updateFont}>
+                    {#each READER_FONT_OPTIONS as option}
+                        <option value={option.id}>{option.label}</option>
+                    {/each}
+                </select>
+                <small>Uses fonts already available on this device.</small>
+            </div>
+
+            <fieldset class="reading-setting-group">
+                <legend>Viewing theme</legend>
+                <div class="reading-setting-options" role="group" aria-label="Viewing theme">
+                    {#each READER_THEME_OPTIONS as option}
+                        <button
+                            type="button"
+                            class:active={readerSettings.theme === option.id}
+                            aria-pressed={readerSettings.theme === option.id}
+                            onclick={() => updateTheme(option.id)}
+                        >
+                            {option.label}
+                        </button>
+                    {/each}
+                </div>
+            </fieldset>
+        </div>
+    </section>
+{/snippet}
+
 <article
     bind:this={readerElement}
     class="immersive-reader"
     class:fullscreen-active={isFullscreen}
+    class:reading-align-left={readerSettings.textAlign === 'left'}
+    class:reading-align-center={readerSettings.textAlign === 'center'}
+    class:reading-align-justify={readerSettings.textAlign === 'justify'}
+    data-reading-theme={readerSettings.theme}
+    style={readerStyle}
     aria-labelledby={headingId}
 >
     {#if isFullscreen}
@@ -390,11 +513,24 @@
                             Page {currentPage + 1} of {pageCount}
                         </span>
                     {/if}
+                    <button
+                        type="button"
+                        class="reading-settings-toggle"
+                        aria-expanded={settingsOpen}
+                        aria-controls="immersive-reading-settings"
+                        onclick={toggleReadingSettings}
+                    >
+                        Reading settings
+                    </button>
                     <button type="button" class="exit-fullscreen" onclick={exitFullscreen}>
                         Exit fullscreen
                     </button>
                 </div>
             </header>
+
+            {#if settingsOpen}
+                {@render readingSettingsPanel()}
+            {/if}
 
             {#if fullscreenMode === 'paged'}
                 <div class="paged-frame">
@@ -450,10 +586,25 @@
             <div class="immersive-heading-copy">
                 {@render chapterHeader()}
             </div>
-            <button type="button" class="enter-fullscreen" onclick={enterFullscreen}>
-                Full screen
-            </button>
+            <div class="immersive-heading-actions">
+                <button
+                    type="button"
+                    class="reading-settings-toggle"
+                    aria-expanded={settingsOpen}
+                    aria-controls="immersive-reading-settings"
+                    onclick={toggleReadingSettings}
+                >
+                    Reading settings
+                </button>
+                <button type="button" class="enter-fullscreen" onclick={enterFullscreen}>
+                    Full screen
+                </button>
+            </div>
         </div>
+
+        {#if settingsOpen}
+            {@render readingSettingsPanel()}
+        {/if}
 
         {#if fullscreenError}
             <p class="fullscreen-error" role="alert">{fullscreenError}</p>
@@ -466,15 +617,45 @@
 
 <style>
     .immersive-reader {
+        --reader-bg: #fffdf8;
+        --reader-text: #1f2926;
+        --reader-muted: #51605b;
+        --reader-border: rgba(31, 41, 38, 0.2);
+        --reader-subtle: #f0f3ef;
+        --reader-font-family: var(--font-serif);
+        --reader-text-scale: 100%;
         width: 100%;
         min-width: 0;
         max-width: 52rem;
         margin: 0 auto;
         padding: clamp(1.25rem, 4vw, 3rem);
         box-sizing: border-box;
-        background: var(--c-surface);
+        background: var(--reader-bg);
+        color: var(--reader-text);
         border-radius: var(--radius-lg);
         box-shadow: var(--shadow-lg);
+    }
+
+    .immersive-reader[data-reading-theme='sepia'] {
+        --reader-bg: #f4ecd8;
+        --reader-text: #453b2a;
+        --reader-muted: #74644a;
+        --reader-border: rgba(69, 59, 42, 0.25);
+        --reader-subtle: #eadfc5;
+        color-scheme: light;
+    }
+
+    .immersive-reader[data-reading-theme='oled'] {
+        --reader-bg: #000;
+        --reader-text: #f2f2f2;
+        --reader-muted: #bdbdbd;
+        --reader-border: rgba(255, 255, 255, 0.28);
+        --reader-subtle: #141414;
+        color-scheme: dark;
+    }
+
+    .immersive-reader[data-reading-theme='light'] {
+        color-scheme: light;
     }
 
     .immersive-heading-row {
@@ -482,13 +663,21 @@
         align-items: flex-start;
         justify-content: space-between;
         gap: 1rem;
-        border-bottom: 1px solid var(--c-border);
+        border-bottom: 1px solid var(--reader-border);
         margin-bottom: clamp(1.5rem, 4vw, 3rem);
         padding-bottom: 1.25rem;
     }
 
     .immersive-heading-copy {
         min-width: 0;
+    }
+
+    .immersive-heading-actions {
+        display: flex;
+        flex: 0 0 auto;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 0.65rem;
     }
 
     .immersive-heading-row :global(.immersive-header) {
@@ -498,7 +687,7 @@
     }
 
     .immersive-header {
-        border-bottom: 1px solid var(--c-border);
+        border-bottom: 1px solid var(--reader-border);
         margin-bottom: clamp(1.5rem, 4vw, 3rem);
         padding-bottom: 1.25rem;
         break-inside: avoid;
@@ -507,23 +696,25 @@
     .immersive-kicker,
     .immersive-progress {
         margin: 0;
-        color: var(--c-text-light);
+        color: var(--reader-muted);
         font-size: 0.875rem;
     }
 
     .immersive-header h2 {
         margin: 0.5rem 0;
+        font-family: var(--reader-font-family);
         font-size: clamp(1.75rem, 4vw, 2.5rem);
         line-height: 1.15;
     }
 
     .enter-fullscreen,
     .exit-fullscreen,
-    .fullscreen-mode-switch button {
-        border: 1px solid var(--c-border);
+    .fullscreen-mode-switch button,
+    .reading-settings-toggle {
+        border: 1px solid var(--reader-border);
         border-radius: var(--radius-md);
-        background: var(--c-bg-subtle);
-        color: var(--c-text);
+        background: var(--reader-subtle);
+        color: var(--reader-text);
         font-weight: 650;
     }
 
@@ -532,9 +723,16 @@
         padding: 0.7rem 0.9rem;
     }
 
+    .reading-settings-toggle {
+        flex: 0 0 auto;
+        padding: 0.7rem 0.9rem;
+        white-space: nowrap;
+    }
+
     .enter-fullscreen:hover,
     .exit-fullscreen:hover,
-    .fullscreen-mode-switch button:hover {
+    .fullscreen-mode-switch button:hover,
+    .reading-settings-toggle:hover {
         border-color: var(--c-primary);
         color: var(--c-primary);
     }
@@ -545,16 +743,29 @@
     }
 
     .immersive-content {
-        color: var(--c-text);
-        font-family: var(--font-serif);
+        color: var(--reader-text);
+        font-family: var(--reader-font-family);
         font-size: clamp(1.1rem, 2vw, 1.35rem);
-        line-height: 1.8;
         overflow-wrap: anywhere;
         outline-offset: 0.35rem;
     }
 
+    .reading-align-left .immersive-content {
+        text-align: left;
+    }
+
+    .reading-align-center .immersive-content {
+        text-align: center;
+    }
+
+    .reading-align-justify .immersive-content {
+        text-align: justify;
+    }
+
     .immersive-content p {
         margin: 0 0 1.35em;
+        font-size: var(--reader-text-scale);
+        line-height: 1.8;
         orphans: 3;
         widows: 3;
     }
@@ -570,17 +781,17 @@
         gap: 1rem;
         margin-top: clamp(1.5rem, 4vw, 3rem);
         padding-top: 1.25rem;
-        border-top: 1px solid var(--c-border);
-        color: var(--c-text-light);
+        border-top: 1px solid var(--reader-border);
+        color: var(--reader-muted);
         font-size: 0.875rem;
     }
 
     .immersive-navigation button {
         padding: 0.65rem 0.85rem;
-        border: 1px solid var(--c-border);
+        border: 1px solid var(--reader-border);
         border-radius: var(--radius-md);
-        background: var(--c-bg-subtle);
-        color: var(--c-text);
+        background: var(--reader-subtle);
+        color: var(--reader-text);
         font-weight: 600;
     }
 
@@ -603,7 +814,7 @@
         padding: 0;
         overflow: hidden;
         border-radius: 0;
-        background: var(--c-surface);
+        background: var(--reader-bg);
         box-shadow: none;
     }
 
@@ -618,18 +829,18 @@
         padding: 0;
         overflow: hidden;
         border-radius: 0;
-        background: var(--c-surface);
+        background: var(--reader-bg);
         box-shadow: none;
     }
 
     .fullscreen-reader {
-        display: grid;
-        grid-template-rows: auto minmax(0, 1fr) auto;
+        display: flex;
+        flex-direction: column;
         width: 100%;
         height: 100%;
         min-height: 0;
-        background: var(--c-surface);
-        color: var(--c-text);
+        background: var(--reader-bg);
+        color: var(--reader-text);
     }
 
     .fullscreen-toolbar {
@@ -639,8 +850,8 @@
         align-items: center;
         gap: 1rem;
         padding: 0.75rem clamp(0.75rem, 2.5vw, 2rem);
-        border-bottom: 1px solid var(--c-border);
-        background: color-mix(in srgb, var(--c-surface) 94%, transparent);
+        border-bottom: 1px solid var(--reader-border);
+        background: color-mix(in srgb, var(--reader-bg) 94%, transparent);
     }
 
     .fullscreen-book-position {
@@ -657,16 +868,16 @@
 
     .fullscreen-book-position span,
     .page-position {
-        color: var(--c-text-light);
+        color: var(--reader-muted);
         font-size: 0.8rem;
     }
 
     .fullscreen-mode-switch {
         display: flex;
         padding: 0.2rem;
-        border: 1px solid var(--c-border);
+        border: 1px solid var(--reader-border);
         border-radius: var(--radius-md);
-        background: var(--c-bg-subtle);
+        background: var(--reader-subtle);
     }
 
     .fullscreen-mode-switch button {
@@ -676,16 +887,18 @@
     }
 
     .fullscreen-mode-switch button.active {
-        border-color: var(--c-border);
-        background: var(--c-surface);
+        border-color: var(--reader-border);
+        background: var(--reader-bg);
         color: var(--c-primary);
         box-shadow: var(--shadow-sm);
     }
 
     .fullscreen-toolbar-actions {
         display: flex;
+        min-width: 0;
         align-items: center;
         justify-content: flex-end;
+        flex-wrap: wrap;
         gap: 0.8rem;
     }
 
@@ -702,7 +915,119 @@
         padding: 0.55rem 0.75rem;
     }
 
+    .reading-settings {
+        width: 100%;
+        min-width: 0;
+        margin: 0 0 clamp(1.5rem, 4vw, 3rem);
+        padding: 1rem;
+        box-sizing: border-box;
+        border: 1px solid var(--reader-border);
+        background: var(--reader-subtle);
+        color: var(--reader-text);
+        overflow-x: hidden;
+    }
+
+    .fullscreen-reader > .reading-settings {
+        max-height: min(55dvh, 28rem);
+        margin: 0;
+        border-width: 0 0 1px;
+        overflow-y: auto;
+    }
+
+    .reading-settings-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+        min-width: 0;
+    }
+
+    .reading-setting-group {
+        min-width: 0;
+        min-inline-size: 0;
+        margin: 0;
+        padding: 0;
+        border: 0;
+    }
+
+    .reading-setting-group > label,
+    .reading-setting-group > legend {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 0.5rem;
+        width: 100%;
+        margin: 0 0 0.45rem;
+        padding: 0;
+        box-sizing: border-box;
+        color: var(--reader-muted);
+        font-size: 0.8rem;
+        font-weight: 750;
+    }
+
+    .reading-setting-options {
+        display: flex;
+        min-width: 0;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+    }
+
+    .reading-setting-options button {
+        min-width: 0;
+        flex: 1 1 4.5rem;
+        padding: 0.45rem 0.55rem;
+        border: 1px solid var(--reader-border);
+        border-radius: var(--radius-sm);
+        background: var(--reader-bg);
+        color: var(--reader-text);
+        font: inherit;
+        font-size: 0.8rem;
+        font-weight: 650;
+        overflow-wrap: anywhere;
+    }
+
+    .reading-setting-options button:hover,
+    .reading-setting-options button.active {
+        border-color: var(--c-primary);
+        color: var(--c-primary);
+    }
+
+    .reading-setting-options button.active {
+        background: color-mix(in srgb, var(--c-primary) 10%, var(--reader-bg));
+    }
+
+    .reading-setting-group select,
+    .reading-setting-group input[type='range'] {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .reading-setting-group select {
+        min-height: 2.35rem;
+        padding: 0.4rem 0.55rem;
+        border: 1px solid var(--reader-border);
+        border-radius: var(--radius-sm);
+        background: var(--reader-bg);
+        color: var(--reader-text);
+        font: inherit;
+        font-size: 0.85rem;
+    }
+
+    .reading-setting-group input[type='range'] {
+        accent-color: var(--c-primary);
+    }
+
+    .reading-setting-group small {
+        display: block;
+        margin-top: 0.35rem;
+        color: var(--reader-muted);
+        font-size: 0.7rem;
+        line-height: 1.35;
+    }
+
     .paged-frame {
+        flex: 1 1 auto;
         min-width: 0;
         min-height: 0;
         padding: clamp(1rem, 3vw, 2.5rem) clamp(2rem, 6vw, 6rem) 0;
@@ -741,10 +1066,10 @@
         width: 2.25rem;
         height: 3.5rem;
         place-items: center;
-        border: 1px solid var(--c-border);
+        border: 1px solid var(--reader-border);
         border-radius: 999px;
-        background: color-mix(in srgb, var(--c-surface) 88%, transparent);
-        color: var(--c-text-light);
+        background: color-mix(in srgb, var(--reader-bg) 88%, transparent);
+        color: var(--reader-muted);
         font-size: 2rem;
         line-height: 1;
         pointer-events: none;
@@ -766,12 +1091,13 @@
     .paged-instructions {
         margin: 0;
         padding: 0.65rem 1rem;
-        color: var(--c-text-light);
+        color: var(--reader-muted);
         font-size: 0.8rem;
         text-align: center;
     }
 
     .continuous-viewport {
+        flex: 1 1 auto;
         min-width: 0;
         min-height: 0;
         overflow-x: hidden;
@@ -789,10 +1115,6 @@
         box-sizing: border-box;
     }
 
-    .fullscreen-reader.continuous-mode {
-        grid-template-rows: auto minmax(0, 1fr);
-    }
-
     @media screen and (max-width: 760px) {
         .fullscreen-toolbar {
             grid-template-columns: minmax(0, 1fr) auto;
@@ -806,6 +1128,10 @@
 
         .page-position {
             display: none;
+        }
+
+        .fullscreen-toolbar-actions {
+            gap: 0.35rem;
         }
 
         .paged-frame {
@@ -838,6 +1164,11 @@
             display: none;
         }
 
+        .immersive-heading-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
         .fullscreen-toolbar {
             gap: 0.5rem;
             padding: 0.55rem 0.65rem;
@@ -853,6 +1184,21 @@
 
         .continuous-content {
             padding: 1rem 0.75rem;
+        }
+
+        .reading-settings {
+            padding: 0.75rem;
+        }
+
+        .reading-settings-grid {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+
+        .fullscreen-toolbar-actions .reading-settings-toggle,
+        .fullscreen-toolbar-actions .exit-fullscreen {
+            padding: 0.45rem 0.5rem;
+            font-size: 0.72rem;
         }
 
         .paged-frame {
