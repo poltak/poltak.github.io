@@ -1,1 +1,0 @@
-import{yt as e}from"../chunks/SUyAD25S.js";import"../chunks/xihTtKlq.js";import"../chunks/DofREKW2.js";import{t}from"../chunks/CKK_5JBX.js";var n=e({load:()=>r}),r=()=>({fun:{title:`Speed Reader`,description:`A local-only, free EPUB speed reader with adjustable pacing controls.`}});function i(e){t(e,{})}export{i as component,n as universal};
