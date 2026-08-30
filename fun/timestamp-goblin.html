@@ -5,30 +5,22 @@
         <meta charset="utf-8" />
         <meta name="description" content="The personal website of Jonathan Poltak Samosir." />
         <link rel="icon" href="../favicon.png" />
-        <link rel="manifest" href="../manifest.webmanifest" />
-        <link rel="apple-touch-icon" sizes="192x192" href="../icons/icon-192.png" />
-        <meta name="application-name" content="Jon's EPUB Speed Reader" />
-        <meta name="theme-color" content="#070d0d" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-title" content="Speed Reader" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta
             name="google-site-verification"
             content="zlktUFsvmhc6B88ieLOt2j2H7QJqbHbLoJXXnN49LjE"
         />
-        <link href="../_app/immutable/entry/start.C7E7PJFg.js" rel="modulepreload">
-		<link href="../_app/immutable/chunks/DpX9otp4.js" rel="modulepreload">
+        <link href="../_app/immutable/entry/start.B9WaC5sE.js" rel="modulepreload">
+		<link href="../_app/immutable/chunks/CVE77gaD.js" rel="modulepreload">
 		<link href="../_app/immutable/chunks/SUyAD25S.js" rel="modulepreload">
 		<link href="../_app/immutable/chunks/BiSikh3t.js" rel="modulepreload">
-		<link href="../_app/immutable/entry/app.CbZ9om09.js" rel="modulepreload">
+		<link href="../_app/immutable/entry/app.B-EdCLh_.js" rel="modulepreload">
 		<link href="../_app/immutable/chunks/HclGiUj8.js" rel="modulepreload">
 		<link href="../_app/immutable/chunks/xihTtKlq.js" rel="modulepreload">
-		<link href="../_app/immutable/nodes/0.C29ljkB7.js" rel="modulepreload">
-		<link href="../_app/immutable/chunks/B-6qn7Uh.js" rel="modulepreload">
+		<link href="../_app/immutable/nodes/0.RP5za4Ca.js" rel="modulepreload">
+		<link href="../_app/immutable/chunks/BY76wn-V.js" rel="modulepreload">
 		<link href="../_app/immutable/nodes/2.DXQPdxWZ.js" rel="modulepreload">
-		<link href="../_app/immutable/nodes/3.f29JiXwU.js" rel="modulepreload">
+		<link href="../_app/immutable/nodes/3.BwdHZ9Lu.js" rel="modulepreload">
 		<link href="../_app/immutable/nodes/13.Bhgggozx.js" rel="modulepreload">
 		<link href="../_app/immutable/chunks/DofREKW2.js" rel="modulepreload">
 		<link href="../_app/immutable/chunks/5YQDqtkj.js" rel="modulepreload">
@@ -46,15 +38,15 @@
 			
 			<script>
 				{
-					__sveltekit_1f7dp9x = {
+					__sveltekit_19ocu2e = {
 						base: new URL("..", location).pathname.slice(0, -1)
 					};
 
 					const element = document.currentScript.parentElement;
 
 					Promise.all([
-						import("../_app/immutable/entry/start.C7E7PJFg.js"),
-						import("../_app/immutable/entry/app.CbZ9om09.js")
+						import("../_app/immutable/entry/start.B9WaC5sE.js"),
+						import("../_app/immutable/entry/app.B-EdCLh_.js")
 					]).then(([kit, app]) => {
 						kit.start(app, element, {
 							node_ids: [0, 2, 3, 13],
@@ -63,18 +55,6 @@
 							error: null
 						});
 					});
-
-					if ('serviceWorker' in navigator) {
-						const script_url = '../service-worker.js';
-						const policy = globalThis?.window?.trustedTypes?.createPolicy(
-							'sveltekit-trusted-url',
-							{ createScriptURL(url) { return url; } }
-						);
-						const sanitised = policy?.createScriptURL(script_url) ?? script_url;
-						addEventListener('load', function () {
-							navigator.serviceWorker.register(sanitised);
-						});
-					}
 				}
 			</script>
 		</div>
