@@ -55,4 +55,33 @@ describe('SpeedReaderEngine', () => {
         expect(engine.getState().currentWordIndex).toBe(0)
         expect(engine.getState().isRewinding).toBe(false)
     })
+
+    it('keeps an empty book at word index zero when navigating', () => {
+        const engine = new SpeedReaderEngine()
+        engine.loadBook('', [])
+
+        engine.navigateToWord(10)
+
+        expect(engine.getState().currentWordIndex).toBe(0)
+    })
+
+    it('ignores invalid speed and punctuation settings', () => {
+        const engine = new SpeedReaderEngine()
+        engine.loadBook('one two', [])
+
+        engine.setWordsPerMinute(Number.NaN)
+        engine.setPunctuationMultipliers({
+            periodMultiplier: 0,
+            commaMultiplier: Number.POSITIVE_INFINITY,
+            semicolonMultiplier: -1,
+            exclamationMultiplier: Number.NaN,
+        })
+
+        const state = engine.getState()
+        expect(state.wordsPerMinute).toBe(250)
+        expect(state.periodMultiplier).toBe(3)
+        expect(state.commaMultiplier).toBe(2)
+        expect(state.semicolonMultiplier).toBe(2.5)
+        expect(state.exclamationMultiplier).toBe(3)
+    })
 })

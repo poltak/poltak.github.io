@@ -3,7 +3,17 @@
     import { epubStorage, type StoredBook, type ReadingProgress } from '$lib/storage/epub-storage'
     import Icon from '$lib/components/icons/Icon.svelte'
     import { SpeedReaderEngine } from '$lib/speed-reader-engine'
-    import { onMount } from 'svelte'
+    import ImmersiveReader from '$lib/components/speed-reader/ImmersiveReader.svelte'
+    import { calculateProgressPercentage } from '$lib/speed-reader/progress'
+    import {
+        createBrowserSpeechProvider,
+        SpeechController,
+        type SpeechControllerState,
+        type SpeechVoice,
+    } from '$lib/speed-reader/speech'
+    import { onMount, tick } from 'svelte'
+
+    type ReaderMode = 'speed' | 'immersive'
 
     let fileInput = $state<HTMLInputElement>()
     let epubData = $state<EpubData | null>(null)
@@ -52,6 +62,24 @@
     // Track current chapter to detect transitions
     let currentChapterIndex = $state(0)
 
+    // Normal reading and browser speech controls
+    let readerMode = $state<ReaderMode>('speed')
+    let selectedVoiceName = $state('')
+    let speechRate = $state(1)
+    let speechVoices = $state<SpeechVoice[]>([])
+    let resetCancelButton = $state<HTMLButtonElement>()
+
+    const speechProvider = createBrowserSpeechProvider()
+    let speechState = $state<SpeechControllerState>({
+        status: speechProvider.supported ? 'idle' : 'unsupported',
+        chapterIndex: 0,
+        voiceName: '',
+        rate: 1,
+        errorMessage: speechProvider.supported
+            ? null
+            : 'Text to speech is not supported in this browser.',
+    })
+
     // Chapter progress calculations
     const currentChapter = $derived.by(() => {
         if (!epubData || !epubData.tableOfContents.length) return null
@@ -66,9 +94,9 @@
         const chapterEndIndex = nextChapter ? nextChapter.wordStartIndex : allWords.length
         const chapterTotalWords = chapterEndIndex - currentChapter.wordStartIndex
         const wordsReadInChapter = Math.max(0, currentWordIndex - currentChapter.wordStartIndex)
-        const wordsRemaining = Math.max(0, chapterTotalWords - wordsReadInChapter)
-        const percentage =
-            chapterTotalWords > 0 ? (wordsReadInChapter / chapterTotalWords) * 100 : 0
+        const percentage = calculateProgressPercentage(wordsReadInChapter, chapterTotalWords)
+        const wordsRemaining =
+            percentage >= 100 ? 0 : Math.max(0, chapterTotalWords - wordsReadInChapter)
         const timeRemaining = wordsPerMinute > 0 ? Math.ceil(wordsRemaining / wordsPerMinute) : 0
 
         return { percentage, wordsRemaining, timeRemaining }
@@ -97,8 +125,10 @@
         return { before, current, after }
     })
     const progressPercentage = $derived(
-        allWords.length > 0 ? (currentWordIndex / allWords.length) * 100 : 0,
+        calculateProgressPercentage(currentWordIndex, allWords.length),
     )
+
+    const immersiveChapter = $derived(epubData?.chapters[currentChapterIndex] ?? null)
 
     const isChapterActive = $derived((item: TableOfContents): boolean => {
         if (!epubData) return false
@@ -127,6 +157,21 @@
         },
     })
 
+    const speechController = new SpeechController(speechProvider, {
+        onStateChange: (state) => {
+            speechState = state
+        },
+        onChapterChange: (chapterIndex) => {
+            navigateToChapterIndex(chapterIndex, false)
+        },
+        onComplete: () => {
+            if (allWords.length > 0) {
+                engine.navigateToWord(allWords.length - 1)
+                void saveProgress()
+            }
+        },
+    })
+
     onMount(async () => {
         try {
             await epubStorage.init()
@@ -134,6 +179,25 @@
         } catch (error) {
             console.error('Failed to initialize storage:', error)
         }
+    })
+
+    function refreshSpeechVoices() {
+        speechVoices = speechController.getVoices()
+        if (selectedVoiceName && speechVoices.some((voice) => voice.name === selectedVoiceName)) {
+            return
+        }
+
+        selectedVoiceName = speechVoices.find((voice) => voice.default)?.name ?? ''
+        speechController.setVoice(selectedVoiceName)
+    }
+
+    onMount(() => {
+        refreshSpeechVoices()
+        if (!speechProvider.supported) return
+
+        const handler = () => refreshSpeechVoices()
+        window.speechSynthesis.addEventListener('voiceschanged', handler)
+        return () => window.speechSynthesis.removeEventListener('voiceschanged', handler)
     })
 
     async function loadLibrary() {
@@ -163,6 +227,7 @@
 
         if (!file.name.toLowerCase().endsWith('.epub')) {
             errorMessage = 'Please select an EPUB file.'
+            if (fileInput) fileInput.value = ''
             return
         }
 
@@ -173,6 +238,7 @@
             epubData = await parseEpub(file)
 
             engine.loadBook(epubData.allText, epubData.tableOfContents)
+            speechController.setBook(epubData.chapters)
 
             // Save the book to storage
             currentBookId = await epubStorage.saveBook(epubData, allWords.length)
@@ -196,6 +262,7 @@
             epubData = book.epubData
             currentBookId = book.id
             engine.loadBook(epubData.allText, epubData.tableOfContents)
+            speechController.setBook(epubData.chapters)
 
             // Load saved progress
             const progress = await epubStorage.getProgress(book.id)
@@ -204,8 +271,10 @@
                 wordsPerMinute = progress.wordsPerMinute
                 engine.setWordsPerMinute(progress.wordsPerMinute)
                 engine.navigateToWord(progress.currentWordIndex)
+                speechController.selectChapter(engine.getState().currentChapterIndex)
             } else {
                 currentWordIndex = 0
+                speechController.selectChapter(0)
             }
 
             await epubStorage.updateLastReadDate(book.id)
@@ -237,7 +306,7 @@
             currentWordIndex,
             wordsPerMinute,
             lastReadDate: new Date(),
-            progressPercentage: (currentWordIndex / allWords.length) * 100,
+            progressPercentage: calculateProgressPercentage(currentWordIndex, allWords.length),
         }
 
         try {
@@ -257,7 +326,12 @@
 
     function startReading() {
         if (allWords.length === 0) return
+        if (speechState.status === 'playing' || speechState.status === 'paused') {
+            speechController.stop()
+        }
         engine.start()
+
+        if (!engine.getState().isPlaying) return
 
         // Start auto-save interval
         if (progressSaveInterval) {
@@ -274,11 +348,12 @@
             clearInterval(progressSaveInterval)
             progressSaveInterval = null
         }
-        saveProgress()
+        void saveProgress()
     }
 
     function updateReadingSpeed() {
         engine.setWordsPerMinute(wordsPerMinute)
+        wordsPerMinute = engine.getState().wordsPerMinute
     }
 
     function startRewind() {
@@ -307,8 +382,10 @@
             // Confirmed reset
             pauseReading()
             stopRewind()
+            speechController.stop()
             engine.reset()
-            saveProgress() // Save the reset position
+            speechController.selectChapter(0)
+            void saveProgress() // Save the reset position
             showResetConfirmation = false
         } else {
             // Show confirmation
@@ -318,10 +395,6 @@
 
     function cancelReset() {
         showResetConfirmation = false
-    }
-
-    function navigateToChapter(wordStartIndex: number) {
-        engine.navigateToWord(wordStartIndex)
     }
 
     function handleWpmChange() {
@@ -335,9 +408,74 @@
             semicolonMultiplier,
             exclamationMultiplier,
         })
+        const state = engine.getState()
+        periodMultiplier = state.periodMultiplier
+        commaMultiplier = state.commaMultiplier
+        semicolonMultiplier = state.semicolonMultiplier
+        exclamationMultiplier = state.exclamationMultiplier
+    }
+
+    function navigateToChapterIndex(chapterIndex: number, stopSpeech = true) {
+        if (!epubData || epubData.tableOfContents.length === 0) return
+
+        const item = epubData.tableOfContents[chapterIndex]
+        if (!item) return
+
+        if (stopSpeech) speechController.stop()
+        engine.navigateToWord(item.wordStartIndex)
+        speechController.selectChapter(chapterIndex)
+    }
+
+    function navigateToChapter(wordStartIndex: number, chapterIndex: number) {
+        if (speechState.status === 'playing' || speechState.status === 'paused') {
+            speechController.stop()
+        }
+        engine.navigateToWord(wordStartIndex)
+        speechController.selectChapter(chapterIndex)
+    }
+
+    function previousChapter() {
+        navigateToChapterIndex(currentChapterIndex - 1)
+    }
+
+    function nextChapter() {
+        navigateToChapterIndex(currentChapterIndex + 1)
+    }
+
+    function startSpeech() {
+        if (!epubData) return
+        if (isPlaying) pauseReading()
+        speechController.play(currentChapterIndex)
+    }
+
+    function pauseSpeech() {
+        speechController.pause()
+    }
+
+    function resumeSpeech() {
+        speechController.resume()
+    }
+
+    function stopSpeech() {
+        speechController.stop()
+    }
+
+    function setReaderMode(mode: ReaderMode) {
+        if (mode === 'immersive' && isPlaying) pauseReading()
+        readerMode = mode
+    }
+
+    function handleSpeechVoiceChange() {
+        speechController.setVoice(selectedVoiceName)
+    }
+
+    function handleSpeechRateChange() {
+        speechController.setRate(speechRate)
+        speechRate = speechController.getState().rate
     }
 
     function backToLibrary() {
+        speechController.setBook([])
         pauseReading()
         stopRewind()
         resumeAfterRewind = false
@@ -345,13 +483,19 @@
         epubData = null
         currentBookId = null
         engine.loadBook('', [])
+        readerMode = 'speed'
         showLibrary = true
     }
 
     // Effect for cleanup only
     $effect(() => {
+        if (showResetConfirmation) {
+            void tick().then(() => resetCancelButton?.focus())
+        }
+
         return () => {
             engine.cleanup()
+            speechController.cleanup()
             if (progressSaveInterval) {
                 clearInterval(progressSaveInterval)
                 progressSaveInterval = null
@@ -359,31 +503,38 @@
         }
     })
 
-    function toggleFullscreen() {
+    async function toggleFullscreen() {
         if (!wordContainer) return
 
-        if (!isFullscreen) {
-            // Enter fullscreen
-            if (wordContainer.requestFullscreen) {
-                wordContainer.requestFullscreen()
-            } else if ((wordContainer as any).webkitRequestFullscreen) {
-                ;(wordContainer as any).webkitRequestFullscreen()
-            }
-        } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen()
+        try {
+            if (!isFullscreen) {
+                if (wordContainer.requestFullscreen) {
+                    await wordContainer.requestFullscreen()
+                } else if ((wordContainer as any).webkitRequestFullscreen) {
+                    await (wordContainer as any).webkitRequestFullscreen()
+                }
+            } else if (document.exitFullscreen) {
+                await document.exitFullscreen()
             } else if ((document as any).webkitExitFullscreen) {
-                ;(document as any).webkitExitFullscreen()
+                await (document as any).webkitExitFullscreen()
             }
+        } catch (error) {
+            console.error('Unable to change fullscreen state:', error)
         }
     }
 
     onMount(() => {
         const handler = () => {
-            isFullscreen = !!document.fullscreenElement
+            isFullscreen = !!(
+                document.fullscreenElement || (document as any).webkitFullscreenElement
+            )
         }
         document.addEventListener('fullscreenchange', handler)
-        return () => document.removeEventListener('fullscreenchange', handler)
+        document.addEventListener('webkitfullscreenchange', handler)
+        return () => {
+            document.removeEventListener('fullscreenchange', handler)
+            document.removeEventListener('webkitfullscreenchange', handler)
+        }
     })
 
     function handleHoldStart(event: MouseEvent | TouchEvent) {
@@ -406,10 +557,10 @@
         }
     }
 
-    function handleBookCardKeydown(event: KeyboardEvent, book: StoredBook) {
-        if (event.key === 'Enter' || event.key === ' ') {
+    function handleResetKeydown(event: KeyboardEvent) {
+        if (event.key === 'Escape') {
             event.preventDefault()
-            openStoredBook(book)
+            cancelReset()
         }
     }
 </script>
@@ -442,29 +593,31 @@
 
             <div class="upload-section">
                 <div class="upload-card">
-                    <div class="file-input-wrapper">
+                    <label class="file-input-wrapper" for="epub-upload">
                         <input
                             bind:this={fileInput}
+                            id="epub-upload"
                             type="file"
                             accept=".epub"
                             onchange={handleFileUpload}
                             class="file-input"
+                            aria-describedby="epub-upload-help"
                         />
-                        <div class="upload-placeholder">
+                        <span class="upload-placeholder" id="epub-upload-help">
                             <Icon name="upload-cloud" size={32} className="mb-2" />
                             <span>Add a new EPUB book to your library</span>
-                        </div>
-                    </div>
+                        </span>
+                    </label>
 
                     {#if isLoading}
-                        <div class="status-message loading">
+                        <div class="status-message loading" role="status" aria-live="polite">
                             <div class="spinner"></div>
                             <span>Adding book to shelves...</span>
                         </div>
                     {/if}
 
                     {#if errorMessage}
-                        <div class="status-message error">
+                        <div class="status-message error" role="alert">
                             <Icon name="alert-circle" size={20} />
                             <div class="error-content">
                                 <h4>Oops!</h4>
@@ -518,62 +671,72 @@
                                       )
                                     : 0}
 
-                            <!-- svelte-ignore a11y_click_events_have_key_events -->
-                            <div
-                                class="book-card"
-                                role="button"
-                                tabindex="0"
-                                onclick={() => openStoredBook(book)}
-                                onkeydown={(event) => handleBookCardKeydown(event, book)}
-                            >
-                                <div class="book-info">
-                                    <h3 class="book-title">{book.title}</h3>
-                                    {#if book.author}
-                                        <p class="book-author">by {book.author}</p>
-                                    {/if}
-                                </div>
-
-                                <div class="book-progress">
-                                    <div class="progress-labels">
-                                        <span>Progress</span>
-                                        <span>{progressPercentage}%</span>
+                            <article class="book-card">
+                                <button
+                                    type="button"
+                                    class="book-open"
+                                    onclick={() => openStoredBook(book)}
+                                    aria-label={`Open ${book.title}`}
+                                >
+                                    <div class="book-info">
+                                        <h3 class="book-title">{book.title}</h3>
+                                        {#if book.author}
+                                            <p class="book-author">by {book.author}</p>
+                                        {/if}
                                     </div>
-                                    <div class="progress-track">
+
+                                    <div class="book-progress">
+                                        <div class="progress-labels">
+                                            <span>Progress</span>
+                                            <span>{progressPercentage}%</span>
+                                        </div>
                                         <div
-                                            class="progress-fill"
-                                            style="width: {progressPercentage}%"
-                                        ></div>
+                                            class="progress-track"
+                                            role="progressbar"
+                                            aria-label={`${book.title} reading progress`}
+                                            aria-valuemin="0"
+                                            aria-valuemax="100"
+                                            aria-valuenow={progressPercentage}
+                                        >
+                                            <div
+                                                class="progress-fill"
+                                                style="width: {progressPercentage}%"
+                                            ></div>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="book-meta">
-                                    <span>{(book.totalWords / 1000).toFixed(1)}k words</span>
-                                    <span>{new Date(book.lastReadDate).toLocaleDateString()}</span>
-                                </div>
-
-                                {#if progressPercentage > 0}
-                                    <div
-                                        class="book-badge {progressPercentage >= 100
-                                            ? 'completed'
-                                            : 'in-progress'}"
-                                    >
-                                        {progressPercentage >= 100
-                                            ? 'Done'
-                                            : `${progressPercentage}%`}
+                                    <div class="book-meta">
+                                        <span>{(book.totalWords / 1000).toFixed(1)}k words</span>
+                                        <span
+                                            >{new Date(
+                                                book.lastReadDate,
+                                            ).toLocaleDateString()}</span
+                                        >
                                     </div>
-                                {/if}
+
+                                    {#if progressPercentage > 0}
+                                        <div
+                                            class="book-badge {progressPercentage >= 100
+                                                ? 'completed'
+                                                : 'in-progress'}"
+                                        >
+                                            {progressPercentage >= 100
+                                                ? 'Done'
+                                                : `${progressPercentage}%`}
+                                        </div>
+                                    {/if}
+                                </button>
 
                                 <button
-                                    onclick={(e) => {
-                                        e.stopPropagation()
-                                        deleteStoredBook(book.id, e)
-                                    }}
+                                    type="button"
+                                    onclick={(event) => deleteStoredBook(book.id, event)}
                                     class="delete-btn"
+                                    aria-label={`Delete ${book.title}`}
                                     title="Delete book"
                                 >
                                     <Icon name="trash-2" size={16} />
                                 </button>
-                            </div>
+                            </article>
                         {/each}
                     </div>
                 {/if}
@@ -581,91 +744,152 @@
         </div>
     {:else}
         <div class="reader-view">
-            <!-- Word Display -->
-            <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <div
-                bind:this={wordContainer}
-                class="reader-stage"
-                onmousedown={handleHoldStart}
-                onmouseup={handleHoldEnd}
-                onmouseleave={handleHoldEnd}
-                ontouchstart={handleHoldStart}
-                ontouchend={handleHoldEnd}
-                ontouchcancel={handleHoldEnd}
-            >
-                <div class="word-display">
-                    <div class="context-words before">
-                        {#each surroundingWords.before as word}
-                            <span>{word}</span>
-                        {/each}
-                    </div>
-
-                    <div class="current-word-container">
-                        <span class="current-word">{surroundingWords.current}</span>
-                    </div>
-
-                    <div class="context-words after">
-                        {#each surroundingWords.after as word}
-                            <span>{word}</span>
-                        {/each}
-                    </div>
-                </div>
-
-                <!-- Chapter Progress -->
-                {#if currentChapter && epubData && epubData.tableOfContents.length > 1}
-                    <div class="chapter-progress-bar">
-                        <div
-                            class="chapter-fill"
-                            style="width: {chapterProgress.percentage}%"
-                        ></div>
-                    </div>
-                    {#if chapterProgress.timeRemaining > 0}
-                        <div class="chapter-time">
-                            {chapterProgress.timeRemaining}m left in chapter
-                        </div>
-                    {/if}
-                {/if}
-
-                <!-- Overlay Controls (Fullscreen/Rewind when fullscreen) -->
-                <div class="reader-overlay">
-                    {#if isFullscreen}
-                        <div class="fs-controls fs-controls-rewind">
-                            <button
-                                onmousedown={startRewind}
-                                onmouseup={stopRewind}
-                                onmouseleave={stopRewind}
-                                ontouchstart={startRewind}
-                                ontouchend={stopRewind}
-                                class="fs-btn rewind"
-                                disabled={allWords.length === 0 || currentWordIndex <= 0}
-                                class:active={isRewinding}
-                            >
-                                <Icon name="rewind" size={24} />
-                            </button>
-                        </div>
-
-                        <div class="fs-controls fs-controls-play-pause">
-                            <button
-                                onclick={togglePlayPause}
-                                class="fs-btn play"
-                                disabled={allWords.length === 0}
-                            >
-                                <Icon name={isPlaying ? 'pause' : 'play'} size={32} />
-                            </button>
-                        </div>
-                    {/if}
-
-                    <button class="fs-toggle" onclick={toggleFullscreen} title="Toggle Fullscreen">
-                        <Icon name={isFullscreen ? 'minimize' : 'maximize'} size={20} />
-                    </button>
-                </div>
+            <div class="mode-toggle" role="group" aria-label="Reading mode">
+                <button
+                    type="button"
+                    class:active={readerMode === 'speed'}
+                    aria-pressed={readerMode === 'speed'}
+                    onclick={() => setReaderMode('speed')}
+                >
+                    Speed reader
+                </button>
+                <button
+                    type="button"
+                    class:active={readerMode === 'immersive'}
+                    aria-pressed={readerMode === 'immersive'}
+                    onclick={() => setReaderMode('immersive')}
+                >
+                    Immersive reader
+                </button>
             </div>
+
+            {#if readerMode === 'immersive' && immersiveChapter}
+                <ImmersiveReader
+                    chapter={immersiveChapter}
+                    chapterIndex={currentChapterIndex}
+                    chapterCount={epubData?.chapters.length ?? 0}
+                    {progressPercentage}
+                    totalWords={allWords.length}
+                    onPrevious={previousChapter}
+                    onNext={nextChapter}
+                />
+            {:else}
+                <!-- Word Display -->
+                <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                <div
+                    bind:this={wordContainer}
+                    class="reader-stage"
+                    role="region"
+                    aria-label="Speed reading display"
+                    onmousedown={handleHoldStart}
+                    onmouseup={handleHoldEnd}
+                    onmouseleave={handleHoldEnd}
+                    ontouchstart={handleHoldStart}
+                    ontouchend={handleHoldEnd}
+                    ontouchcancel={handleHoldEnd}
+                >
+                    <div class="word-display">
+                        <div class="context-words before" aria-hidden="true">
+                            {#each surroundingWords.before as word}
+                                <span>{word}</span>
+                            {/each}
+                        </div>
+
+                        <div class="current-word-container">
+                            <span class="current-word" aria-live="polite" aria-atomic="true"
+                                >{surroundingWords.current}</span
+                            >
+                        </div>
+
+                        <div class="context-words after" aria-hidden="true">
+                            {#each surroundingWords.after as word}
+                                <span>{word}</span>
+                            {/each}
+                        </div>
+                    </div>
+
+                    <!-- Chapter Progress -->
+                    {#if currentChapter && epubData && epubData.tableOfContents.length > 1}
+                        <div
+                            class="chapter-progress-bar"
+                            role="progressbar"
+                            aria-label="Chapter progress"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                            aria-valuenow={chapterProgress.percentage}
+                        >
+                            <div
+                                class="chapter-fill"
+                                style="width: {chapterProgress.percentage}%"
+                            ></div>
+                        </div>
+                        {#if chapterProgress.timeRemaining > 0}
+                            <div class="chapter-time">
+                                {chapterProgress.timeRemaining}m left in chapter
+                            </div>
+                        {/if}
+                    {/if}
+
+                    <!-- Overlay Controls (Fullscreen/Rewind when fullscreen) -->
+                    <div class="reader-overlay">
+                        {#if isFullscreen}
+                            <div class="fs-controls fs-controls-rewind">
+                                <button
+                                    type="button"
+                                    onmousedown={startRewind}
+                                    onmouseup={stopRewind}
+                                    onmouseleave={stopRewind}
+                                    ontouchstart={startRewind}
+                                    ontouchend={stopRewind}
+                                    class="fs-btn rewind"
+                                    disabled={allWords.length === 0 || currentWordIndex <= 0}
+                                    class:active={isRewinding}
+                                    aria-label="Rewind speed reading"
+                                    aria-pressed={isRewinding}
+                                >
+                                    <Icon name="rewind" size={24} />
+                                </button>
+                            </div>
+
+                            <div class="fs-controls fs-controls-play-pause">
+                                <button
+                                    type="button"
+                                    onclick={togglePlayPause}
+                                    class="fs-btn play"
+                                    disabled={allWords.length === 0}
+                                    aria-label={isPlaying
+                                        ? 'Pause speed reading'
+                                        : 'Start speed reading'}
+                                    aria-pressed={isPlaying}
+                                >
+                                    <Icon name={isPlaying ? 'pause' : 'play'} size={32} />
+                                </button>
+                            </div>
+                        {/if}
+
+                        <button
+                            type="button"
+                            class="fs-toggle"
+                            onclick={toggleFullscreen}
+                            aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+                            aria-pressed={isFullscreen}
+                            title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+                        >
+                            <Icon name={isFullscreen ? 'minimize' : 'maximize'} size={20} />
+                        </button>
+                    </div>
+                </div>
+            {/if}
 
             <!-- Reader Controls & Stats -->
             <div class="reader-controls-container">
                 <div class="progress-stats">
                     <div class="stat">
-                        <span>Word {(currentWordIndex + 1).toLocaleString()}</span>
+                        <span
+                            >Word {allWords.length > 0
+                                ? (currentWordIndex + 1).toLocaleString()
+                                : '0'}</span
+                        >
                     </div>
                     <div class="stat main-stat">
                         {progressPercentage.toFixed(1)}%
@@ -675,149 +899,255 @@
                     </div>
                 </div>
                 <div class="main-progress-track">
-                    <div class="main-progress-fill" style="width: {progressPercentage}%"></div>
+                    <div
+                        class="main-progress-fill"
+                        role="progressbar"
+                        aria-label="Book reading progress"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                        aria-valuenow={progressPercentage}
+                        style="width: {progressPercentage}%"
+                    ></div>
                 </div>
 
-                <div class="primary-controls">
-                    <button
-                        onmousedown={startRewind}
-                        onmouseup={stopRewind}
-                        onmouseleave={stopRewind}
-                        ontouchstart={startRewind}
-                        ontouchend={stopRewind}
-                        class="control-btn rewind"
-                        disabled={allWords.length === 0 || currentWordIndex <= 0}
-                        class:active={isRewinding}
-                    >
-                        <Icon name="rewind" size={24} />
-                    </button>
-
-                    <button
-                        onclick={togglePlayPause}
-                        class="control-btn play-pause"
-                        disabled={allWords.length === 0}
-                    >
-                        <Icon name={isPlaying ? 'pause' : 'play'} size={32} />
-                    </button>
-                </div>
-
-                <div class="settings-row">
-                    <div class="setting-group">
-                        <input
-                            id="context"
-                            type="number"
-                            bind:value={surroundingWordsCount}
-                            min="0"
-                            max="100"
-                            step="1"
-                        />
-                        <label for="context">Context</label>
-                    </div>
-                    <div class="setting-group">
-                        <input
-                            id="wpm"
-                            type="number"
-                            bind:value={wordsPerMinute}
-                            oninput={handleWpmChange}
-                            min="50"
-                            max="1000"
-                            step="10"
-                        />
-                        <label for="wpm">WPM</label>
-                    </div>
-                </div>
-
-                <div class="presets-row">
-                    {#each [200, 300, 400, 500, 600] as preset}
+                {#if readerMode === 'speed'}
+                    <div class="primary-controls">
                         <button
-                            onclick={() => {
-                                wordsPerMinute = preset
-                                handleWpmChange()
-                            }}
-                            class="preset-btn {wordsPerMinute === preset ? 'active' : ''}"
+                            type="button"
+                            onmousedown={startRewind}
+                            onmouseup={stopRewind}
+                            onmouseleave={stopRewind}
+                            ontouchstart={startRewind}
+                            ontouchend={stopRewind}
+                            class="control-btn rewind"
+                            disabled={allWords.length === 0 || currentWordIndex <= 0}
+                            class:active={isRewinding}
+                            aria-label="Rewind speed reading"
+                            aria-pressed={isRewinding}
                         >
-                            {preset}
+                            <Icon name="rewind" size={24} />
                         </button>
-                    {/each}
-                </div>
 
-                <div class="extra-settings-section">
-                    <button
-                        onclick={() => (showExtraSettings = !showExtraSettings)}
-                        class="toggle-extras"
-                    >
-                        <span>Extra Settings</span>
-                        <Icon name={showExtraSettings ? 'chevron-up' : 'chevron-down'} size={16} />
-                    </button>
+                        <button
+                            type="button"
+                            onclick={togglePlayPause}
+                            class="control-btn play-pause"
+                            disabled={allWords.length === 0}
+                            aria-label={isPlaying ? 'Pause speed reading' : 'Start speed reading'}
+                            aria-pressed={isPlaying}
+                        >
+                            <Icon name={isPlaying ? 'pause' : 'play'} size={32} />
+                        </button>
+                    </div>
 
-                    {#if showExtraSettings}
-                        <div class="extras-panel">
-                            <h4>Punctuation Pause Multipliers</h4>
-                            <div class="multipliers-grid">
-                                <div class="mult-group">
-                                    <input
-                                        id="mult-period"
-                                        type="number"
-                                        bind:value={periodMultiplier}
-                                        oninput={handleMultiplierChange}
-                                        min="1"
-                                        max="10"
-                                        step="0.5"
-                                    />
-                                    <label for="mult-period">. Period</label>
+                    <div class="settings-row">
+                        <div class="setting-group">
+                            <input
+                                id="context"
+                                type="number"
+                                bind:value={surroundingWordsCount}
+                                min="0"
+                                max="100"
+                                step="1"
+                            />
+                            <label for="context">Context</label>
+                        </div>
+                        <div class="setting-group">
+                            <input
+                                id="wpm"
+                                type="number"
+                                bind:value={wordsPerMinute}
+                                oninput={handleWpmChange}
+                                min="50"
+                                max="1000"
+                                step="10"
+                            />
+                            <label for="wpm">WPM</label>
+                        </div>
+                    </div>
+
+                    <div class="presets-row">
+                        {#each [200, 300, 400, 500, 600] as preset}
+                            <button
+                                type="button"
+                                onclick={() => {
+                                    wordsPerMinute = preset
+                                    handleWpmChange()
+                                }}
+                                class="preset-btn {wordsPerMinute === preset ? 'active' : ''}"
+                            >
+                                {preset}
+                            </button>
+                        {/each}
+                    </div>
+
+                    <div class="extra-settings-section">
+                        <button
+                            type="button"
+                            onclick={() => (showExtraSettings = !showExtraSettings)}
+                            class="toggle-extras"
+                            aria-expanded={showExtraSettings}
+                            aria-controls="extra-settings-panel"
+                        >
+                            <span>Extra Settings</span>
+                            <Icon
+                                name={showExtraSettings ? 'chevron-up' : 'chevron-down'}
+                                size={16}
+                            />
+                        </button>
+
+                        {#if showExtraSettings}
+                            <div class="extras-panel" id="extra-settings-panel">
+                                <h4>Punctuation Pause Multipliers</h4>
+                                <div class="multipliers-grid">
+                                    <div class="mult-group">
+                                        <input
+                                            id="mult-period"
+                                            type="number"
+                                            bind:value={periodMultiplier}
+                                            oninput={handleMultiplierChange}
+                                            min="1"
+                                            max="10"
+                                            step="0.5"
+                                        />
+                                        <label for="mult-period">. Period</label>
+                                    </div>
+                                    <div class="mult-group">
+                                        <input
+                                            id="mult-comma"
+                                            type="number"
+                                            bind:value={commaMultiplier}
+                                            oninput={handleMultiplierChange}
+                                            min="1"
+                                            max="10"
+                                            step="0.5"
+                                        />
+                                        <label for="mult-comma">, Comma</label>
+                                    </div>
+                                    <div class="mult-group">
+                                        <input
+                                            id="mult-semi"
+                                            type="number"
+                                            bind:value={semicolonMultiplier}
+                                            oninput={handleMultiplierChange}
+                                            min="1"
+                                            max="10"
+                                            step="0.5"
+                                        />
+                                        <label for="mult-semi">; Semicolon</label>
+                                    </div>
+                                    <div class="mult-group">
+                                        <input
+                                            id="mult-exclaim"
+                                            type="number"
+                                            bind:value={exclamationMultiplier}
+                                            oninput={handleMultiplierChange}
+                                            min="1"
+                                            max="10"
+                                            step="0.5"
+                                        />
+                                        <label for="mult-exclaim">! Exclaim</label>
+                                    </div>
                                 </div>
-                                <div class="mult-group">
-                                    <input
-                                        id="mult-comma"
-                                        type="number"
-                                        bind:value={commaMultiplier}
-                                        oninput={handleMultiplierChange}
-                                        min="1"
-                                        max="10"
-                                        step="0.5"
-                                    />
-                                    <label for="mult-comma">, Comma</label>
-                                </div>
-                                <div class="mult-group">
-                                    <input
-                                        id="mult-semi"
-                                        type="number"
-                                        bind:value={semicolonMultiplier}
-                                        oninput={handleMultiplierChange}
-                                        min="1"
-                                        max="10"
-                                        step="0.5"
-                                    />
-                                    <label for="mult-semi">; Colon</label>
-                                </div>
-                                <div class="mult-group">
-                                    <input
-                                        id="mult-exclaim"
-                                        type="number"
-                                        bind:value={exclamationMultiplier}
-                                        oninput={handleMultiplierChange}
-                                        min="1"
-                                        max="10"
-                                        step="0.5"
-                                    />
-                                    <label for="mult-exclaim">! Exclaim</label>
+                                <div class="extras-actions">
+                                    <button onclick={resetReading} class="reset-btn">
+                                        <Icon name="refresh" size={16} />
+                                        <span>Reset to Beginning</span>
+                                    </button>
                                 </div>
                             </div>
-                            <div class="extras-actions">
-                                <button onclick={resetReading} class="reset-btn">
-                                    <Icon name="refresh" size={16} />
-                                    <span>Reset to Beginning</span>
-                                </button>
+                        {/if}
+                    </div>
+                {/if}
+
+                <section class="speech-section" aria-labelledby="speech-heading">
+                    <div class="speech-heading-row">
+                        <h3 id="speech-heading">Listen</h3>
+                        <span class="speech-status" role="status" aria-live="polite">
+                            {#if speechState.status === 'playing'}
+                                Speaking chapter {speechState.chapterIndex + 1}
+                            {:else if speechState.status === 'paused'}
+                                Paused
+                            {:else if speechState.status === 'error'}
+                                Speech error
+                            {:else}
+                                Text to speech
+                            {/if}
+                        </span>
+                    </div>
+
+                    {#if speechState.status === 'unsupported'}
+                        <p class="speech-message" role="status">
+                            Text to speech is not available in this browser. You can still use the
+                            reader normally.
+                        </p>
+                    {:else}
+                        <div class="speech-options">
+                            <div class="speech-option">
+                                <label for="speech-voice">Voice</label>
+                                <select
+                                    id="speech-voice"
+                                    bind:value={selectedVoiceName}
+                                    onchange={handleSpeechVoiceChange}
+                                >
+                                    <option value="">System default</option>
+                                    {#each speechVoices as voice (voice.name)}
+                                        <option value={voice.name}
+                                            >{voice.name} ({voice.lang})</option
+                                        >
+                                    {/each}
+                                </select>
+                            </div>
+                            <div class="speech-option speech-rate-option">
+                                <label for="speech-rate">Rate</label>
+                                <input
+                                    id="speech-rate"
+                                    type="range"
+                                    min="0.5"
+                                    max="2"
+                                    step="0.1"
+                                    bind:value={speechRate}
+                                    oninput={handleSpeechRateChange}
+                                    aria-valuemin="0.5"
+                                    aria-valuemax="2"
+                                    aria-valuenow={speechRate}
+                                />
+                                <output for="speech-rate">{speechRate.toFixed(1)}×</output>
                             </div>
                         </div>
+                        <div class="speech-actions">
+                            {#if speechState.status === 'playing'}
+                                <button type="button" onclick={pauseSpeech}>Pause speech</button>
+                            {:else if speechState.status === 'paused'}
+                                <button type="button" onclick={resumeSpeech}>Resume speech</button>
+                            {:else}
+                                <button type="button" onclick={startSpeech} disabled={!epubData}>
+                                    Play speech
+                                </button>
+                            {/if}
+                            <button
+                                type="button"
+                                onclick={stopSpeech}
+                                disabled={speechState.status !== 'playing' &&
+                                    speechState.status !== 'paused'}
+                            >
+                                Stop speech
+                            </button>
+                        </div>
                     {/if}
-                </div>
+                    {#if speechState.errorMessage}
+                        <p class="speech-message error" role="alert">{speechState.errorMessage}</p>
+                    {/if}
+                </section>
 
                 {#if epubData && epubData.tableOfContents.length > 1}
                     <div class="toc-section">
                         <button
+                            type="button"
                             onclick={() => (showTableOfContents = !showTableOfContents)}
                             class="toc-toggle"
+                            aria-expanded={showTableOfContents}
+                            aria-controls="table-of-contents"
                         >
                             <Icon name="menu" size={18} />
                             <span>Table of Contents</span>
@@ -829,7 +1159,7 @@
                         </button>
 
                         {#if showTableOfContents}
-                            <div class="toc-list">
+                            <div class="toc-list" id="table-of-contents">
                                 {#each epubData.tableOfContents as item, idx (item.order)}
                                     {@const nextStart =
                                         epubData.tableOfContents[idx + 1]?.wordStartIndex ??
@@ -842,7 +1172,9 @@
                                     {@const isActive = isChapterActive(item)}
 
                                     <button
-                                        onclick={() => navigateToChapter(item.wordStartIndex)}
+                                        type="button"
+                                        onclick={() =>
+                                            navigateToChapter(item.wordStartIndex, item.order)}
                                         class="toc-item {isActive ? 'active' : ''}"
                                     >
                                         <span class="chapter-num">{item.order + 1}</span>
@@ -871,16 +1203,28 @@
     {/if}
 
     {#if showResetConfirmation}
-        <div class="modal-overlay">
-            <div class="modal-card">
+        <div class="modal-overlay" role="presentation">
+            <div
+                class="modal-card"
+                role="dialog"
+                tabindex="-1"
+                aria-modal="true"
+                aria-labelledby="reset-dialog-title"
+                onkeydown={handleResetKeydown}
+            >
                 <div class="modal-header">
                     <div class="icon-danger"><Icon name="alert-triangle" size={20} /></div>
-                    <h3>Reset Progress?</h3>
+                    <h3 id="reset-dialog-title">Reset Progress?</h3>
                 </div>
                 <p>This will return you to the start of the book.</p>
                 <div class="modal-actions">
-                    <button onclick={cancelReset} class="btn-secondary">Cancel</button>
-                    <button onclick={resetReading} class="btn-danger">Reset</button>
+                    <button
+                        type="button"
+                        bind:this={resetCancelButton}
+                        onclick={cancelReset}
+                        class="btn-secondary">Cancel</button
+                    >
+                    <button type="button" onclick={resetReading} class="btn-danger">Reset</button>
                 </div>
             </div>
         </div>
@@ -1002,6 +1346,11 @@
         background: var(--c-primary-hover-bg);
     }
 
+    .file-input-wrapper:focus-within {
+        outline: 2px solid var(--c-primary);
+        outline-offset: 3px;
+    }
+
     .file-input {
         position: absolute;
         width: 100%;
@@ -1091,7 +1440,6 @@
     }
 
     .book-card {
-        cursor: pointer;
         background: var(--c-surface);
         padding: 1.5rem;
         border-radius: var(--radius-lg);
@@ -1110,7 +1458,18 @@
         border-color: var(--c-primary-light);
     }
 
-    .book-card:focus-visible {
+    .book-open {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+        padding: 0;
+        text-align: left;
+        color: inherit;
+    }
+
+    .book-open:focus-visible {
         outline: 2px solid var(--c-primary);
         outline-offset: 3px;
     }
@@ -1218,6 +1577,27 @@
         display: flex;
         flex-direction: column;
         gap: 2rem;
+    }
+
+    .mode-toggle {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .mode-toggle button {
+        padding: 0.65rem 1rem;
+        border: 1px solid var(--c-border);
+        border-radius: var(--radius-full);
+        color: var(--c-text-light);
+        font-weight: 600;
+    }
+
+    .mode-toggle button:hover,
+    .mode-toggle button.active {
+        border-color: var(--c-primary);
+        background: var(--c-primary-light);
+        color: var(--c-primary-dark);
     }
 
     .reader-stage {
@@ -1393,6 +1773,104 @@
         box-shadow: var(--shadow-sm);
     }
 
+    .speech-section {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--c-border);
+    }
+
+    .speech-heading-row,
+    .speech-options,
+    .speech-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .speech-heading-row {
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .speech-heading-row h3 {
+        font-size: 1rem;
+    }
+
+    .speech-status,
+    .speech-message {
+        color: var(--c-text-light);
+        font-size: 0.875rem;
+    }
+
+    .speech-message {
+        margin: 0;
+    }
+
+    .speech-message.error {
+        margin-top: 0.75rem;
+        color: var(--c-danger);
+    }
+
+    .speech-options {
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+
+    .speech-option {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .speech-option label {
+        color: var(--c-text-light);
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .speech-option select {
+        max-width: 15rem;
+        padding: 0.35rem;
+        border: 1px solid var(--c-border);
+        border-radius: var(--radius-md);
+        background: var(--c-bg-input);
+        color: var(--c-text);
+    }
+
+    .speech-rate-option input {
+        width: 8rem;
+    }
+
+    .speech-rate-option output {
+        min-width: 2.5rem;
+        color: var(--c-text-light);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .speech-actions button {
+        padding: 0.55rem 0.85rem;
+        border: 1px solid var(--c-border);
+        border-radius: var(--radius-md);
+        background: var(--c-bg-subtle);
+        color: var(--c-text);
+        font-weight: 600;
+    }
+
+    .speech-actions button:first-child {
+        border-color: var(--c-primary);
+        background: var(--c-primary);
+        color: white;
+    }
+
+    .speech-actions button:hover:not(:disabled) {
+        border-color: var(--c-primary);
+    }
+
+    .speech-actions button:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+
     .progress-stats {
         display: flex;
         justify-content: space-between;
@@ -1413,6 +1891,11 @@
         border-radius: var(--radius-full);
         margin-bottom: 2rem;
         overflow: hidden;
+    }
+
+    .reader-stage:focus-visible {
+        outline: 2px solid var(--c-primary);
+        outline-offset: 3px;
     }
 
     .main-progress-fill {

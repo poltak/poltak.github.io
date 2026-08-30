@@ -60,7 +60,7 @@ function serializeEpubData(epubData: EpubData): SerializableEpubData {
     }
 }
 
-class EpubStorage {
+export class EpubStorage {
     private db: IDBDatabase | null = null
     private readonly DB_NAME = 'EpubSpeedReader'
     private readonly DB_VERSION = 1
@@ -73,9 +73,17 @@ class EpubStorage {
 
             request.onerror = () => reject(request.error)
             request.onsuccess = () => {
-                this.db = request.result
+                const db = request.result
+                this.db = db
+                db.onversionchange = () => {
+                    db.close()
+                    if (this.db === db) this.db = null
+                }
                 resolve()
             }
+
+            request.onblocked = () =>
+                reject(new Error('Another tab is using the EPUB database. Close it and try again.'))
 
             request.onupgradeneeded = (event) => {
                 const db = (event.target as IDBOpenDBRequest).result
@@ -126,10 +134,12 @@ class EpubStorage {
         return new Promise((resolve, reject) => {
             const transaction = db.transaction([this.BOOKS_STORE], 'readwrite')
             const store = transaction.objectStore(this.BOOKS_STORE)
-            const request = store.add(storedBook)
-
-            request.onsuccess = () => resolve(bookId)
-            request.onerror = () => reject(request.error)
+            transaction.oncomplete = () => resolve(bookId)
+            transaction.onerror = () =>
+                reject(transaction.error ?? new Error('Unable to save the EPUB book.'))
+            transaction.onabort = () =>
+                reject(transaction.error ?? new Error('Unable to save the EPUB book.'))
+            store.add(storedBook)
         })
     }
 
@@ -183,7 +193,10 @@ class EpubStorage {
             const deleteProgress = progressStore.delete(bookId)
 
             transaction.oncomplete = () => resolve()
-            transaction.onerror = () => reject(transaction.error)
+            transaction.onerror = () =>
+                reject(transaction.error ?? new Error('Unable to delete the EPUB book.'))
+            transaction.onabort = () =>
+                reject(transaction.error ?? new Error('Unable to delete the EPUB book.'))
         })
     }
 
@@ -210,7 +223,10 @@ class EpubStorage {
             }
 
             transaction.oncomplete = () => resolve()
-            transaction.onerror = () => reject(transaction.error)
+            transaction.onerror = () =>
+                reject(transaction.error ?? new Error('Unable to save reading progress.'))
+            transaction.onabort = () =>
+                reject(transaction.error ?? new Error('Unable to save reading progress.'))
         })
     }
 
@@ -245,7 +261,10 @@ class EpubStorage {
             }
 
             transaction.oncomplete = () => resolve()
-            transaction.onerror = () => reject(transaction.error)
+            transaction.onerror = () =>
+                reject(transaction.error ?? new Error('Unable to update the book date.'))
+            transaction.onabort = () =>
+                reject(transaction.error ?? new Error('Unable to update the book date.'))
         })
     }
 }

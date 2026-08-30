@@ -1,4 +1,5 @@
 import { getPunctuationMultiplier } from '$lib/punctuation-utils'
+import { clampWordIndex } from '$lib/speed-reader/progress'
 import type { TableOfContents } from 'poltak-epub-parser'
 
 export interface SpeedReaderState {
@@ -61,6 +62,8 @@ export class SpeedReaderEngine {
     }
 
     setWordsPerMinute(wordsPerMinute: number) {
+        if (!Number.isFinite(wordsPerMinute) || wordsPerMinute <= 0) return
+
         this.state.wordsPerMinute = wordsPerMinute
         if (this.state.isPlaying) {
             this.reschedule()
@@ -74,10 +77,22 @@ export class SpeedReaderEngine {
         semicolonMultiplier: number
         exclamationMultiplier: number
     }) {
-        this.state.periodMultiplier = values.periodMultiplier
-        this.state.commaMultiplier = values.commaMultiplier
-        this.state.semicolonMultiplier = values.semicolonMultiplier
-        this.state.exclamationMultiplier = values.exclamationMultiplier
+        this.state.periodMultiplier = this.validMultiplier(
+            values.periodMultiplier,
+            this.state.periodMultiplier,
+        )
+        this.state.commaMultiplier = this.validMultiplier(
+            values.commaMultiplier,
+            this.state.commaMultiplier,
+        )
+        this.state.semicolonMultiplier = this.validMultiplier(
+            values.semicolonMultiplier,
+            this.state.semicolonMultiplier,
+        )
+        this.state.exclamationMultiplier = this.validMultiplier(
+            values.exclamationMultiplier,
+            this.state.exclamationMultiplier,
+        )
         if (this.state.isPlaying) {
             this.reschedule()
         }
@@ -121,7 +136,7 @@ export class SpeedReaderEngine {
             this.pause()
         }
 
-        const clampedIndex = Math.min(Math.max(0, wordIndex), this.state.allWords.length - 1)
+        const clampedIndex = clampWordIndex(wordIndex, this.state.allWords.length)
         this.state.currentWordIndex = clampedIndex
         this.state.currentChapterIndex = this.getChapterIndex(clampedIndex)
         this.notify()
@@ -177,6 +192,8 @@ export class SpeedReaderEngine {
 
     cleanup() {
         this.clearTimers()
+        this.state.isPlaying = false
+        this.state.isRewinding = false
     }
 
     private reschedule() {
@@ -231,7 +248,7 @@ export class SpeedReaderEngine {
     }
 
     private clearReadingTimer() {
-        if (this.readingTimeout) {
+        if (this.readingTimeout !== null) {
             clearTimeout(this.readingTimeout)
             this.readingTimeout = null
         }
@@ -239,7 +256,7 @@ export class SpeedReaderEngine {
 
     private clearTimers() {
         this.clearReadingTimer()
-        if (this.rewindInterval) {
+        if (this.rewindInterval !== null) {
             clearInterval(this.rewindInterval)
             this.rewindInterval = null
         }
@@ -247,5 +264,9 @@ export class SpeedReaderEngine {
 
     private notify() {
         this.onUpdate?.(this.getState())
+    }
+
+    private validMultiplier(value: number, fallback: number): number {
+        return Number.isFinite(value) && value > 0 ? value : fallback
     }
 }

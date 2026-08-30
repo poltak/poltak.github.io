@@ -1,5 +1,5 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/svelte'
-import { vi, describe, it, expect, beforeEach } from 'vitest'
+import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/svelte'
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest'
 import SpeedReaderPage from './+page.svelte'
 
 const mockStorage = vi.hoisted(() => ({
@@ -70,6 +70,10 @@ describe('SpeedReader page', () => {
         mockStorage.updateLastReadDate.mockResolvedValue(undefined)
     })
 
+    afterEach(() => {
+        cleanup()
+    })
+
     it('renders the library header and built-on link', async () => {
         render(SpeedReaderPage)
 
@@ -103,11 +107,47 @@ describe('SpeedReader page', () => {
 
         render(SpeedReaderPage)
 
-        const card = await screen.findByRole('button', { name: /Stored Book/i })
+        const card = await screen.findByRole('button', { name: 'Open Stored Book' })
         await fireEvent.keyDown(card, { key: 'Enter' })
+        await fireEvent.click(card)
 
         await waitFor(() => expect(mockStorage.getProgress).toHaveBeenCalled())
         const buttons = await screen.findAllByRole('button', { name: /back to library/i })
         expect(buttons.length).toBeGreaterThan(0)
+    })
+
+    it('keeps delete keyboard activation separate from opening a book', async () => {
+        mockStorage.getBooks.mockResolvedValue([storedBook])
+
+        render(SpeedReaderPage)
+
+        const deleteButton = await screen.findByRole('button', { name: 'Delete Stored Book' })
+        await fireEvent.keyDown(deleteButton, { key: 'Enter' })
+        await fireEvent.click(deleteButton)
+
+        await waitFor(() => expect(mockStorage.deleteBook).toHaveBeenCalledWith('book-1'))
+        expect(screen.queryByText('Back to Library')).toBeNull()
+    })
+
+    it('opens an uploaded book in the immersive reader with escaped plain text', async () => {
+        mockParseEpub.mockResolvedValue({
+            ...baseEpubData,
+            chapters: [
+                { ...baseEpubData.chapters[0], content: '<script>bad()</script>Readable text' },
+            ],
+            allText: 'Readable text',
+        })
+
+        const { container } = render(SpeedReaderPage)
+        const input = container.querySelector('input[type="file"]') as HTMLInputElement
+        const file = new File(['epub'], 'book.epub', { type: 'application/epub+zip' })
+        await fireEvent.change(input, { target: { files: [file] } })
+        await waitFor(() => expect(mockStorage.saveBook).toHaveBeenCalled())
+
+        await fireEvent.click(screen.getByRole('button', { name: 'Immersive reader' }))
+
+        expect(screen.getByRole('heading', { name: 'Chapter 1' })).toBeTruthy()
+        expect(screen.getByText('<script>bad()</script>Readable text')).toBeTruthy()
+        expect(container.querySelector('script')).toBeNull()
     })
 })
