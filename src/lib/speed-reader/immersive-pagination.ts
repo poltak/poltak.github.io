@@ -9,6 +9,14 @@ interface PointerTurnInput {
     viewportWidth: number
 }
 
+export interface PageDragScrollInput {
+    currentPage: number
+    pageWidth: number
+    viewportWidth: number
+    contentWidth: number
+    deltaX: number
+}
+
 const MIN_SWIPE_DISTANCE = 48
 const MAX_TAP_MOVEMENT = 12
 
@@ -18,6 +26,30 @@ export function calculatePageCount(scrollWidth: number, viewportWidth: number): 
     }
 
     return Math.max(1, Math.ceil(scrollWidth / viewportWidth))
+}
+
+export function getPageDragScrollLeft({
+    currentPage,
+    pageWidth,
+    viewportWidth,
+    contentWidth,
+    deltaX,
+}: PageDragScrollInput): number {
+    if (
+        !Number.isFinite(currentPage) ||
+        !Number.isFinite(pageWidth) ||
+        !Number.isFinite(viewportWidth) ||
+        !Number.isFinite(contentWidth) ||
+        !Number.isFinite(deltaX) ||
+        pageWidth <= 0 ||
+        viewportWidth <= 0
+    ) {
+        return 0
+    }
+
+    const maxScrollLeft = Math.max(0, contentWidth - viewportWidth)
+    const pageStart = Math.min(Math.max(0, currentPage * pageWidth), maxScrollLeft)
+    return Math.min(maxScrollLeft, Math.max(0, pageStart - deltaX))
 }
 
 export function getPointerPageTurn({

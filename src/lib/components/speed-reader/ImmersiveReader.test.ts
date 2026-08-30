@@ -225,6 +225,16 @@ describe('ImmersiveReader fullscreen', () => {
         expect(screen.getByText('Viewing theme')).not.toBeNull()
     })
 
+    it('does not render the obsolete page cues or gesture instructions', async () => {
+        const { container } = render(ImmersiveReader, baseProps)
+
+        await enterFullscreen()
+
+        expect(container.querySelector('.page-cue')).toBeNull()
+        expect(container.querySelector('.paged-instructions')).toBeNull()
+        expect(screen.queryByText(/Tap left or right/)).toBeNull()
+    })
+
     it('refreshes fullscreen pagination when font or text size changes', async () => {
         const { container } = render(ImmersiveReader, baseProps)
         const viewport = await enterFullscreen()
@@ -321,6 +331,207 @@ describe('ImmersiveReader fullscreen', () => {
 
         await fireEvent.keyDown(viewport, { key: 'ArrowRight' })
         expect(baseProps.onNext).toHaveBeenCalledOnce()
+    })
+
+    it('follows a horizontal touch drag and commits the page on release', async () => {
+        const { container } = render(ImmersiveReader, baseProps)
+        const viewport = await enterFullscreen()
+        setPagedMeasurements(container, viewport)
+        await waitFor(() => expect(screen.getByText('Page 1 of 3')).not.toBeNull())
+
+        await fireEvent.pointerDown(viewport, {
+            pointerId: 3,
+            pointerType: 'touch',
+            isPrimary: true,
+            clientX: 400,
+            clientY: 100,
+        })
+        await fireEvent.pointerMove(viewport, {
+            pointerId: 3,
+            pointerType: 'touch',
+            isPrimary: true,
+            clientX: 260,
+            clientY: 105,
+        })
+
+        expect(viewport.scrollLeft).toBe(140)
+
+        await fireEvent.pointerUp(viewport, {
+            pointerId: 3,
+            pointerType: 'touch',
+            isPrimary: true,
+            clientX: 260,
+            clientY: 105,
+        })
+
+        expect(screen.getByText('Page 2 of 3')).not.toBeNull()
+    })
+
+    it('snaps back after an incomplete drag and ignores vertical or mouse drags', async () => {
+        const { container } = render(ImmersiveReader, baseProps)
+        const viewport = await enterFullscreen()
+        const measurement = setPagedMeasurements(container, viewport)
+        await waitFor(() => expect(screen.getByText('Page 1 of 3')).not.toBeNull())
+
+        measurement.scrollTo.mockClear()
+        await fireEvent.pointerDown(viewport, {
+            pointerId: 4,
+            pointerType: 'touch',
+            isPrimary: true,
+            clientX: 400,
+            clientY: 100,
+        })
+        await fireEvent.pointerMove(viewport, {
+            pointerId: 4,
+            pointerType: 'touch',
+            isPrimary: true,
+            clientX: 350,
+            clientY: 102,
+        })
+        await fireEvent.pointerUp(viewport, {
+            pointerId: 4,
+            pointerType: 'touch',
+            isPrimary: true,
+            clientX: 375,
+            clientY: 102,
+        })
+
+        expect(screen.getByText('Page 1 of 3')).not.toBeNull()
+        expect(measurement.scrollTo).toHaveBeenLastCalledWith({
+            left: 0,
+            top: 0,
+            behavior: 'smooth',
+        })
+
+        measurement.scrollTo.mockClear()
+        await fireEvent.pointerDown(viewport, {
+            pointerId: 7,
+            pointerType: 'touch',
+            isPrimary: true,
+            clientX: 400,
+            clientY: 100,
+        })
+        await fireEvent.pointerMove(viewport, {
+            pointerId: 7,
+            pointerType: 'touch',
+            isPrimary: true,
+            clientX: 320,
+            clientY: 100,
+        })
+        await fireEvent.pointerCancel(viewport, {
+            pointerId: 7,
+            pointerType: 'touch',
+            isPrimary: true,
+        })
+
+        expect(measurement.scrollTo).toHaveBeenLastCalledWith({
+            left: 0,
+            top: 0,
+            behavior: 'smooth',
+        })
+
+        const scrollLeftAfterCancel = viewport.scrollLeft
+
+        await fireEvent.pointerDown(viewport, {
+            pointerId: 5,
+            pointerType: 'touch',
+            isPrimary: true,
+            clientX: 200,
+            clientY: 100,
+        })
+        await fireEvent.pointerMove(viewport, {
+            pointerId: 5,
+            pointerType: 'touch',
+            isPrimary: true,
+            clientX: 205,
+            clientY: 180,
+        })
+        await fireEvent.pointerUp(viewport, {
+            pointerId: 5,
+            pointerType: 'touch',
+            isPrimary: true,
+            clientX: 205,
+            clientY: 180,
+        })
+
+        expect(screen.getByText('Page 1 of 3')).not.toBeNull()
+
+        await fireEvent.pointerDown(viewport, {
+            pointerId: 6,
+            pointerType: 'mouse',
+            isPrimary: true,
+            clientX: 400,
+            clientY: 100,
+        })
+        await fireEvent.pointerMove(viewport, {
+            pointerId: 6,
+            pointerType: 'mouse',
+            isPrimary: true,
+            clientX: 200,
+            clientY: 100,
+        })
+        await fireEvent.pointerUp(viewport, {
+            pointerId: 6,
+            pointerType: 'mouse',
+            isPrimary: true,
+            clientX: 200,
+            clientY: 100,
+        })
+
+        expect(screen.getByText('Page 1 of 3')).not.toBeNull()
+        expect(viewport.scrollLeft).toBe(scrollLeftAfterCancel)
+    })
+
+    it('uses an instant snap-back when reduced motion is enabled', async () => {
+        const originalMatchMedia = Object.getOwnPropertyDescriptor(window, 'matchMedia')
+        Object.defineProperty(window, 'matchMedia', {
+            configurable: true,
+            value: vi.fn((query: string) => ({
+                matches: query === '(prefers-reduced-motion: reduce)',
+            })),
+        })
+
+        try {
+            const { container } = render(ImmersiveReader, baseProps)
+            const viewport = await enterFullscreen()
+            const measurement = setPagedMeasurements(container, viewport)
+            await waitFor(() => expect(screen.getByText('Page 1 of 3')).not.toBeNull())
+
+            measurement.scrollTo.mockClear()
+            await fireEvent.pointerDown(viewport, {
+                pointerId: 8,
+                pointerType: 'touch',
+                isPrimary: true,
+                clientX: 400,
+                clientY: 100,
+            })
+            await fireEvent.pointerMove(viewport, {
+                pointerId: 8,
+                pointerType: 'touch',
+                isPrimary: true,
+                clientX: 350,
+                clientY: 102,
+            })
+            await fireEvent.pointerUp(viewport, {
+                pointerId: 8,
+                pointerType: 'touch',
+                isPrimary: true,
+                clientX: 375,
+                clientY: 102,
+            })
+
+            expect(measurement.scrollTo).toHaveBeenLastCalledWith({
+                left: 0,
+                top: 0,
+                behavior: 'auto',
+            })
+        } finally {
+            if (originalMatchMedia) {
+                Object.defineProperty(window, 'matchMedia', originalMatchMedia)
+            } else {
+                Reflect.deleteProperty(window, 'matchMedia')
+            }
+        }
     })
 
     it('uses chapter callbacks at the first page boundary', async () => {

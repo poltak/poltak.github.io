@@ -1,11 +1,29 @@
 import { describe, expect, it } from 'vitest'
-import { calculatePageCount, getKeyboardPageTurn, getPointerPageTurn } from './immersive-pagination'
+import {
+    calculatePageCount,
+    getKeyboardPageTurn,
+    getPageDragScrollLeft,
+    getPointerPageTurn,
+} from './immersive-pagination'
 
 describe('immersive pagination', () => {
     it('calculates full viewport pages and handles missing measurements', () => {
         expect(calculatePageCount(1500, 500)).toBe(3)
         expect(calculatePageCount(1501, 500)).toBe(4)
         expect(calculatePageCount(0, 0)).toBe(1)
+    })
+
+    it('follows horizontal drags and clamps them at the book edges', () => {
+        const shared = {
+            pageWidth: 500,
+            viewportWidth: 500,
+            contentWidth: 1500,
+        }
+
+        expect(getPageDragScrollLeft({ ...shared, currentPage: 0, deltaX: -180 })).toBe(180)
+        expect(getPageDragScrollLeft({ ...shared, currentPage: 1, deltaX: 120 })).toBe(380)
+        expect(getPageDragScrollLeft({ ...shared, currentPage: 0, deltaX: 180 })).toBe(0)
+        expect(getPageDragScrollLeft({ ...shared, currentPage: 2, deltaX: -180 })).toBe(1000)
     })
 
     it('maps taps on each side to the correct page turn', () => {

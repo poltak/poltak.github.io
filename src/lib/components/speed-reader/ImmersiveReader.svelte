@@ -3,6 +3,7 @@
     import {
         calculatePageCount,
         getKeyboardPageTurn,
+        getPageDragScrollLeft,
         getPointerPageTurn,
         type PageTurn,
     } from '$lib/speed-reader/immersive-pagination'
@@ -67,12 +68,19 @@
     let pageWidth = $state(0)
     let settingsOpen = $state(false)
     let readerSettings = $state<ReaderSettings>({ ...DEFAULT_READER_SETTINGS })
-    let pointerStart: { id: number; x: number; y: number } | null = null
+    let pointerStart: {
+        id: number
+        x: number
+        y: number
+        pointerType: string
+        axis: 'undecided' | 'horizontal' | 'vertical' | 'mouse-moved'
+        dragging: boolean
+        captured: boolean
+    } | null = null
     let paginationGeneration = 0
     let openAtLastPageAfterChapterChange = false
     let previousRootOverflow: string | null = null
-    const canTurnPrevious = $derived(currentPage > 0 || chapterIndex > 0)
-    const canTurnNext = $derived(currentPage < pageCount - 1 || chapterIndex < chapterCount - 1)
+    const DRAG_START_DISTANCE = 8
     const readerStyle = $derived(
         `--reader-font-family: ${getReaderFontStack(readerSettings.font)}; --reader-text-scale: ${readerSettings.textScale}%;`,
     )
@@ -84,7 +92,7 @@
 
     function syncFullscreenState() {
         isFullscreen = usesFullscreenFallback || getFullscreenElement() === readerElement
-        if (!isFullscreen) pointerStart = null
+        if (!isFullscreen) cancelPointerInteraction(false)
     }
 
     function startFullscreenFallback() {
@@ -150,10 +158,17 @@
     function scrollToCurrentPage(behavior: ScrollBehavior = 'smooth') {
         if (!pagedViewport || typeof pagedViewport.scrollTo !== 'function') return
 
+        const resolvedBehavior =
+            behavior === 'smooth' &&
+            typeof window.matchMedia === 'function' &&
+            window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                ? 'auto'
+                : behavior
+
         pagedViewport.scrollTo({
             left: currentPage * pageWidth,
             top: 0,
-            behavior,
+            behavior: resolvedBehavior,
         })
     }
 
@@ -213,14 +228,85 @@
         }
     }
 
+    function releasePointerCapture(pointer: NonNullable<typeof pointerStart>) {
+        if (!pointer.captured || !pagedViewport) return
+
+        try {
+            pagedViewport.releasePointerCapture?.(pointer.id)
+        } catch {
+            // The pointer may already have been released by the browser.
+        }
+    }
+
+    function cancelPointerInteraction(snapBack: boolean) {
+        const pointer = pointerStart
+        pointerStart = null
+        if (!pointer) return
+
+        releasePointerCapture(pointer)
+        if (snapBack && pointer.dragging) scrollToCurrentPage()
+    }
+
     function handlePointerDown(event: PointerEvent) {
         if (!event.isPrimary) return
-        pointerStart = { id: event.pointerId, x: event.clientX, y: event.clientY }
+
+        const pointerType = event.pointerType || 'touch'
+        const pointer = {
+            id: event.pointerId,
+            x: event.clientX,
+            y: event.clientY,
+            pointerType,
+            axis: 'undecided' as const,
+            dragging: false,
+            captured: false,
+        }
+        pointerStart = pointer
+
+        if (pointerType === 'mouse') return
+
         try {
             pagedViewport?.setPointerCapture?.(event.pointerId)
+            pointer.captured = true
         } catch {
             // Some WebKit versions expose the method before they accept the pointer.
         }
+    }
+
+    function handlePointerMove(event: PointerEvent) {
+        const pointer = pointerStart
+        if (!pointer || pointer.id !== event.pointerId || !pagedViewport) return
+
+        const deltaX = event.clientX - pointer.x
+        const deltaY = event.clientY - pointer.y
+        const absoluteDeltaX = Math.abs(deltaX)
+        const absoluteDeltaY = Math.abs(deltaY)
+
+        if (pointer.pointerType === 'mouse') {
+            if (absoluteDeltaX > DRAG_START_DISTANCE || absoluteDeltaY > DRAG_START_DISTANCE) {
+                pointer.axis = 'mouse-moved'
+            }
+            return
+        }
+
+        if (pointer.axis === 'undecided') {
+            if (absoluteDeltaX <= DRAG_START_DISTANCE && absoluteDeltaY <= DRAG_START_DISTANCE) {
+                return
+            }
+
+            pointer.axis = absoluteDeltaX > absoluteDeltaY ? 'horizontal' : 'vertical'
+        }
+
+        if (pointer.axis !== 'horizontal' || pageWidth <= 0) return
+
+        pointer.dragging = true
+        pagedViewport.scrollLeft = getPageDragScrollLeft({
+            currentPage,
+            pageWidth,
+            viewportWidth: pagedViewport.clientWidth,
+            contentWidth: pagedContent?.scrollWidth ?? 0,
+            deltaX,
+        })
+        event.preventDefault()
     }
 
     function handlePointerUp(event: PointerEvent) {
@@ -228,6 +314,13 @@
 
         const start = pointerStart
         pointerStart = null
+        releasePointerCapture(start)
+
+        if (start.axis === 'vertical' || start.axis === 'mouse-moved') {
+            if (start.dragging) scrollToCurrentPage()
+            return
+        }
+
         const bounds = pagedViewport.getBoundingClientRect()
         const turn = getPointerPageTurn({
             startX: start.x,
@@ -238,11 +331,15 @@
             viewportWidth: bounds.width,
         })
 
-        if (turn) turnPage(turn)
+        if (turn) {
+            turnPage(turn)
+        } else if (start.dragging) {
+            scrollToCurrentPage()
+        }
     }
 
     function handlePointerCancel() {
-        pointerStart = null
+        cancelPointerInteraction(true)
     }
 
     function handlePageKeydown(event: KeyboardEvent) {
@@ -544,6 +641,7 @@
                         aria-roledescription="paged reader"
                         aria-label="Paged chapter. Tap either side, swipe horizontally, or use arrow keys to turn pages."
                         onpointerdown={handlePointerDown}
+                        onpointermove={handlePointerMove}
                         onpointerup={handlePointerUp}
                         onpointercancel={handlePointerCancel}
                         onkeydown={handlePageKeydown}
@@ -556,21 +654,8 @@
                             {@render chapterHeader()}
                             {@render chapterText()}
                         </div>
-                        <span
-                            class="page-cue page-cue-left"
-                            class:disabled={!canTurnPrevious}
-                            aria-hidden="true">‹</span
-                        >
-                        <span
-                            class="page-cue page-cue-right"
-                            class:disabled={!canTurnNext}
-                            aria-hidden="true">›</span
-                        >
                     </div>
                 </div>
-                <p class="paged-instructions">
-                    Tap left or right, swipe horizontally, or use the arrow keys to turn pages.
-                </p>
             {:else}
                 <div bind:this={continuousViewport} class="continuous-viewport">
                     <div class="continuous-content">
@@ -1071,43 +1156,6 @@
     .paged-content :global(.immersive-header),
     .paged-content :global(.immersive-content) {
         padding: 0 clamp(0.25rem, 1vw, 1rem);
-    }
-
-    .page-cue {
-        position: fixed;
-        top: 50%;
-        display: grid;
-        width: 2.25rem;
-        height: 3.5rem;
-        place-items: center;
-        border: 1px solid var(--reader-border);
-        border-radius: 999px;
-        background: color-mix(in srgb, var(--reader-bg) 88%, transparent);
-        color: var(--reader-muted);
-        font-size: 2rem;
-        line-height: 1;
-        pointer-events: none;
-        transform: translateY(-50%);
-    }
-
-    .page-cue-left {
-        left: clamp(0.4rem, 1.5vw, 1.25rem);
-    }
-
-    .page-cue-right {
-        right: clamp(0.4rem, 1.5vw, 1.25rem);
-    }
-
-    .page-cue.disabled {
-        opacity: 0.25;
-    }
-
-    .paged-instructions {
-        margin: 0;
-        padding: 0.65rem 1rem;
-        color: var(--reader-muted);
-        font-size: 0.8rem;
-        text-align: center;
     }
 
     .continuous-viewport {
