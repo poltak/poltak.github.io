@@ -14,6 +14,24 @@ const mockStorage = vi.hoisted(() => ({
 
 const mockParseEpub = vi.hoisted(() => vi.fn())
 
+const mockBrowserSpeech = vi.hoisted(() => {
+    const state = {
+        voices: [] as Array<{ name: string; lang: string; default?: boolean }>,
+    }
+
+    return {
+        state,
+        provider: {
+            supported: true,
+            getVoices: vi.fn(() => state.voices),
+            speak: vi.fn(),
+            pause: vi.fn(),
+            resume: vi.fn(),
+            cancel: vi.fn(),
+        },
+    }
+})
+
 vi.mock('poltak-epub-parser', () => {
     return {
         parseEpub: (...args: unknown[]) => mockParseEpub(...args),
@@ -23,6 +41,17 @@ vi.mock('poltak-epub-parser', () => {
 vi.mock('$lib/storage/epub-storage', () => {
     return {
         epubStorage: mockStorage,
+    }
+})
+
+vi.mock('$lib/speed-reader/speech', async () => {
+    const actual = await vi.importActual<typeof import('$lib/speed-reader/speech')>(
+        '$lib/speed-reader/speech',
+    )
+
+    return {
+        ...actual,
+        createBrowserSpeechProvider: () => mockBrowserSpeech.provider,
     }
 })
 
@@ -63,6 +92,14 @@ const storedBook = {
 describe('SpeedReader page', () => {
     beforeEach(() => {
         vi.clearAllMocks()
+        mockBrowserSpeech.state.voices = []
+        Object.defineProperty(window, 'speechSynthesis', {
+            configurable: true,
+            value: {
+                addEventListener: vi.fn(),
+                removeEventListener: vi.fn(),
+            },
+        })
         mockStorage.init.mockResolvedValue(undefined)
         mockStorage.getBooks.mockResolvedValue([])
         mockStorage.saveBook.mockResolvedValue('book-1')
@@ -114,6 +151,22 @@ describe('SpeedReader page', () => {
         await waitFor(() => expect(mockStorage.getProgress).toHaveBeenCalled())
         const buttons = await screen.findAllByRole('button', { name: /back to library/i })
         expect(buttons.length).toBeGreaterThan(0)
+    })
+
+    it('opens a stored book when Android returns duplicate voice names', async () => {
+        mockBrowserSpeech.state.voices = [
+            { name: 'Hindi India', lang: 'hi-IN' },
+            { name: 'Hindi India', lang: 'hi-IN' },
+        ]
+        mockStorage.getBooks.mockResolvedValue([storedBook])
+
+        render(SpeedReaderPage)
+
+        const card = await screen.findByRole('button', { name: 'Open Stored Book' })
+        await fireEvent.click(card)
+
+        await waitFor(() => expect(screen.getByText('Speed reader')).toBeTruthy())
+        expect(screen.queryByText('Your Library')).toBeNull()
     })
 
     it('opens a stored book when updating its last-read date fails', async () => {

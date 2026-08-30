@@ -46,6 +46,16 @@ export interface SpeechChapter {
     content: string
 }
 
+export function dedupeSpeechVoices(voices: SpeechVoice[]): SpeechVoice[] {
+    const seenNames = new Set<string>()
+
+    return voices.filter((voice) => {
+        if (seenNames.has(voice.name)) return false
+        seenNames.add(voice.name)
+        return true
+    })
+}
+
 const MIN_RATE = 0.5
 const MAX_RATE = 2
 const MAX_UTTERANCE_LENGTH = 1500

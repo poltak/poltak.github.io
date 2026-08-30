@@ -12,6 +12,7 @@
     import { calculateProgressPercentage } from '$lib/speed-reader/progress'
     import {
         createBrowserSpeechProvider,
+        dedupeSpeechVoices,
         SpeechController,
         type SpeechControllerState,
         type SpeechVoice,
@@ -190,7 +191,7 @@
     })
 
     function refreshSpeechVoices() {
-        speechVoices = speechController.getVoices()
+        speechVoices = dedupeSpeechVoices(speechController.getVoices())
         if (selectedVoiceName && speechVoices.some((voice) => voice.name === selectedVoiceName)) {
             return
         }

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
     SpeechController,
+    dedupeSpeechVoices,
     splitSpeechText,
     type SpeechProvider,
     type SpeechUtterance,
@@ -28,6 +29,18 @@ class FakeSpeechProvider implements SpeechProvider {
 }
 
 describe('SpeechController', () => {
+    it('keeps the first voice when browser voice names repeat', () => {
+        const firstHindiVoice = { name: 'Hindi India', lang: 'hi-IN' }
+
+        expect(
+            dedupeSpeechVoices([
+                firstHindiVoice,
+                { name: 'Hindi India', lang: 'hi-IN', default: true },
+                { name: 'Reader', lang: 'en-GB' },
+            ]),
+        ).toEqual([firstHindiVoice, { name: 'Reader', lang: 'en-GB' }])
+    })
+
     it('splits long text into bounded utterances', () => {
         const chunks = splitSpeechText('one two three four five', 8)
 
