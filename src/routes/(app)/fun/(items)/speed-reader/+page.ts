@@ -1,5 +1,7 @@
 import type { PageLoad } from './$types'
 
+export const trailingSlash = 'always'
+
 export const load: PageLoad = () => {
     return {
         fun: {

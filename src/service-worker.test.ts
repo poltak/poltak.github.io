@@ -4,10 +4,19 @@ import { describe, expect, it } from 'vitest'
 
 const projectRoot = process.env.INIT_CWD ?? process.cwd()
 const manifest = JSON.parse(
-    readFileSync(resolve(projectRoot, 'static/manifest.webmanifest'), 'utf8'),
+    readFileSync(resolve(projectRoot, 'static/fun/speed-reader/manifest.webmanifest'), 'utf8'),
 )
 const appTemplate = readFileSync(resolve(projectRoot, 'src/app.html'), 'utf8')
+const speedReaderRoute = readFileSync(
+    resolve(projectRoot, 'src/routes/(app)/fun/(items)/speed-reader/+page.svelte'),
+    'utf8',
+)
+const speedReaderRouteConfig = readFileSync(
+    resolve(projectRoot, 'src/routes/(app)/fun/(items)/speed-reader/+page.ts'),
+    'utf8',
+)
 const serviceWorker = readFileSync(resolve(projectRoot, 'src/service-worker.ts'), 'utf8')
+const svelteConfig = readFileSync(resolve(projectRoot, 'svelte.config.js'), 'utf8')
 
 function pngDimensions(path: string) {
     const bytes = readFileSync(resolve(projectRoot, path))
@@ -16,9 +25,10 @@ function pngDimensions(path: string) {
 }
 
 describe('PWA shell', () => {
-    it('declares a base-path-safe standalone manifest with install icons', () => {
+    it('declares a route-scoped standalone manifest with install icons', () => {
         expect(manifest.name).toBe("Jon's EPUB Speed Reader")
         expect(manifest.short_name).toBe('Speed Reader')
+        expect(manifest.id).toBe('./')
         expect(manifest.start_url).toBe('./')
         expect(manifest.scope).toBe('./')
         expect(manifest.display).toBe('standalone')
@@ -30,19 +40,41 @@ describe('PWA shell', () => {
                 expect.objectContaining({ sizes: '512x512', type: 'image/png' }),
             ]),
         )
+        const manifestUrl = 'https://example.com/fun/speed-reader/manifest.webmanifest'
+        expect(new URL(manifest.id, manifestUrl).pathname).toBe('/fun/speed-reader/')
+        expect(new URL(manifest.start_url, manifestUrl).pathname).toBe('/fun/speed-reader/')
+        expect(new URL(manifest.scope, manifestUrl).pathname).toBe('/fun/speed-reader/')
+        expect(
+            manifest.icons.map((icon: { src: string }) => new URL(icon.src, manifestUrl).pathname),
+        ).toEqual(['/icons/icon-192.png', '/icons/icon-512.png'])
         expect(pngDimensions('static/icons/icon-192.png')).toEqual({ width: 192, height: 192 })
         expect(pngDimensions('static/icons/icon-512.png')).toEqual({ width: 512, height: 512 })
     })
 
-    it('exposes the manifest and accessible platform install metadata', () => {
-        expect(appTemplate).toContain('rel="manifest"')
-        expect(appTemplate).toContain('name="application-name"')
-        expect(appTemplate).toContain('name="apple-mobile-web-app-title"')
-        expect(appTemplate).toContain('name="theme-color"')
+    it('keeps install metadata off the root template and on the speed reader route', () => {
+        expect(appTemplate).not.toContain('rel="manifest"')
+        expect(appTemplate).not.toContain('name="application-name"')
+        expect(appTemplate).not.toContain('name="mobile-web-app-capable"')
+        expect(appTemplate).not.toContain('name="apple-mobile-web-app-capable"')
+        expect(speedReaderRoute).toContain('manifest.webmanifest')
+        expect(speedReaderRoute).toContain('name="application-name"')
+        expect(speedReaderRoute).toContain('name="mobile-web-app-capable"')
+        expect(speedReaderRoute).toContain('name="apple-mobile-web-app-capable"')
+        expect(speedReaderRoute).toContain('import.meta.env.DEV')
+        expect(speedReaderRoute).toContain('register(`${base}/service-worker.js`')
+        expect(speedReaderRoute).toContain('scope: speedReaderScope')
+        expect(speedReaderRoute).not.toContain('type:')
+        expect(speedReaderRouteConfig).toContain("trailingSlash = 'always'")
+        expect(svelteConfig).toContain('serviceWorker:')
+        expect(svelteConfig).toContain('register: false')
     })
 
-    it('pre-caches generated assets and protects EPUBs from cache storage', () => {
+    it('limits service-worker behavior to the speed reader scope', () => {
         expect(serviceWorker).toContain("from '$service-worker'")
+        expect(serviceWorker).toContain('READER_SCOPE_URL')
+        expect(serviceWorker).toContain('hasReaderScope')
+        expect(serviceWorker).toContain('self.registration.unregister()')
+        expect(serviceWorker).toContain('if (!isReaderUrl(request.url)) return')
         expect(serviceWorker).toContain('cache.addAll(precacheUrls)')
         expect(serviceWorker).toContain("endsWith('.epub')")
         expect(serviceWorker).toContain('.filter((cacheName) =>')
