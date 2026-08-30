@@ -186,12 +186,43 @@ describe('ImmersiveReader fullscreen', () => {
         expect(reader?.getAttribute('data-reading-theme')).toBe('sepia')
         expect(reader?.classList.contains('reading-align-center')).toBe(true)
         expect(reader?.getAttribute('style')).toContain('--reader-text-scale: 150%')
+        expect(reader?.getAttribute('style')).toContain('--reader-font-family: ui-sans-serif')
         expect(JSON.parse(window.localStorage.getItem(READER_SETTINGS_STORAGE_KEY) ?? '')).toEqual({
             textAlign: 'center',
             textScale: 150,
             font: 'sans',
             theme: 'sepia',
         })
+    })
+
+    it('refreshes fullscreen pagination when the settings panel opens and closes', async () => {
+        const { container } = render(ImmersiveReader, baseProps)
+        const viewport = await enterFullscreen()
+        const measurement = setPagedMeasurements(container, viewport)
+        await waitFor(() => expect(screen.getByText('Page 1 of 3')).not.toBeNull())
+
+        const settingsToggle = screen.getByRole('button', { name: 'Reading settings' })
+        measurement.scrollTo.mockClear()
+        await fireEvent.click(settingsToggle)
+        await waitFor(() => expect(measurement.scrollTo).toHaveBeenCalled())
+
+        measurement.scrollTo.mockClear()
+        await fireEvent.click(settingsToggle)
+        await waitFor(() => expect(measurement.scrollTo).toHaveBeenCalled())
+    })
+
+    it('keeps every fullscreen reading setting available when the panel is open', async () => {
+        const { container } = render(ImmersiveReader, baseProps)
+
+        await enterFullscreen()
+        await fireEvent.click(screen.getByRole('button', { name: 'Reading settings' }))
+
+        const panel = container.querySelector('.fullscreen-reader > .reading-settings')
+        expect(panel).not.toBeNull()
+        expect(screen.getByText('Text alignment')).not.toBeNull()
+        expect(screen.getByText('Text size')).not.toBeNull()
+        expect(screen.getByRole('combobox', { name: 'Font' })).not.toBeNull()
+        expect(screen.getByText('Viewing theme')).not.toBeNull()
     })
 
     it('refreshes fullscreen pagination when font or text size changes', async () => {
@@ -217,6 +248,30 @@ describe('ImmersiveReader fullscreen', () => {
         expect(componentStyles).toMatch(/\.immersive-reader\s*\{[^}]*box-sizing:\s*border-box;/)
         expect(componentStyles).toMatch(/\.continuous-content\s*\{[^}]*box-sizing:\s*border-box;/)
         expect(componentStyles).toMatch(/\.immersive-content\s*\{[^}]*overflow-wrap:\s*anywhere;/)
+        expect(componentStyles).toMatch(
+            /\.fullscreen-reader\s*>\s*\.reading-settings\s*\{[^}]*flex:\s*0 0 auto;/,
+        )
+        expect(componentStyles).toMatch(
+            /\.fullscreen-reader\s*>\s*\.reading-settings\s*\{[^}]*overflow-y:\s*auto;/,
+        )
+        expect(componentStyles).toMatch(
+            /\.fullscreen-reader\s*>\s*\.reading-settings\s*\{[^}]*max-height:\s*min\(55dvh, 28rem\);/,
+        )
+        expect(componentStyles).toMatch(
+            /\.immersive-content p\s*\{[^}]*font-family:\s*var\(--reader-font-family\);/,
+        )
+        expect(componentStyles).toMatch(
+            /\.immersive-content p\s*\{[^}]*color:\s*var\(--reader-text\);/,
+        )
+        expect(componentStyles).toMatch(
+            /\.immersive-header h2\s*\{[^}]*color:\s*var\(--reader-text\);/,
+        )
+        expect(componentStyles).toMatch(
+            /\.immersive-reader\[data-reading-theme='oled-dark'\]\s*\{[^}]*--reader-text:\s*#8a9b95;[^}]*--reader-muted:\s*#64736e;/,
+        )
+        expect(componentStyles).toMatch(
+            /\.immersive-reader\[data-reading-theme='oled-day'\]\s*\{[^}]*--reader-text:\s*#f4f6f5;[^}]*--reader-muted:\s*#b9c5c1;/,
+        )
         expect(componentStyles).toMatch(
             /@media screen and \(max-width: 576px\)[\s\S]*?\.immersive-reader\s*\{[^}]*padding:\s*0\.75rem;/,
         )

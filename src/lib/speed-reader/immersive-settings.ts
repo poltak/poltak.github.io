@@ -1,6 +1,6 @@
 export type ReaderTextAlign = 'left' | 'center' | 'justify'
 export type ReaderFontId = 'serif' | 'sans' | 'mono'
-export type ReaderTheme = 'light' | 'sepia' | 'oled'
+export type ReaderTheme = 'light' | 'sepia' | 'oled-dark' | 'oled-day'
 
 export interface ReaderSettings {
     textAlign: ReaderTextAlign
@@ -57,7 +57,8 @@ export const READER_THEME_OPTIONS: readonly {
 }[] = [
     { id: 'light', label: 'Light' },
     { id: 'sepia', label: 'Sepia' },
-    { id: 'oled', label: 'OLED black' },
+    { id: 'oled-dark', label: 'OLED black dark room' },
+    { id: 'oled-day', label: 'OLED black daytime' },
 ]
 
 export const DEFAULT_READER_SETTINGS: Readonly<ReaderSettings> = Object.freeze({
@@ -86,7 +87,12 @@ function isFontId(value: unknown): value is ReaderFontId {
 }
 
 function isReaderTheme(value: unknown): value is ReaderTheme {
-    return value === 'light' || value === 'sepia' || value === 'oled'
+    return value === 'light' || value === 'sepia' || value === 'oled-dark' || value === 'oled-day'
+}
+
+function normalizeReaderTheme(value: unknown): ReaderTheme {
+    if (value === 'oled') return 'oled-dark'
+    return isReaderTheme(value) ? value : DEFAULT_READER_SETTINGS.theme
 }
 
 function normalizeTextScale(value: unknown): number {
@@ -109,7 +115,7 @@ export function normalizeReaderSettings(value: unknown): ReaderSettings {
             : DEFAULT_READER_SETTINGS.textAlign,
         textScale: normalizeTextScale(candidate.textScale),
         font: isFontId(candidate.font) ? candidate.font : DEFAULT_READER_SETTINGS.font,
-        theme: isReaderTheme(candidate.theme) ? candidate.theme : DEFAULT_READER_SETTINGS.theme,
+        theme: normalizeReaderTheme(candidate.theme),
     }
 }
 

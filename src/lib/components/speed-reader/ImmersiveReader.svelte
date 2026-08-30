@@ -645,12 +645,21 @@
         color-scheme: light;
     }
 
-    .immersive-reader[data-reading-theme='oled'] {
+    .immersive-reader[data-reading-theme='oled-dark'] {
         --reader-bg: #000;
-        --reader-text: #f2f2f2;
-        --reader-muted: #bdbdbd;
-        --reader-border: rgba(255, 255, 255, 0.28);
-        --reader-subtle: #141414;
+        --reader-text: #8a9b95;
+        --reader-muted: #64736e;
+        --reader-border: rgba(138, 155, 149, 0.34);
+        --reader-subtle: #111615;
+        color-scheme: dark;
+    }
+
+    .immersive-reader[data-reading-theme='oled-day'] {
+        --reader-bg: #000;
+        --reader-text: #f4f6f5;
+        --reader-muted: #b9c5c1;
+        --reader-border: rgba(244, 246, 245, 0.32);
+        --reader-subtle: #141817;
         color-scheme: dark;
     }
 
@@ -702,6 +711,7 @@
 
     .immersive-header h2 {
         margin: 0.5rem 0;
+        color: var(--reader-text);
         font-family: var(--reader-font-family);
         font-size: clamp(1.75rem, 4vw, 2.5rem);
         line-height: 1.15;
@@ -764,6 +774,8 @@
 
     .immersive-content p {
         margin: 0 0 1.35em;
+        color: var(--reader-text);
+        font-family: var(--reader-font-family);
         font-size: var(--reader-text-scale);
         line-height: 1.8;
         orphans: 3;
@@ -928,7 +940,9 @@
     }
 
     .fullscreen-reader > .reading-settings {
+        flex: 0 0 auto;
         max-height: min(55dvh, 28rem);
+        min-height: 0;
         margin: 0;
         border-width: 0 0 1px;
         overflow-y: auto;

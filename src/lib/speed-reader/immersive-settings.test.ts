@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
     DEFAULT_READER_SETTINGS,
     READER_FONT_OPTIONS,
+    READER_THEME_OPTIONS,
     getReaderFontStack,
     loadReaderSettings,
     normalizeReaderSettings,
@@ -46,6 +47,27 @@ describe('immersive reader settings', () => {
 
         expect(normalizeReaderSettings({ textScale: 25 })).toMatchObject({ textScale: 50 })
         expect(normalizeReaderSettings({ textScale: 250.4 })).toMatchObject({ textScale: 200 })
+    })
+
+    it('supports separate OLED modes and migrates the old OLED value', () => {
+        expect(READER_THEME_OPTIONS.map((option) => option.id)).toEqual([
+            'light',
+            'sepia',
+            'oled-dark',
+            'oled-day',
+        ])
+        expect(normalizeReaderSettings({ theme: 'oled-dark' })).toMatchObject({
+            theme: 'oled-dark',
+        })
+        expect(normalizeReaderSettings({ theme: 'oled-day' })).toMatchObject({
+            theme: 'oled-day',
+        })
+        expect(normalizeReaderSettings({ theme: 'oled' })).toMatchObject({ theme: 'oled-dark' })
+
+        const legacyStorage = createStorage(
+            JSON.stringify({ ...DEFAULT_READER_SETTINGS, theme: 'oled' }),
+        )
+        expect(loadReaderSettings(legacyStorage)).toMatchObject({ theme: 'oled-dark' })
     })
 
     it('persists valid settings and ignores malformed storage', () => {
