@@ -1,6 +1,11 @@
 <script lang="ts">
     import { parseEpub, type EpubData, type TableOfContents } from 'poltak-epub-parser'
-    import { epubStorage, type StoredBook, type ReadingProgress } from '$lib/storage/epub-storage'
+    import {
+        epubStorage,
+        type StoredBook,
+        type ReadingProgress,
+        type SerializableEpubData,
+    } from '$lib/storage/epub-storage'
     import Icon from '$lib/components/icons/Icon.svelte'
     import { SpeedReaderEngine } from '$lib/speed-reader-engine'
     import ImmersiveReader from '$lib/components/speed-reader/ImmersiveReader.svelte'
@@ -178,6 +183,9 @@
             await loadLibrary()
         } catch (error) {
             console.error('Failed to initialize storage:', error)
+            errorMessage = `Unable to load your library: ${
+                error instanceof Error ? error.message : 'Unknown storage error'
+            }`
         }
     })
 
@@ -216,9 +224,24 @@
             bookProgresses = progressMap
         } catch (error) {
             console.error('Failed to load library:', error)
+            errorMessage = `Unable to load your library: ${
+                error instanceof Error ? error.message : 'Unknown storage error'
+            }`
         } finally {
             isLoadingLibrary = false
         }
+    }
+
+    async function refreshLibraryAfterBookOpen(bookId: string) {
+        try {
+            await epubStorage.updateLastReadDate(bookId)
+        } catch (error) {
+            // Updating metadata is optional. The reader is already open when
+            // mobile storage rejects this write or the connection is closed.
+            console.error('Failed to update last-read date:', error)
+        }
+
+        await loadLibrary()
     }
 
     async function handleFileUpload() {
@@ -258,14 +281,24 @@
 
     async function openStoredBook(book: StoredBook) {
         isLoading = true
+        errorMessage = ''
         try {
-            epubData = book.epubData
+            const storedEpubData = validateStoredEpubData(book.epubData)
+            epubData = storedEpubData
             currentBookId = book.id
-            engine.loadBook(epubData.allText, epubData.tableOfContents)
-            speechController.setBook(epubData.chapters)
+            engine.loadBook(storedEpubData.allText, storedEpubData.tableOfContents)
+            speechController.setBook(storedEpubData.chapters)
 
             // Load saved progress
-            const progress = await epubStorage.getProgress(book.id)
+            let progress: ReadingProgress | null = null
+            try {
+                progress = await epubStorage.getProgress(book.id)
+            } catch (error) {
+                // A progress read is optional. Let the book open at its start when
+                // mobile storage is temporarily unavailable or has been evicted.
+                console.error('Failed to load saved progress:', error)
+            }
+
             if (progress) {
                 currentWordIndex = progress.currentWordIndex
                 wordsPerMinute = progress.wordsPerMinute
@@ -277,15 +310,39 @@
                 speechController.selectChapter(0)
             }
 
-            await epubStorage.updateLastReadDate(book.id)
+            // The reader must not depend on rewriting the full EPUB record just to
+            // update its last-read timestamp. Mobile storage can reject that write
+            // because of quota or a temporarily closed IndexedDB connection.
             showLibrary = false
-            await loadLibrary() // Refresh library
+
+            void refreshLibraryAfterBookOpen(book.id)
         } catch (error) {
             console.error('Error opening book:', error)
-            errorMessage = `Error opening book: ${error instanceof Error ? error.message : 'Unknown error'}`
+            errorMessage = `Unable to open this book: ${
+                error instanceof Error ? error.message : 'Unknown error'
+            }`
+            epubData = null
+            currentBookId = null
+            engine.loadBook('', [])
+            speechController.setBook([])
         } finally {
             isLoading = false
         }
+    }
+
+    function validateStoredEpubData(data: SerializableEpubData): EpubData {
+        if (
+            !data ||
+            typeof data.allText !== 'string' ||
+            !Array.isArray(data.chapters) ||
+            !Array.isArray(data.tableOfContents)
+        ) {
+            throw new Error(
+                'The saved EPUB data is incomplete. Delete it and upload the book again.',
+            )
+        }
+
+        return data
     }
 
     async function deleteStoredBook(bookId: string, event: Event) {

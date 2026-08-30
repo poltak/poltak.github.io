@@ -116,6 +116,74 @@ describe('SpeedReader page', () => {
         expect(buttons.length).toBeGreaterThan(0)
     })
 
+    it('opens a stored book when updating its last-read date fails', async () => {
+        mockStorage.getBooks.mockResolvedValue([storedBook])
+        mockStorage.updateLastReadDate.mockRejectedValue(new Error('QuotaExceededError'))
+
+        render(SpeedReaderPage)
+
+        const card = await screen.findByRole('button', { name: 'Open Stored Book' })
+        await fireEvent.click(card)
+
+        await waitFor(() => expect(screen.getByText('Speed reader')).toBeTruthy())
+        expect(screen.queryByText('Your Library')).toBeNull()
+        expect(mockStorage.updateLastReadDate).toHaveBeenCalledWith('book-1')
+    })
+
+    it('refreshes the library after the last-read update settles', async () => {
+        mockStorage.getBooks.mockResolvedValue([storedBook])
+        let resolveLastReadDate!: () => void
+        const lastReadDateUpdate = new Promise<void>((resolve) => {
+            resolveLastReadDate = resolve
+        })
+        mockStorage.updateLastReadDate.mockReturnValue(lastReadDateUpdate)
+
+        render(SpeedReaderPage)
+        const card = await screen.findByRole('button', { name: 'Open Stored Book' })
+        await fireEvent.click(card)
+
+        await waitFor(() => expect(mockStorage.updateLastReadDate).toHaveBeenCalledWith('book-1'))
+        expect(mockStorage.getBooks).toHaveBeenCalledOnce()
+
+        resolveLastReadDate()
+
+        await waitFor(() => expect(mockStorage.getBooks).toHaveBeenCalledTimes(2))
+    })
+
+    it('opens a stored book at the beginning when saved progress cannot be read', async () => {
+        mockStorage.getBooks.mockResolvedValue([storedBook])
+        mockStorage.getProgress.mockRejectedValue(new Error('IndexedDB is unavailable'))
+
+        render(SpeedReaderPage)
+
+        const card = await screen.findByRole('button', { name: 'Open Stored Book' })
+        await fireEvent.click(card)
+
+        await waitFor(() => expect(screen.getByText('Speed reader')).toBeTruthy())
+        expect(screen.queryByText('Your Library')).toBeNull()
+    })
+
+    it('reports incomplete stored EPUB data instead of leaving a partial reader state', async () => {
+        mockStorage.getBooks.mockResolvedValue([
+            {
+                ...storedBook,
+                epubData: { ...storedBook.epubData, allText: undefined },
+            },
+        ])
+
+        render(SpeedReaderPage)
+
+        const card = await screen.findByRole('button', { name: 'Open Stored Book' })
+        await fireEvent.click(card)
+
+        expect(
+            await screen.findByText(
+                'Unable to open this book: The saved EPUB data is incomplete. Delete it and upload the book again.',
+            ),
+        ).toBeTruthy()
+        expect(screen.queryByText('Speed reader')).toBeNull()
+    })
+
     it('keeps delete keyboard activation separate from opening a book', async () => {
         mockStorage.getBooks.mockResolvedValue([storedBook])
 
