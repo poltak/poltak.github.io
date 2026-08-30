@@ -1,1 +1,0 @@
-import{ht as e}from"../chunks/CvHXvz2h.js";import"../chunks/xihTtKlq.js";import"../chunks/B6u8A622.js";import{t}from"../chunks/BXL9NTQY.js";var n=e({load:()=>r}),r=()=>({fun:{title:`Maze Generator`,description:`A visual maze generator using multiple algorithms and seeds.`}});function i(e){t(e,{})}export{i as component,n as universal};
