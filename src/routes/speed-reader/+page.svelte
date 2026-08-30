@@ -1245,6 +1245,13 @@
         box-sizing: border-box;
     }
 
+    @media screen and (max-width: 576px) {
+        .app-container {
+            padding-right: 0;
+            padding-left: 0;
+        }
+    }
+
     button {
         cursor: pointer;
         border: none;

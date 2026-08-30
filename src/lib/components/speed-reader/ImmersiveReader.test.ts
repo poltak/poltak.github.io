@@ -1,6 +1,15 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/svelte'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import ImmersiveReader from './ImmersiveReader.svelte'
+
+const projectRoot = process.env.INIT_CWD ?? process.cwd()
+const componentSource = readFileSync(
+    resolve(projectRoot, 'src/lib/components/speed-reader/ImmersiveReader.svelte'),
+    'utf8',
+)
+const componentStyles = componentSource.match(/<style>([\s\S]*?)<\/style>/)?.[1] ?? ''
 
 const chapter = {
     id: 'chapter-2',
@@ -110,6 +119,18 @@ describe('ImmersiveReader fullscreen', () => {
         await fireEvent.click(screen.getByRole('button', { name: 'Exit fullscreen' }))
         expect(document.exitFullscreen).toHaveBeenCalledOnce()
         expect(screen.getByRole('button', { name: 'Full screen' })).not.toBeNull()
+    })
+
+    it('keeps reader surfaces within narrow viewports in its CSS contract', () => {
+        expect(componentStyles).toMatch(/\.immersive-reader\s*\{[^}]*box-sizing:\s*border-box;/)
+        expect(componentStyles).toMatch(/\.continuous-content\s*\{[^}]*box-sizing:\s*border-box;/)
+        expect(componentStyles).toMatch(/\.immersive-content\s*\{[^}]*overflow-wrap:\s*anywhere;/)
+        expect(componentStyles).toMatch(
+            /@media screen and \(max-width: 576px\)[\s\S]*?\.immersive-reader\s*\{[^}]*padding:\s*0\.75rem;/,
+        )
+        expect(componentStyles).toMatch(
+            /@media screen and \(max-width: 576px\)[\s\S]*?\.continuous-content\s*\{[^}]*padding:\s*1rem 0\.75rem;/,
+        )
     })
 
     it('turns measured pages with taps, swipes, and keyboard controls', async () => {

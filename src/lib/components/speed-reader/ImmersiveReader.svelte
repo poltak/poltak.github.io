@@ -467,9 +467,11 @@
 <style>
     .immersive-reader {
         width: 100%;
+        min-width: 0;
         max-width: 52rem;
         margin: 0 auto;
         padding: clamp(1.25rem, 4vw, 3rem);
+        box-sizing: border-box;
         background: var(--c-surface);
         border-radius: var(--radius-lg);
         box-shadow: var(--shadow-lg);
@@ -547,6 +549,7 @@
         font-family: var(--font-serif);
         font-size: clamp(1.1rem, 2vw, 1.35rem);
         line-height: 1.8;
+        overflow-wrap: anywhere;
         outline-offset: 0.35rem;
     }
 
@@ -780,8 +783,10 @@
 
     .continuous-content {
         width: min(100%, 52rem);
+        min-width: 0;
         margin: 0 auto;
         padding: clamp(1.5rem, 5vw, 4rem) clamp(1.25rem, 5vw, 3rem);
+        box-sizing: border-box;
     }
 
     .fullscreen-reader.continuous-mode {
@@ -810,6 +815,10 @@
     }
 
     @media screen and (max-width: 576px) {
+        .immersive-reader {
+            padding: 0.75rem;
+        }
+
         .immersive-heading-row {
             align-items: stretch;
             flex-direction: column;
@@ -840,6 +849,10 @@
 
         .fullscreen-mode-switch button {
             flex: 1;
+        }
+
+        .continuous-content {
+            padding: 1rem 0.75rem;
         }
 
         .paged-frame {
