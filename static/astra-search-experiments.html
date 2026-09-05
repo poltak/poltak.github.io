@@ -1,0 +1,1467 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>2026-09-05 Search quality audit</title>
+        <style>
+            :root {
+                --ink: #17202a;
+                --muted: #5b6875;
+                --line: #d9e1e8;
+                --paper: #fbfcfe;
+                --panel: #fff;
+                --blue: #155eef;
+                --blue-soft: #eaf1ff;
+                --green: #067647;
+                --green-soft: #e9f8f0;
+                --amber: #9a6700;
+                --amber-soft: #fff6df;
+                --red: #b42318;
+                --red-soft: #fff0ee;
+                --shadow: 0 12px 30px rgba(23, 32, 42, 0.07);
+            }
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                color: var(--ink);
+                background: var(--paper);
+                font:
+                    16px/1.62 system-ui,
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    'Segoe UI',
+                    sans-serif;
+            }
+            main {
+                max-width: 1120px;
+                margin: 0 auto;
+                padding: 34px 22px 72px;
+            }
+            header {
+                padding: 20px 0 26px;
+            }
+            .eyebrow {
+                color: var(--blue);
+                font-size: 0.78rem;
+                font-weight: 750;
+                letter-spacing: 0.11em;
+                text-transform: uppercase;
+            }
+            h1 {
+                max-width: 850px;
+                margin: 8px 0 10px;
+                font:
+                    700 clamp(2.1rem, 5vw, 4.1rem)/1.06 Georgia,
+                    serif;
+                letter-spacing: -0.035em;
+            }
+            h2 {
+                margin: 52px 0 13px;
+                padding-top: 18px;
+                border-top: 1px solid var(--line);
+                font:
+                    700 2rem/1.15 Georgia,
+                    serif;
+                letter-spacing: -0.02em;
+            }
+            h3 {
+                margin: 27px 0 8px;
+                font-size: 1.18rem;
+            }
+            p {
+                max-width: 82ch;
+                margin: 11px 0;
+            }
+            .lede {
+                max-width: 760px;
+                color: var(--muted);
+                font-size: 1.13rem;
+            }
+            .meta {
+                color: var(--muted);
+                font-size: 0.88rem;
+            }
+            .callout {
+                margin: 20px 0;
+                padding: 17px 19px;
+                border: 1px solid var(--line);
+                border-left: 5px solid var(--blue);
+                border-radius: 12px;
+                background: var(--panel);
+                box-shadow: var(--shadow);
+            }
+            .callout.good {
+                border-left-color: var(--green);
+                background: var(--green-soft);
+            }
+            .callout.warn {
+                border-left-color: var(--amber);
+                background: var(--amber-soft);
+            }
+            .callout.risk {
+                border-left-color: var(--red);
+                background: var(--red-soft);
+            }
+            .toc {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                margin: 19px 0 30px;
+            }
+            .toc a {
+                padding: 7px 11px;
+                color: var(--blue);
+                border: 1px solid #c9d8fa;
+                border-radius: 999px;
+                background: var(--blue-soft);
+                text-decoration: none;
+                font-size: 0.9rem;
+            }
+            .cards {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+                gap: 12px;
+                margin: 21px 0;
+            }
+            .card {
+                min-height: 120px;
+                padding: 16px;
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                background: var(--panel);
+                box-shadow: var(--shadow);
+            }
+            .card .value {
+                display: block;
+                margin: 5px 0 2px;
+                color: var(--blue);
+                font-size: 1.75rem;
+                font-weight: 760;
+                line-height: 1.1;
+            }
+            .card .label {
+                color: var(--muted);
+                font-size: 0.86rem;
+            }
+            table {
+                width: 100%;
+                margin: 18px 0;
+                border-collapse: collapse;
+                background: var(--panel);
+                box-shadow: var(--shadow);
+                font-size: 0.92rem;
+            }
+            th,
+            td {
+                padding: 10px 11px;
+                border: 1px solid var(--line);
+                text-align: left;
+                vertical-align: top;
+            }
+            th {
+                background: #f1f5f9;
+                font-weight: 700;
+            }
+            .num {
+                white-space: nowrap;
+                font-variant-numeric: tabular-nums;
+            }
+            li {
+                margin: 5px 0;
+            }
+            pre {
+                overflow-x: auto;
+                margin: 17px 0;
+                padding: 16px;
+                border: 1px solid #cbd5e1;
+                border-radius: 10px;
+                background: #101827;
+                color: #e5edf8;
+                font:
+                    0.88rem/1.55 ui-monospace,
+                    SFMono-Regular,
+                    Menlo,
+                    Consolas,
+                    monospace;
+                white-space: pre-wrap;
+            }
+            code {
+                font-family:
+                    ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+                font-size: 0.92em;
+            }
+            .flow {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 10px;
+                align-items: stretch;
+                margin: 22px 0;
+            }
+            .flow .step {
+                position: relative;
+                padding: 15px 12px;
+                border: 1px solid #bdd0f5;
+                border-radius: 12px;
+                background: var(--blue-soft);
+                text-align: center;
+            }
+            .flow .step:not(:last-child)::after {
+                content: '→';
+                position: absolute;
+                right: -17px;
+                top: 31%;
+                color: var(--blue);
+                font-size: 1.45rem;
+                font-weight: 750;
+                z-index: 2;
+            }
+            .flow small {
+                display: block;
+                margin-top: 4px;
+                color: var(--muted);
+            }
+            .compare {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 13px;
+                margin: 18px 0;
+            }
+            .compare > div {
+                padding: 15px;
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                background: var(--panel);
+            }
+            .compare h3 {
+                margin-top: 0;
+            }
+            .badge {
+                display: inline-block;
+                margin: 2px 5px 2px 0;
+                padding: 3px 8px;
+                border-radius: 999px;
+                background: #eef2f6;
+                color: var(--muted);
+                font-size: 0.78rem;
+            }
+            details {
+                margin: 13px 0;
+                padding: 0 14px;
+                border: 1px solid var(--line);
+                border-radius: 10px;
+                background: var(--panel);
+            }
+            summary {
+                cursor: pointer;
+                padding: 12px 0;
+                font-weight: 700;
+            }
+            .question {
+                margin: 15px 0;
+                padding: 16px;
+                border: 1px solid var(--line);
+                border-radius: 12px;
+                background: var(--panel);
+            }
+            .question p {
+                margin-top: 0;
+                font-weight: 700;
+            }
+            .choices {
+                display: grid;
+                gap: 7px;
+            }
+            .choices button {
+                padding: 9px 11px;
+                border: 1px solid #bbc8d5;
+                border-radius: 8px;
+                background: #fff;
+                color: var(--ink);
+                text-align: left;
+                cursor: pointer;
+                font: inherit;
+            }
+            .choices button:hover {
+                border-color: var(--blue);
+                background: var(--blue-soft);
+            }
+            .choices button.correct {
+                border-color: var(--green);
+                background: var(--green-soft);
+            }
+            .choices button.wrong {
+                border-color: var(--red);
+                background: var(--red-soft);
+            }
+            .feedback {
+                min-height: 1.5em;
+                margin-top: 9px;
+                color: var(--muted);
+                font-size: 0.92rem;
+            }
+            footer {
+                margin-top: 52px;
+                padding-top: 16px;
+                border-top: 1px solid var(--line);
+                color: var(--muted);
+                font-size: 0.86rem;
+            }
+            @media (max-width: 760px) {
+                main {
+                    padding: 22px 14px 55px;
+                }
+                .flow {
+                    grid-template-columns: 1fr;
+                }
+                .flow .step:not(:last-child)::after {
+                    content: '↓';
+                    right: 48%;
+                    top: auto;
+                    bottom: -20px;
+                }
+                .compare {
+                    grid-template-columns: 1fr;
+                }
+                table {
+                    display: block;
+                    overflow-x: auto;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <header>
+                <div class="eyebrow">Memex V2 · search quality audit</div>
+                <h1>What survived the search audit</h1>
+                <p class="lede">
+                    A beginner-friendly record of how Memex search works, what
+                    we changed, and what the local search evaluations measured.
+                    The selected branch now keeps a faster text-matching path,
+                    gives uncommon query words more weight, prefers one passage
+                    that supports the query, and records the limits of the eval.
+                </p>
+                <p class="meta">
+                    Prepared 2026-09-05 · this report is uncommitted · search
+                    and eval changes are committed and pushed to
+                    <code>origin/feature/astra-search-eval-loop</code> at
+                    <code>cad8445ed</code>, <code>34c2f8e69</code>, and HEAD
+                    <code>7bc7ca53b</code> · local saved library · 156 core
+                    cases
+                </p>
+            </header>
+
+            <div class="callout good">
+                <strong>Decision at a glance.</strong> Keep the faster text
+                cleanup and the selected ranker: give uncommon query words more
+                weight, then prefer the single passage that supports the query
+                best. It reached 123/156 first-place results and 149/156
+                top-10 results. Two no-rewrite runs returned the same complete
+                results and had retrieval means of 750 ms and 762.397 ms. Keep
+                rewritten search as a separate quality/latency choice. The
+                local saved library has 298 items and we did not reserve a
+                separate test set, so these results guide the branch but do not
+                prove general search performance.
+            </div>
+
+            <div class="cards">
+                <div class="card">
+                    <span class="label">Core eval</span
+                    ><span class="value">156 / 156</span
+                    ><span class="label"
+                        >successful search requests in final runs</span
+                    >
+                </div>
+                <div class="card">
+                    <span class="label">Before the audit</span
+                    ><span class="value">110 / 156</span
+                    ><span class="label">first place · 136 in top ten</span>
+                </div>
+                <div class="card">
+                    <span class="label">Kept retrieval mean</span
+                    ><span class="value">0.75–0.76 s</span
+                    ><span class="label">two no-rewrite runs</span>
+                </div>
+                <div class="card">
+                    <span class="label">Rewritten search</span
+                    ><span class="value">135 / 156</span
+                    ><span class="label">first place · 152 in top ten</span>
+                </div>
+                <div class="card">
+                    <span class="label">Kept passage rank</span
+                    ><span class="value">123 / 156</span
+                    ><span class="label">first place · 149 in top ten</span>
+                </div>
+                <div class="card">
+                    <span class="label">Saved library</span
+                    ><span class="value">298</span
+                    ><span class="label"
+                        >items; 159 expected IDs; 3,873 chunks</span
+                    >
+                </div>
+            </div>
+
+            <nav class="toc" aria-label="Table of contents">
+                <a href="#pipeline">How search works</a
+                ><a href="#speed">Speed work</a
+                ><a href="#retained">Retained changes</a
+                ><a href="#evidence">Evidence</a
+                ><a href="#rejected">Rejected or unresolved</a
+                ><a href="#harness">Eval harness</a
+                ><a href="#incident">Data incident</a
+                ><a href="#next">Next decision</a><a href="#quiz">Quiz</a>
+            </nav>
+
+            <section id="pipeline">
+                <h2>How search works</h2>
+                <p>
+                    Search starts with the words a person types. The application
+                    may first rewrite those words into a clearer search plan.
+                    It then makes an <em>embedding</em>, which is a list of
+                    numbers that captures the query's meaning. The database
+                    combines that meaning search with ordinary word matching.
+                    Finally, the application orders the results and loads the
+                    saved content. Our evaluation repeats a set of searches
+                    with known answers, then checks whether those answers
+                    appear near the top and how long each search takes.
+                </p>
+                <div class="flow" aria-label="Search flow diagram">
+                    <div class="step">
+                        <strong>Query</strong><small>user words</small>
+                    </div>
+                    <div class="step">
+                        <strong>Plan</strong
+                        ><small>rewrite or keep</small>
+                    </div>
+                    <div class="step">
+                        <strong>Find possible matches</strong
+                        ><small>match words and meaning</small>
+                    </div>
+                    <div class="step">
+                        <strong>Order results</strong
+                        ><small>strongest matches first</small>
+                    </div>
+                    <div class="step">
+                        <strong>Show results</strong
+                        ><small>first page, then more</small>
+                    </div>
+                </div>
+                <div class="callout">
+                    <strong>Words used below.</strong> A <em>chunk</em> is a
+                    small stored passage from a saved item. A
+                    <em>distractor</em> is a result that looks related but is
+                    the wrong answer. A <em>pairwise judgment</em> asks whether
+                    the right item appears above one specific wrong item. A
+                    <em>page</em> is one slice of results, such as results 11
+                    to 20; <em>pagination</em> is choosing that slice. The
+                    <em>saved library</em> is the eval's corpus. A
+                    <em>holdout set</em> is a separate set of queries that we
+                    did not use while tuning; this audit has none.
+                </div>
+                <p>
+                    The eval is a measurement outside the product flow. It
+                    repeats the same 156 queries, then checks quality and time
+                    so a ranking change does not hide a speed regression.
+                </p>
+                <p>
+                    The SQL problem appeared in the exact-anchor and phrase
+                    branches. An anchor is a strong word or phrase that should
+                    appear in the saved text. Before the change, the database
+                    cleaned the same chunk text again for each anchor term and
+                    again for each phrase. The cleanup was correct, but the
+                    repeated work became expensive on a corpus with thousands
+                    of chunks.
+                </p>
+                <details>
+                    <summary>How the candidate SQL changed</summary>
+                    <div class="compare">
+                        <div>
+                            <h3>Before</h3>
+                            <p>
+                                Each branch scanned scoped chunks and evaluated
+                                <code
+                                    >memex_normalize_search_text(csc.text)</code
+                                >
+                                inside every term or phrase match.
+                            </p>
+                            <pre>
+for each exact term or phrase:
+  scan scoped chunks
+  normalize(chunk.text)
+  apply the same regex</pre
+                            >
+                        </div>
+                        <div>
+                            <h3>Retained</h3>
+                            <p>
+                                A materialized CTE computes the padded
+                                normalized text once. The old regex rules, scope
+                                joins, and candidate sets stay the same.
+                            </p>
+                            <pre>
+normalized_scoped_chunks AS MATERIALIZED (...)
+  WHERE EXISTS(valid exact term OR non-empty phrase)
+
+anchor candidates and phrase candidates
+  read normalized_text</pre
+                            >
+                        </div>
+                    </div>
+                </details>
+            </section>
+
+            <section id="speed">
+                <h2>Speed work in plain English</h2>
+                <p>
+                    A search result is produced in stages. Each stage answers a
+                    different question: what did the person mean, which saved
+                    items could match, which passages support the match, and
+                    which results should appear first?
+                </p>
+                <div class="compare">
+                    <div>
+                        <h3>Meaning search</h3>
+                        <p>
+                            The embedding lets a query about “ways to keep a
+                            private code project fresh” find text that uses
+                            different words. This is useful for meaning, but it
+                            can also return a broad result that only sounds
+                            related.
+                        </p>
+                    </div>
+                    <div>
+                        <h3>Word and passage search</h3>
+                        <p>
+                            Exact words, phrases, and the passage that contains
+                            them provide stronger evidence. Coverage ranking
+                            asks how much of the query a result supports, then
+                            combines that evidence with the database rank.
+                        </p>
+                    </div>
+                </div>
+                <h3>Toy example: clean text once</h3>
+                <p>
+                    There are two related cleanup steps in this report. The
+                    early exact-word and phrase path lowercases text, replaces
+                    punctuation with spaces, collapses repeated spaces, and
+                    trims the result. A later coverage-only step also removes
+                    accent marks so its text terms match the TypeScript ranker.
+                    Keeping these steps separate avoids claiming that the early
+                    speed fix changed accent handling.
+                </p>
+                <pre>
+early exact/phrase cleanup:
+"Hello, WORLD!"  →  "hello world"
+
+later coverage-only cleanup:
+"Trần Hùng — café"  →  " tran hung cafe "
+
+1000 scoped chunks × 6 exact terms
+old path: 6000 illustrative cleanup calls
+new path: 1000 cleanup calls, then reuse the cleaned text
+
+The 1000 and 6000 counts are a toy model, not a profiler count. The reuse
+lasts for one database request; it is not a cross-query cache.</pre
+                >
+                <h3>What the speed measurements actually show</h3>
+                <div class="callout good">
+                    <strong>Early speed path.</strong> The old path repeatedly
+                    cleaned the same saved text. In the no-rewrite comparison,
+                    average database retrieval fell from about 1.43 s to 0.52 s.
+                    The slow-tail p95 fell from 7.53 s to 3.42 s, while the
+                    middle case moved only from 135 ms to 122 ms. Some slow
+                    examples changed from 20.2 s to 4.8 s, 16.0 s to 4.9 s,
+                    and 15.7 s to 5.1 s. Most already-fast searches changed
+                    little. The same 156 query requests were compared, so this
+                    is useful local evidence, not a randomized benchmark.
+                </div>
+                <details>
+                    <summary>Exact early measurements</summary>
+                    <p>
+                        Retrieval mean was 1,427.224 ms → 521.667 ms (63.45%
+                        lower, or 2.74× faster); p50 was 135 ms → 122 ms; p95
+                        was 7,531 ms → 3,419 ms (54.6% lower). Wall-clock mean
+                        was 2,355.135 ms → 1,402.923 ms (40.43% lower). The
+                        query objects were identical in all 156 cases. Hit@1
+                        rose from 110 to 114 and Hit@10 stayed at 136. The
+                        selected examples were Claude Code grep 20,199 → 4,763
+                        ms, Anthropic tools 16,018 → 4,902 ms, and AI only
+                        services 15,704 → 5,134 ms.
+                    </p>
+                </details>
+                <div class="callout warn">
+                    <strong>The first attempt needed a correction.</strong>
+                    Reusing cleaned text initially cut average retrieval from
+                    1.38 s to 0.72 s and p95 from 7.38 s to 3.81 s, but made
+                    the middle case slower: 136 ms to 415 ms. We fixed this by
+                    skipping the cleanup when a search had no words or phrases
+                    for that part of the database to check. Separately, rewritten
+                    search compared with its cached reference moved average
+                    retrieval from 3.75 s to 1.04 s and p50 from 2.81 s to
+                    562 ms. Rewrite-cache and provider timing also differed, so
+                    that whole wall-clock change cannot be credited to SQL alone.
+                    The later 542 ms skip reference is a separate rerun; it does
+                    not replace the earlier 522 ms measurement.
+                </div>
+                <h3>Copyable plain-English summary</h3>
+                <pre>
+Search was repeatedly cleaning the same saved text while checking different
+words and phrases. We changed it to clean each passage once per search and
+reuse the result, and to skip that work when it was not needed.
+
+In our local evaluation, average retrieval time fell from about 1.43 seconds
+to 0.52 seconds; one slow query fell from about 20 seconds to 5 seconds.
+The main benefit was fewer long waits: already-fast searches changed little.</pre
+                >
+            </section>
+
+            <section id="retained">
+                <h2>Retained changes</h2>
+                <h3>
+                    1. Clean the text once, and only when needed
+                </h3>
+                <p>
+                    The database checks the same words and phrases as before.
+                    It now prepares each passage once and shares that prepared
+                    text between those checks. If none of these checks are
+                    needed, it does not prepare the text at all.
+                </p>
+                <details>
+                    <summary>Implementation and focused measurements</summary>
+                <p>
+                    The migration is
+                    <code
+                        >supabase/migrations/20260905100000_reuse_scoped_normalized_search_text.sql</code
+                    >. It replaces repeated normalisation with one scoped
+                    materialized CTE. The <code>EXISTS</code> guard checks for a
+                    valid exact term or a non-empty phrase before the CTE can
+                    scan chunks. This matters because downstream references
+                    can otherwise force the CTE to run even when ordinary
+                    searches have no exact candidate input. The implementation
+                    is committed in <code>4064e1817</code> and retained by the
+                    selected branch.
+                </p>
+                <div class="callout good">
+                    <strong>Semantic check:</strong> anchor candidates were
+                    1,193 before and after; phrase candidates were 156 before
+                    and after. Both directions of set difference were zero. A
+                    single-anchor check and a phrase-only check also had zero
+                    differences. No ranking rule or scope rule was changed.
+                </div>
+                <p>
+                    In a rollback-only local profile of the complete RPC, the
+                    empty-input branch fell from 404.2 ms without the guard to
+                    74.3 ms with it, about 82% less time in this isolated check.
+                    Anchor candidates were
+                    1,193 before and after; phrase candidates were 156 before
+                    and after, with zero IDs in either direction of set
+                    difference. The first normalized version reduced mean
+                    retrieval time but made many fast searches slower; the guard
+                    targets that exact regression.
+                </p>
+
+                </details>
+                <h3>2. Compare words across the whole item and one passage</h3>
+                <p>
+                    The ranker now receives text from exact matched chunks. For
+                    each result it computes document-wide term coverage and
+                    matched-evidence coverage, keeps title terms, then averages
+                    the two values. This gives a result credit when the whole
+                    document supports the query while also rewarding the chunk
+                    that actually matched.
+                </p>
+                <pre>
+coverage = (documentCoverage + matchedEvidenceCoverage) / 2
+adjustedRank = reciprocalRank * (1 + weight * coverage²)</pre
+                >
+                <p>
+                    The focused tests cover a document-supported result, a
+                    matched-evidence result, and empty evidence with title
+                    support. This was a useful comparison: it preserves broad
+                    document support and local passage evidence. The selected
+                    branch later tested IDF weighting and the strongest single
+                    chunk. The 50/50 implementation is committed in
+                    <code>26875348a</code>.
+                </p>
+
+                <h3>3. Keep the selected IDF best-any coverage rank</h3>
+                <p>
+                    <em>IDF</em> means that a less common query word contributes
+                    more than a very common word. <em>Best-any</em> means that a
+                    result uses the strongest single canonical chunk it has,
+                    instead of adding weak matches scattered across many
+                    unrelated chunks. The kept normalized-fast variant reached
+                    123/156 Hit@1, 149/156 Hit@10, MRR 0.847, and nDCG 0.862.
+                    It exposed 16/22 known negatives and got 25/33 evaluated
+                    pairwise judgments correct, or 25/34 on the fixed label
+                    denominator. Its first skip run measured 750 / 443 / 3,544
+                    ms retrieval mean / p50 / p95. The repeat measured 762.397 /
+                    438 / 3,724 ms and returned identical complete results.
+                    The selected ranking is committed and pushed at
+                    <code>cad8445ed</code>, <code>34c2f8e69</code>, and HEAD
+                    <code>7bc7ca53b</code>.
+                </p>
+
+                <h3>4. Make eval reports explain their own limits</h3>
+                <p>
+                    The harness now records a dataset SHA-256, requested and
+                    effective user IDs, execution mode, concurrency, and
+                    timeout. It also reports judgment coverage separately from
+                    quality: known negatives, pairwise judgments, chunk
+                    judgments, graded relevance, and multiple-target cases. This
+                    prevents a high score from hiding a thin judgment set. The
+                    provenance change is retained in the branch history. The
+                    final denominator and label updates are committed in
+                    <code>34c2f8e69</code> and <code>7bc7ca53b</code>.
+                </p>
+                <p>
+                    Six existing core cases gained seven known-negative labels
+                    and seven must-rank-above judgments:
+                </p>
+                <div>
+                    <span class="badge"
+                        >hard-health-blue-light-contacts</span
+                    ><span class="badge"
+                        >hard-health-sugar-during-lifting-study</span
+                    ><span class="badge">dev-squats-after-meals</span
+                    ><span class="badge"
+                        >dev-mr-chatterbox-british-literature</span
+                    ><span class="badge"
+                        >expansion-v3-manus-founder-exit-ban</span
+                    ><span class="badge"
+                        >expansion-v3-modern-final-fantasy-eight</span
+                    >
+                </div>
+            </section>
+
+            <section id="evidence">
+                <h2>Objective evidence</h2>
+                <p>
+                    These are full 156-case local reports. The skip/default rows
+                    are useful together because they show the quality/latency
+                    tradeoff. The final rows also include the SQL guard and the
+                    50/50 coverage work; they are named by report file so the
+                    results remain traceable.
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Run</th>
+                            <th>Rewrite</th>
+                            <th>Hit@1</th>
+                            <th>Hit@10</th>
+                            <th>MRR</th>
+                            <th>Retrieval mean / p50 / p95</th>
+                            <th>Wall mean / p50 / p95</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>audit-20260905-baseline</code></td>
+                            <td>skip</td>
+                            <td class="num">0.705</td>
+                            <td class="num">0.872</td>
+                            <td class="num">0.769</td>
+                            <td class="num">1,427 / 135 / 7,531 ms</td>
+                            <td class="num">2,355 / 968 / 9,127 ms</td>
+                        </tr>
+                        <tr>
+                            <td><code>audit-20260905-default-rewrite</code></td>
+                            <td>default</td>
+                            <td class="num">0.859</td>
+                            <td class="num">0.974</td>
+                            <td class="num">0.904</td>
+                            <td class="num">3,752 / 2,810 / 12,374 ms</td>
+                            <td class="num">6,072 / 5,271 / 15,943 ms</td>
+                        </tr>
+                        <tr>
+                            <td><code>audit-20260905-coverage-skip</code></td>
+                            <td>skip</td>
+                            <td class="num">0.705</td>
+                            <td class="num">0.872</td>
+                            <td class="num">0.767</td>
+                            <td class="num">1,384 / 136 / 7,379 ms</td>
+                            <td class="num">2,299 / 925 / 8,930 ms</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <code>audit-20260905-normalization-skip</code>
+                            </td>
+                            <td>skip</td>
+                            <td class="num">0.705</td>
+                            <td class="num">0.872</td>
+                            <td class="num">0.767</td>
+                            <td class="num">721 / 415 / 3,809 ms</td>
+                            <td class="num">1,569 / 1,201 / 5,225 ms</td>
+                        </tr>
+                        <tr>
+                            <td><code>audit-20260905-blend-skip</code></td>
+                            <td>skip</td>
+                            <td class="num">0.731</td>
+                            <td class="num">0.872</td>
+                            <td class="num">0.784</td>
+                            <td class="num">522 / 122 / 3,419 ms</td>
+                            <td class="num">1,403 / 911 / 5,001 ms</td>
+                        </tr>
+                        <tr>
+                            <td><code>audit-20260905-blend-default</code></td>
+                            <td>default, cached</td>
+                            <td class="num">0.865</td>
+                            <td class="num">0.974</td>
+                            <td class="num">0.907</td>
+                            <td class="num">1,037 / 562 / 4,201 ms</td>
+                            <td class="num">2,043 / 1,414 / 5,755 ms</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <code
+                                    >audit-20260905-blend-default-uncached</code
+                                >
+                            </td>
+                            <td>default, rewrite cache disabled</td>
+                            <td class="num">0.865</td>
+                            <td class="num">0.968</td>
+                            <td class="num">0.905</td>
+                            <td class="num">937 / 534 / 3,833 ms</td>
+                            <td class="num">3,178 / 2,681 / 6,655 ms</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="callout warn">
+                    <strong>How to read the table.</strong> Default rewrite
+                    gives a large quality gain over skip, with a clear latency
+                    cost. The uncached replay had 16 executed-query changes and
+                    one top-10 loss; the same cached 156 executed queries were
+                    identical. Do not turn this into a claim that cache warming
+                    improved every SQL path or that the total wall-clock gain is
+                    solely SQL work.
+                </div>
+                <h3>Later quality and pagination experiments</h3>
+                <p>
+                    The later experiments changed how results were ranked. They
+                    are different from the early speed comparison above. In the
+                    tables below, <strong>Hit@1</strong> means the expected item
+                    was first, <strong>Hit@10</strong> means it appeared in the
+                    first ten, and <strong>MRR</strong> rewards a correct result
+                    more when it appears near the top. Retrieval p50 is the
+                    middle case; p95 shows the slow tail. Each arrow compares
+                    the run on the left with the run on the right.
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Comparison</th>
+                            <th>Hit@1 / Hit@10 / MRR</th>
+                            <th>Retrieval mean / p50 / p95</th>
+                            <th>Wall mean / p50 / p95</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <code>pre-sql-coverage-skip</code> →
+                                <code>sql-coverage-skip</code>
+                            </td>
+                            <td class="num">
+                                0.731 / 0.872 / 0.784 → 0.724 / 0.955 /
+                                0.804
+                            </td>
+                            <td class="num">
+                                542 / 126 / 3,645 → 929 / 613 / 4,697 ms
+                            </td>
+                            <td class="num">
+                                1,500 / 944 / 5,216 → 1,891 / 1,581 / 5,909 ms
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <code>blend-default</code> →
+                                <code>sql-coverage-default</code>
+                            </td>
+                            <td class="num">
+                                0.865 / 0.974 / 0.907 → 0.833 / 0.974 /
+                                0.880
+                            </td>
+                            <td class="num">
+                                1,037 / 562 / 4,201 → 1,206 / 613 / 4,832 ms
+                            </td>
+                            <td class="num">
+                                2,043 / 1,414 / 5,755 → 2,289 / 1,606 / 6,385 ms
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="callout risk">
+                    <strong>Broad SQL coverage was rejected as the default.</strong>
+                    It recovered 13 skip cases into the top 10, but reduced
+                    Hit@1 and increased latency. On rewritten searches it
+                    reduced Hit@1 and MRR with no Hit@10 gain. The 35 searches
+                    outside the SQL gate were unchanged.
+                </div>
+                <h3>The narrower gate</h3>
+                <p>
+                    The selected gate excludes searches with effective anchor
+                    groups or people intent, while allowing phrase-only searches.
+                    This kept a useful test for unanchored searches without
+                    changing the normal rewritten path. It is retained with a
+                    visible tradeoff rather than described as a universal win.
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Comparison</th>
+                            <th>Hit@1 / Hit@5 / Hit@10</th>
+                            <th>MRR / nDCG@10</th>
+                            <th>Retrieval mean / p50 / p95</th>
+                            <th>Wall mean / p50 / p95</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <code>pre-sql-coverage-skip</code> →
+                                <code>sql-unanchored-coverage-skip</code>
+                            </td>
+                            <td class="num">
+                                0.731 / 0.846 / 0.872 → 0.724 / 0.910 /
+                                0.955
+                            </td>
+                            <td class="num">0.784 / 0.795 → 0.805 / 0.829</td>
+                            <td class="num">
+                                542 / 126 / 3,645 → 793 / 460 / 3,481 ms
+                            </td>
+                            <td class="num">
+                                1,500 / 944 / 5,216 → 1,694 / 1,414 / 5,077 ms
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <code>blend-default</code> →
+                                <code>sql-unanchored-coverage-default</code>
+                            </td>
+                            <td class="num">
+                                0.865 / 0.974 / 0.974 → 0.865 / 0.974 /
+                                0.974
+                            </td>
+                            <td class="num">0.907 / 0.916 → 0.907 / 0.916</td>
+                            <td class="num">
+                                1,037 / 562 / 4,201 → 983 / 536 / 4,056 ms
+                            </td>
+                            <td class="num">
+                                2,043 / 1,414 / 5,755 → 1,954 / 1,365 / 5,674 ms
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>
+                    The default row was an unchanged replay: all 156 complete
+                    <code>topResults</code> objects matched, and the SQL
+                    pre-pagination diagnostic appeared zero times. Its separate
+                    timing run is not evidence of a speed improvement. The
+                    final default report also matched <code>blend-default</code>
+                    in all 156 complete results: 135/156 Hit@1, 152/156 Hit@10,
+                    MRR 0.906944, 15/22 known negatives exposed, and 26/34
+                    fixed pairwise labels correct. Retrieval was 1,000.5 / 553 /
+                    4,063 ms mean / p50 / p95.
+                </p>
+
+                <h3>Coverage, IDF, and normalization variants</h3>
+                <p>
+                    These full 156-case skip runs use the same local corpus and
+                    query inputs. “IDF” gives less common words more influence.
+                    “Best-any” uses the strongest single canonical chunk for a
+                    result, which avoids rewarding words scattered across
+                    unrelated passages. Pairwise values show correct / evaluated
+                    judgments; the fixed denominator has 34 labels.
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Variant</th>
+                            <th>Hit@1 / Hit@5 / Hit@10</th>
+                            <th>MRR / nDCG@10</th>
+                            <th>Negatives</th>
+                            <th>Pairwise</th>
+                            <th>Retrieval mean / p50 / p95</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>coverage-iteration-baseline</code></td>
+                            <td class="num">113 / 142 / 149</td>
+                            <td class="num">0.805 / 0.829</td>
+                            <td class="num">17 / 22</td>
+                            <td class="num">20 / 33; 20 / 34 fixed</td>
+                            <td class="num">816 / 511 / 3,747 ms</td>
+                        </tr>
+                        <tr>
+                            <td><code>coverage-best-chunk</code></td>
+                            <td class="num">113 / 142 / 149</td>
+                            <td class="num">0.805 / 0.830</td>
+                            <td class="num">17 / 22</td>
+                            <td class="num">21 / 33; 21 / 34 fixed</td>
+                            <td class="num">834 / 459 / 3,764 ms</td>
+                        </tr>
+                        <tr>
+                            <td><code>coverage-matched-only</code></td>
+                            <td class="num">118 / 142 / 149</td>
+                            <td class="num">0.826 / 0.845</td>
+                            <td class="num">16 / 22</td>
+                            <td class="num">25 / 33; 25 / 34 fixed</td>
+                            <td class="num">839 / 453 / 3,806 ms</td>
+                        </tr>
+                        <tr>
+                            <td><code>coverage-low-boost</code></td>
+                            <td class="num">101 / 128 / 145</td>
+                            <td class="num">0.729 / 0.767</td>
+                            <td class="num">16 / 22</td>
+                            <td class="num">22 / 32; 22 / 34 fixed</td>
+                            <td class="num">788 / 460 / 3,755 ms</td>
+                        </tr>
+                        <tr>
+                            <td><code>coverage-best-any-chunk</code></td>
+                            <td class="num">119 / 142 / 149</td>
+                            <td class="num">0.828 / 0.847</td>
+                            <td class="num">16 / 22</td>
+                            <td class="num">25 / 33; 25 / 34 fixed</td>
+                            <td class="num">1,168 / 765 / 3,692 ms</td>
+                        </tr>
+                        <tr>
+                            <td><code>coverage-idf</code></td>
+                            <td class="num">120 / 143 / 149</td>
+                            <td class="num">0.834 / 0.851</td>
+                            <td class="num">17 / 22</td>
+                            <td class="num">25 / 33; 25 / 34 fixed</td>
+                            <td class="num">1,021 / 631 / 3,837 ms</td>
+                        </tr>
+                        <tr>
+                            <td><code>coverage-idf-best-any</code></td>
+                            <td class="num">123 / 143 / 149</td>
+                            <td class="num">0.847 / 0.862</td>
+                            <td class="num">16 / 22</td>
+                            <td class="num">25 / 33; 25 / 34 fixed</td>
+                            <td class="num">1,093 / 772 / 3,502 ms</td>
+                        </tr>
+                        <tr>
+                            <td><code>coverage-idf-best-any-normalized</code></td>
+                            <td class="num">123 / 143 / 149</td>
+                            <td class="num">0.847 / 0.862</td>
+                            <td class="num">16 / 22</td>
+                            <td class="num">25 / 33; 25 / 34 fixed</td>
+                            <td class="num">1,274 / 785 / 3,825 ms</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <code>coverage-idf-best-any-normalized-fast</code>
+                            </td>
+                            <td class="num">123 / 143 / 149</td>
+                            <td class="num">0.847 / 0.862</td>
+                            <td class="num">16 / 22</td>
+                            <td class="num">25 / 33; 25 / 34 fixed</td>
+                            <td class="num">750 / 443 / 3,544 ms</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>
+                    IDF plus best-any produced 12 first-place gains and three
+                    losses against the pre-SQL skip run: sugar 1→2, Manus 1→2,
+                    and Mr Chatterbox 1→3. All 13 original top-10 recoveries
+                    remained. The normalized-tokenized and normalized-fast runs
+                    had identical complete results in all 156 cases. One
+                    complete result changed between the unnormalized and
+                    normalized IDF best-any runs:
+                    <code>realistic-qwen36-consumer-gpu-cross-language</code>.
+                </p>
+                <div class="callout warn">
+                    <strong>Current choice.</strong> The normalized-fast variant
+                    is kept and pushed. It has the best measured quality and
+                    lower retrieval mean than matched-only (750–762 ms versus
+                    839 ms), while the repeat confirms similar local timing.
+                    This is one 298-item corpus with no holdout set.
+                </div>
+                <p>
+                    The final skip replay in
+                    <code>audit-20260905-corpus-integrity-skip.json</code> was
+                    identical across all 156 cases to the preceding full replay.
+                    That supports scoped reproducibility, but it does not prove
+                    that unrelated user data survived the cleanup incident
+                    described below.
+                </p>
+            </section>
+
+            <section id="rejected">
+                <h2>Rejected or unresolved</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Idea</th>
+                            <th>Decision</th>
+                            <th>Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Unguarded normalized CTE</td>
+                            <td><strong>Rejected</strong></td>
+                            <td>
+                                It reduced mean retrieval time, but the middle
+                                case moved from about 136 ms to 415 ms. Ordinary
+                                searches paid for work with no candidate terms.
+                                The empty-input guard was added and the isolated
+                                no-input check fell from 404 ms to 74 ms.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Matched-chunk-only coverage</td>
+                            <td><strong>Comparator</strong></td>
+                            <td>
+                                It reached 118/156 first-place and 149/156
+                                top-10 results, with 25/33 evaluated pairwise
+                                judgments correct. Its retrieval mean was 839
+                                ms, above the kept variant's 750–762 ms range,
+                                and it had five fewer first-place results.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>IDF-weighted best-any, normalized-fast</td>
+                            <td><strong>Kept and pushed</strong></td>
+                            <td>
+                                It reached 123/156 first-place and 149/156
+                                top-10 results, MRR 0.847, and 16/22 known
+                                negatives exposed. Its two no-rewrite runs had
+                                identical complete results and retrieval means
+                                of 750 ms and 762.397 ms.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Lower coverage boost</td>
+                            <td><strong>Rejected</strong></td>
+                            <td>
+                                It fell to 101/156 first-place and 145/156
+                                top-10 results, with MRR 0.729. The small speed
+                                difference did not offset the quality loss.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Broad pre-pagination SQL coverage</td>
+                            <td><strong>Rejected as default</strong></td>
+                            <td>
+                                It recovered 13 skip cases into the top ten, but
+                                reduced Hit@1 and increased retrieval and wall
+                                time. It also reduced rewritten-search Hit@1
+                                and MRR without improving Hit@10.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Increase the SQL candidate window</td>
+                            <td><strong>Not changed</strong></td>
+                            <td>
+                                A read-only four-case limit-100 probe recovered
+                                Polymarket at rank 10 after coverage, versus
+                                rank 13 in the SQL order within that larger
+                                window; Nanning was 53 skip / 44 default, Ocean
+                                2 skip / 20 default, and Squats 1 skip / 11
+                                default. It was not a general quality win, and
+                                fresh offset pagination can duplicate or skip
+                                results, so no runtime patch was made.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>More query-rewrite tuning</td>
+                            <td><strong>Deferred</strong></td>
+                            <td>
+                                The skip/default comparison already shows a
+                                strong rewrite tradeoff. Further rewrite work
+                                needs a separate controlled experiment with
+                                stable cache and result-variation reporting.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Narrow pre-pagination coverage gate</td>
+                            <td><strong>Kept with tradeoff</strong></td>
+                            <td>
+                                It improves deeper-rank recall for unanchored
+                                searches but lowers Hit@1 and pairwise accuracy,
+                                exposes more known negatives, and costs mean and
+                                p50 latency. The normal rewritten path was
+                                unchanged. The selected migration is committed
+                                and pushed; the tradeoff remains visible.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="harness">
+                <h2>Eval harness and corpus conditions</h2>
+                <p>
+                    The local Supabase instance was brought through 47
+                    migrations without a database reset. The retained eval
+                    identity was
+                    <code>1d63bbd9-88dc-4f1e-a0b9-3beea46eb3ff</code>. Final
+                    reports use one dataset SHA-256, direct-local mode, and
+                    concurrency 3. No reindex was run during this phase.
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Judgment coverage in final reports</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Known-negative labels</td>
+                            <td class="num">22 across 21 cases</td>
+                        </tr>
+                        <tr>
+                            <td>Pairwise labels</td>
+                            <td class="num">34 across 29 cases</td>
+                        </tr>
+                        <tr>
+                            <td>Chunk judgments</td>
+                            <td class="num">80</td>
+                        </tr>
+                        <tr>
+                            <td>Graded relevance</td>
+                            <td class="num">156</td>
+                        </tr>
+                        <tr>
+                            <td>Multiple expected targets</td>
+                            <td class="num">14</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>
+                    The six-case update added seven known-negative labels and
+                    seven pairwise labels. This is a better guard against a
+                    result that is technically related but still the wrong saved
+                    item. It remains a single-user corpus, so it can still
+                    overfit one person’s content and vocabulary.
+                </p>
+                <div class="callout warn">
+                    <strong>Validation boundary.</strong> Final verification
+                    passed 24 eval-report tests, 5 shared eligibility tests,
+                    and 9 existing ranking tests. The faster word matcher also
+                    passed 1,361 SQL comparison cases and accent-normalization
+                    checks. Lexical and hybrid SQL checks returned the same
+                    first 20 results when requested as one page, two pages of
+                    10, or four pages of 5. This does not prove all paging
+                    behavior: earlier candidate limits and later application
+                    ordering remain separate concerns. Touched-file lint and
+                    shared-code type checks passed. Broader app and backend
+                    type checks report errors outside the changed files.
+                    The unintended 99-test run is described below.
+                    Forty-seven migrations plus these search changes were
+                    applied locally without a database reset. There was no UI
+                    verification.
+                </div>
+            </section>
+
+            <section id="incident">
+                <h2>Data incident and limits of the conclusion</h2>
+                <div class="callout risk">
+                    <strong>Incident.</strong> A nested npm invocation dropped a
+                    filter. It ran 99 tests, with 63 failures, and a cleanup
+                    removed 620 global chunks: 8,066 became 7,446. This was
+                    outside the intended scoped evaluation operation.
+                </div>
+                <p>
+                    The final saved library has 298 items, all 159 distinct
+                    expected content IDs, and 3,873 scoped indexed chunks; the
+                    global index has 7,446 chunks. The latest local migration is
+                    <code>20260905110000</code>. A full 156-case replay was
+                    identical. That is useful evidence for the eval scope, but
+                    it does not prove that unrelated user data was preserved.
+                    There is no exact deleted-ID list or recovery artifact, and
+                    no reindex was run during this phase. This report therefore
+                    records the incident instead of claiming full library
+                    integrity.
+                </p>
+            </section>
+
+            <section id="next">
+                <h2>Next validation</h2>
+                <p>
+                    The remaining product decision is the SQL ranking contract
+                    before the SQL limit. The current search retrieves a bounded
+                    candidate set and then applies TypeScript coverage ranking,
+                    title boosts, annotation ordering, and parent/child
+                    suppression. Moving only a partial score into SQL would not
+                    be coherent. If this work continues, define one complete
+                    pre-pagination ranking contract and measure its recall,
+                    latency, and pagination stability.
+                </p>
+                <ol>
+                    <li>
+                        Keep the same 156 cases, user, migration state, and
+                        query inputs.
+                    </li>
+                    <li>
+                        Compare the current order with one rank-before-limit
+                        variant.
+                    </li>
+                    <li>
+                        Measure Hit@1, Hit@10, MRR, known-negative exposure,
+                        retrieval p50/p95, wall p50/p95, and exact top-10
+                        stability.
+                    </li>
+                    <li>
+                        Stop if the result is a clear regression or if the
+                        quality gain is too small for the latency cost.
+                    </li>
+                </ol>
+                <p>
+                    The selected branch keeps the SQL guard and IDF best-any
+                    normalized-fast rank. The repeat skip run returned identical
+                    complete results and similar timing. A broader or held-out
+                    corpus can test whether the quality result generalises. Any
+                    further SQL pagination change must preserve the richer
+                    ranking contract without introducing duplicate or skipped
+                    pages.
+                </p>
+            </section>
+
+            <section id="quiz">
+                <h2>Five-question check</h2>
+                <p>
+                    Choose one answer for each question. The feedback explains
+                    the reason.
+                </p>
+                <div
+                    class="question"
+                    data-answer="b"
+                    data-explanation="The guard makes the normalized CTE lazy when neither candidate set has valid input."
+                >
+                    <p>
+                        1. What does the SQL <code>EXISTS</code> guard protect?
+                    </p>
+                    <div class="choices">
+                        <button data-choice="a">
+                            It changes the vector distance threshold.</button
+                        ><button data-choice="b">
+                            It avoids normalising scoped chunks when there are
+                            no valid exact or phrase candidates.</button
+                        ><button data-choice="c">
+                            It skips all lexical search.
+                        </button>
+                    </div>
+                    <div class="feedback"></div>
+                </div>
+                <div
+                    class="question"
+                    data-answer="c"
+                    data-explanation="The 50/50 blend was an intermediate comparator: it combines broad document support with evidence from the matching passage. The kept variant later adds uncommon-word weighting and chooses the strongest single passage."
+                >
+                    <p>
+                        2. What does the retained 50/50 coverage score combine?
+                    </p>
+                    <div class="choices">
+                        <button data-choice="a">Two embedding models.</button
+                        ><button data-choice="b">
+                            Title length and document length.</button
+                        ><button data-choice="c">
+                            Document-wide term coverage and matched-chunk
+                            evidence coverage.
+                        </button>
+                    </div>
+                    <div class="feedback"></div>
+                </div>
+                <div
+                    class="question"
+                    data-answer="a"
+                    data-explanation="Default rewrite raises Hit@1 and MRR, but the reports show much higher retrieval and wall time."
+                >
+                    <p>3. What was the clearest rewrite tradeoff?</p>
+                    <div class="choices">
+                        <button data-choice="a">
+                            Default rewrite improved quality but cost
+                            substantial latency compared with skip.</button
+                        ><button data-choice="b">
+                            Skip rewrite improved every quality metric.</button
+                        ><button data-choice="c">
+                            Rewrite had no measurable effect.
+                        </button>
+                    </div>
+                    <div class="feedback"></div>
+                </div>
+                <div
+                    class="question"
+                    data-answer="b"
+                    data-explanation="These fields make runs comparable and show which dataset, user, and execution settings were used."
+                >
+                    <p>4. Which item is now recorded in eval provenance?</p>
+                    <div class="choices">
+                        <button data-choice="a">
+                            The user’s private content text.</button
+                        ><button data-choice="b">
+                            Dataset hash, user identity fields, execution mode,
+                            concurrency, and timeout.</button
+                        ><button data-choice="c">
+                            A guarantee that all global data is intact.
+                        </button>
+                    </div>
+                    <div class="feedback"></div>
+                </div>
+                <div
+                    class="question"
+                    data-answer="c"
+                    data-explanation="The scoped replay does not prove that unrelated global data survived the cleanup incident."
+                >
+                    <p>5. Which conclusion is deliberately unsupported?</p>
+                    <div class="choices">
+                        <button data-choice="a">
+                            The scoped 156-case replay was identical.</button
+                        ><button data-choice="b">
+                            The unguarded SQL version regressed fast-query
+                            median latency.</button
+                        ><button data-choice="c">
+                            The cleanup incident proves unrelated user data was
+                            preserved.
+                        </button>
+                    </div>
+                    <div class="feedback"></div>
+                </div>
+            </section>
+
+            <footer>
+                Source reports:
+                <code
+                    >backend/search-evals/reports/audit-20260905-{baseline,default-rewrite,coverage-skip,normalization-skip,blend-skip,blend-default,blend-default-uncached,coverage-iteration-baseline,coverage-best-chunk,coverage-matched-only,coverage-low-boost,coverage-best-any-chunk,coverage-idf,coverage-idf-best-any,coverage-idf-best-any-normalized,coverage-idf-best-any-normalized-fast,coverage-final-default,coverage-final-skip-repeat,pre-sql-coverage-skip,sql-coverage-skip,sql-coverage-default,sql-unanchored-coverage-skip,sql-unanchored-coverage-default,corpus-integrity-skip}.json</code
+                >. This HTML is a writeup only; it does not modify or commit
+                repository files.
+            </footer>
+        </main>
+        <script>
+            document.querySelectorAll('.question').forEach(function (question) {
+                var answer = question.dataset.answer
+                var feedback = question.querySelector('.feedback')
+                question.querySelectorAll('button').forEach(function (button) {
+                    button.addEventListener('click', function () {
+                        question
+                            .querySelectorAll('button')
+                            .forEach(function (other) {
+                                other.disabled = true
+                                other.classList.remove('correct', 'wrong')
+                            })
+                        var correct = button.dataset.choice === answer
+                        button.classList.add(correct ? 'correct' : 'wrong')
+                        if (!correct) {
+                            question
+                                .querySelector('[data-choice="' + answer + '"]')
+                                .classList.add('correct')
+                        }
+                        feedback.textContent =
+                            (correct
+                                ? 'Correct. '
+                                : 'Not quite. The highlighted answer is correct. ') +
+                            question.dataset.explanation
+                    })
+                })
+            })
+        </script>
+    </body>
+</html>
