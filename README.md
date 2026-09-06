@@ -1,38 +1,56 @@
-# create-svelte
+# poltak.github.io
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+Personal site built with SvelteKit and deployed as a static GitHub Pages site.
 
-## Creating a project
+## Requirements
 
-If you're seeing this, you've probably already done this step. Congrats!
+- Node.js version from [.nvmrc](.nvmrc)
+- pnpm 11.25.0
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+## Setup
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Enable Corepack so the `packageManager` field selects the pinned pnpm version, then install dependencies:
 
 ```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+corepack enable
+pnpm install
 ```
 
-## Building
+## Development
 
-To create a production version of your app:
+Start the local development server:
 
 ```bash
-npm run build
+pnpm dev
 ```
 
-You can preview the production build with `npm run preview`.
+Open the server in a browser with:
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+```bash
+pnpm dev --open
+```
+
+## Validation and build
+
+Run the Svelte type checks, tests, and formatting check with:
+
+```bash
+pnpm check
+pnpm test:single
+pnpm lint
+```
+
+Create and preview a production build with:
+
+```bash
+pnpm build
+pnpm preview
+```
+
+## Deployment
+
+The `deploy` script builds the site and publishes the generated `build/` directory with `gh-pages`:
+
+```bash
+pnpm run deploy
+```

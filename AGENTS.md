@@ -12,10 +12,10 @@ Quickstart for fresh sessions in personal webiste `poltak.github.io`.
 
 ## Dev Commands
 
-- `npm run dev` – local dev server
-- `npm run check` – type + Svelte check
-- `npm run build` – production build
-- `npm run format` – prettier
+- `pnpm dev` – local dev server
+- `pnpm check` – type + Svelte check
+- `pnpm build` – production build
+- `pnpm format` – prettier
 
 ## Important Routing Layout
 
