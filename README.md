@@ -49,8 +49,11 @@ pnpm preview
 
 ## Deployment
 
-The `deploy` script builds the site and publishes the generated `build/` directory with `gh-pages`:
+Every push to `master` runs [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml). The workflow installs dependencies with the frozen pnpm lockfile, runs checks and tests, builds the static site, and deploys `build/` to GitHub Pages. You can also start it manually from the Actions tab when `master` is selected.
+
+Preview a production build locally with:
 
 ```bash
-pnpm run deploy
+pnpm build
+pnpm preview
 ```
