@@ -12,10 +12,6 @@ export interface SpeechUtterance {
     onError: (error: unknown) => void
 }
 
-/**
- * Small speech boundary. A local model can implement this contract later
- * without coupling the reader to browser SpeechSynthesis objects.
- */
 export interface SpeechProvider {
     readonly supported: boolean
     getVoices(): SpeechVoice[]
@@ -107,6 +103,7 @@ export class SpeechController {
     private currentChunks: string[] = []
     private currentChunkIndex = 0
     private generation = 0
+    private restartOnResume = false
     private state: SpeechControllerState
 
     constructor(provider: SpeechProvider, options: SpeechControllerOptions = {}) {
@@ -158,11 +155,17 @@ export class SpeechController {
     }
 
     setRate(rate: number): void {
-        this.state.rate = clampSpeechRate(rate)
-        if (this.state.status === 'playing') {
+        const nextRate = clampSpeechRate(rate)
+        if (nextRate === this.state.rate) return
+        this.state.rate = nextRate
+        if (this.state.status === 'playing' || this.state.status === 'paused') {
+            this.generation += 1
             this.provider.cancel()
-            this.startCurrentChapter()
-            return
+            if (this.state.status === 'playing') {
+                this.speakCurrentChunk()
+                return
+            }
+            this.restartOnResume = true
         }
         this.notify()
     }
@@ -178,6 +181,8 @@ export class SpeechController {
         if (this.chapters.length === 0) return
 
         this.state.chapterIndex = this.clampChapterIndex(chapterIndex)
+        this.generation += 1
+        this.restartOnResume = false
         this.provider.cancel()
         this.startCurrentChapter()
     }
@@ -191,6 +196,11 @@ export class SpeechController {
 
     resume(): void {
         if (this.state.status !== 'paused') return
+        if (this.restartOnResume) {
+            this.restartOnResume = false
+            this.speakCurrentChunk()
+            return
+        }
         this.provider.resume()
         this.state.status = 'playing'
         this.state.errorMessage = null
@@ -199,6 +209,7 @@ export class SpeechController {
 
     stop(): void {
         this.generation += 1
+        this.restartOnResume = false
         this.provider.cancel()
 
         if (

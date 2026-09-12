@@ -136,4 +136,38 @@ describe('SpeechController', () => {
         expect(controller.getState().status).toBe('unsupported')
         expect(provider.utterances).toHaveLength(0)
     })
+
+    it.each([false, true])('changes rate at the current chunk while paused=%s', (paused) => {
+        const provider = new FakeSpeechProvider()
+        const controller = new SpeechController(provider)
+        controller.setBook([
+            { title: 'Long chapter', content: 'start '.repeat(250) + 'current chunk' },
+        ])
+        controller.play()
+        provider.utterances[0].onEnd()
+        const currentText = provider.utterances[1].text
+        if (paused) controller.pause()
+        controller.setRate(1.5)
+        if (paused) {
+            expect(provider.utterances).toHaveLength(2)
+            controller.resume()
+        }
+        expect(provider.utterances[2].text).toBe(currentText)
+        expect(provider.utterances[2].rate).toBe(1.5)
+    })
+
+    it('invalidates old callbacks before a provider synchronously cancels speech', () => {
+        const provider = new FakeSpeechProvider()
+        const onChapterChange = vi.fn()
+        const controller = new SpeechController(provider, { onChapterChange })
+        controller.setBook([
+            { title: 'First', content: 'first' },
+            { title: 'Second', content: 'second' },
+        ])
+        controller.play()
+        provider.cancel.mockImplementation(() => provider.utterances[0].onEnd())
+        controller.play(0)
+        expect(onChapterChange).not.toHaveBeenCalled()
+        expect(provider.utterances.map((utterance) => utterance.text)).toEqual(['first', 'first'])
+    })
 })
