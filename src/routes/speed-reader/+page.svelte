@@ -108,10 +108,6 @@
         return { percentage, wordsRemaining, timeRemaining }
     })
 
-    const currentWord = $derived(
-        allWords[currentWordIndex] ?? (isPlaying ? '' : 'Press play to start'),
-    )
-
     const surroundingWords = $derived.by(() => {
         if (allWords.length === 0) {
             return {
@@ -144,9 +140,6 @@
             (nextChapter ? currentWordIndex < nextChapter.wordStartIndex : true)
         )
     })
-
-    // Auto-save progress every 10 seconds while reading
-    let progressSaveInterval: ReturnType<typeof setInterval> | null = null
 
     const engine = new SpeedReaderEngine({
         onUpdate: (state) => {
@@ -352,6 +345,8 @@
     }
 
     async function saveProgress() {
+        // Effect teardown can see the previous render's values. Read the engine's live position.
+        const { allWords, currentWordIndex, wordsPerMinute } = engine.getState()
         if (!currentBookId || allWords.length === 0) return
 
         const progress: ReadingProgress = {
@@ -383,25 +378,10 @@
             speechController.stop()
         }
         engine.start()
-
-        if (!engine.getState().isPlaying) return
-
-        // Start auto-save interval
-        if (progressSaveInterval) {
-            clearInterval(progressSaveInterval)
-        }
-        progressSaveInterval = setInterval(saveProgress, 10000) // Save every 10 seconds
     }
 
     function pauseReading() {
         engine.pause()
-
-        // Stop auto-save interval and save current progress
-        if (progressSaveInterval) {
-            clearInterval(progressSaveInterval)
-            progressSaveInterval = null
-        }
-        void saveProgress()
     }
 
     function updateReadingSpeed() {
@@ -528,10 +508,11 @@
     }
 
     function backToLibrary() {
+        void saveProgress().then(loadLibrary)
         speechController.setBook([])
         pauseReading()
-        stopRewind()
         resumeAfterRewind = false
+        stopRewind()
         showResetConfirmation = false
         epubData = null
         currentBookId = null
@@ -540,19 +521,34 @@
         showLibrary = true
     }
 
-    // Effect for cleanup only
     $effect(() => {
         if (showResetConfirmation) {
             void tick().then(() => resetCancelButton?.focus())
         }
+    })
 
+    $effect(() => {
+        if (!isPlaying) return
+        const interval = setInterval(() => void saveProgress(), 10000)
         return () => {
+            clearInterval(interval)
+            void saveProgress()
+        }
+    })
+
+    onMount(() => {
+        const persist = () => void saveProgress()
+        const handleVisibility = () => {
+            if (document.visibilityState === 'hidden') persist()
+        }
+        window.addEventListener('pagehide', persist)
+        document.addEventListener('visibilitychange', handleVisibility)
+        return () => {
+            persist()
             engine.cleanup()
             speechController.cleanup()
-            if (progressSaveInterval) {
-                clearInterval(progressSaveInterval)
-                progressSaveInterval = null
-            }
+            window.removeEventListener('pagehide', persist)
+            document.removeEventListener('visibilitychange', handleVisibility)
         }
     })
 
@@ -717,12 +713,14 @@
                     <div class="book-grid">
                         {#each storedBooks as book (book.id)}
                             {@const progress = bookProgresses.get(book.id)}
-                            {@const progressPercentage =
-                                progress && book.totalWords > 0
-                                    ? Math.round(
-                                          (progress.currentWordIndex / book.totalWords) * 100,
-                                      )
-                                    : 0}
+                            {@const progressPercentage = progress
+                                ? Math.round(
+                                      calculateProgressPercentage(
+                                          progress.currentWordIndex,
+                                          book.totalWords,
+                                      ),
+                                  )
+                                : 0}
 
                             <article class="book-card">
                                 <button

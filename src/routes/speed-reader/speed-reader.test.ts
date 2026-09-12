@@ -113,6 +113,7 @@ describe('SpeedReader page', () => {
 
     afterEach(() => {
         cleanup()
+        vi.useRealTimers()
     })
 
     it('renders the library header and built-on link', async () => {
@@ -273,5 +274,61 @@ describe('SpeedReader page', () => {
         expect(screen.getByRole('heading', { name: 'Chapter 1' })).toBeTruthy()
         expect(screen.getByText('<script>bad()</script>Readable text')).toBeTruthy()
         expect(container.querySelector('script')).toBeNull()
+    })
+
+    it('keeps reading after the reset dialog is cancelled', async () => {
+        mockStorage.getBooks.mockResolvedValue([storedBook])
+        const { container } = render(SpeedReaderPage)
+        await fireEvent.click(await screen.findByRole('button', { name: 'Open Stored Book' }))
+        await screen.findByText('Speed reader')
+        vi.useFakeTimers()
+        await fireEvent.click(screen.getByRole('button', { name: 'Start speed reading' }))
+        await fireEvent.click(screen.getByRole('button', { name: /settings/i }))
+        await fireEvent.click(screen.getByRole('button', { name: 'Reset to Beginning' }))
+        await fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+        await vi.advanceTimersByTimeAsync(250)
+        expect(container.querySelector('.current-word')?.textContent).toBe('world')
+        expect(screen.getByRole('button', { name: 'Start speed reading' })).toBeTruthy()
+    })
+
+    it('saves completion once and stops the progress timer', async () => {
+        mockStorage.getBooks.mockResolvedValue([storedBook])
+        render(SpeedReaderPage)
+        await fireEvent.click(await screen.findByRole('button', { name: 'Open Stored Book' }))
+        await screen.findByText('Speed reader')
+        vi.useFakeTimers()
+        mockStorage.saveProgress.mockClear()
+        await fireEvent.click(screen.getByRole('button', { name: 'Start speed reading' }))
+        await vi.advanceTimersByTimeAsync(250)
+        expect(mockStorage.saveProgress).toHaveBeenCalledExactlyOnceWith(
+            expect.objectContaining({ currentWordIndex: 1, progressPercentage: 100 }),
+        )
+        await vi.advanceTimersByTimeAsync(30000)
+        expect(mockStorage.saveProgress).toHaveBeenCalledOnce()
+    })
+
+    it('saves the current position when the route is left', async () => {
+        mockStorage.getBooks.mockResolvedValue([storedBook])
+        const { unmount } = render(SpeedReaderPage)
+        await fireEvent.click(await screen.findByRole('button', { name: 'Open Stored Book' }))
+        await screen.findByText('Speed reader')
+        mockStorage.saveProgress.mockClear()
+        unmount()
+        expect(mockStorage.saveProgress).toHaveBeenCalledWith(
+            expect.objectContaining({ bookId: storedBook.id, currentWordIndex: 0 }),
+        )
+    })
+
+    it('shows completed library books as 100 percent', async () => {
+        mockStorage.getBooks.mockResolvedValue([storedBook])
+        mockStorage.getAllProgress.mockResolvedValue([
+            { bookId: storedBook.id, currentWordIndex: 1 },
+        ])
+        render(SpeedReaderPage)
+        expect(
+            (
+                await screen.findByRole('progressbar', { name: 'Stored Book reading progress' })
+            ).getAttribute('aria-valuenow'),
+        ).toBe('100')
     })
 })
