@@ -1,5 +1,5 @@
 <script lang="ts">
-    import MiniSearch from 'minisearch'
+    import { createClippingsSearch, createTextHighlighter } from '$lib/clippings-search'
     import { parseClippings, type NormalizedClipping } from 'kindle-highlights-parser'
     import { onMount } from 'svelte'
 
@@ -20,9 +20,6 @@
     let authorFilter = 'all'
     let uniqueTitles: string[] = []
     let uniqueAuthors: string[] = []
-    let miniSearch: MiniSearch | null = null
-    let idToItem = new Map<string, NormalizedClipping>()
-    let highlightTokens: string[] = []
 
     async function handleFileUpload(event: Event) {
         const input = event.currentTarget as HTMLInputElement
@@ -198,121 +195,34 @@
         }
         uniqueTitles = Array.from(titleSet).sort((a, b) => a.localeCompare(b))
         uniqueAuthors = Array.from(authorSet).sort((a, b) => a.localeCompare(b))
-        if (titleFilter !== 'all' && !titleSet.has(titleFilter)) {
-            titleFilter = 'all'
-        }
-        if (authorFilter !== 'all' && !authorSet.has(authorFilter)) {
-            authorFilter = 'all'
-        }
-        if (titleFilter !== 'all' && authorFilter !== 'all') {
-            authorFilter = 'all'
-        }
-        pageIndex = 0
     }
+
+    $: if (titleFilter !== 'all' && !uniqueTitles.includes(titleFilter)) titleFilter = 'all'
+    $: if (
+        authorFilter !== 'all' &&
+        (!uniqueAuthors.includes(authorFilter) || titleFilter !== 'all')
+    ) {
+        authorFilter = 'all'
+    }
+
+    $: searchClippings = createClippingsSearch(normalized)
+    $: highlightText = createTextHighlighter(searchQuery)
+    $: filteredItems = searchClippings({
+        query: searchQuery,
+        type: typeFilter,
+        title: titleFilter,
+        author: authorFilter,
+    })
+    $: totalPages = Math.max(1, Math.ceil(filteredItems.length / pageSize))
+    $: pageIndex = Math.min(pageIndex, totalPages - 1)
 
     $: {
         normalized
-        idToItem = new Map()
-        if (normalized.length === 0) {
-            miniSearch = null
-        } else {
-            const documents = normalized.map((item, index) => {
-                const id = String(item.sourceIndex ?? index)
-                idToItem.set(id, item)
-                return {
-                    id,
-                    title: item.title ?? '',
-                    author: item.author ?? '',
-                    content: item.content ?? '',
-                    type: item.type ?? '',
-                    groupTitle: item.title?.trim() || 'Untitled',
-                    groupAuthor: item.author?.trim() || 'Unknown Author',
-                }
-            })
-
-            miniSearch = new MiniSearch({
-                fields: ['title', 'author', 'content'],
-                storeFields: ['id', 'title', 'author', 'type', 'groupTitle', 'groupAuthor'],
-                searchOptions: {
-                    boost: { title: 2, author: 1.5 },
-                    prefix: true,
-                    fuzzy: 0.2,
-                },
-            })
-            miniSearch.addAll(documents)
-        }
-    }
-
-    $: {
         searchQuery
         typeFilter
         titleFilter
         authorFilter
-        miniSearch
-
-        const query = searchQuery.trim()
-        highlightTokens = query
-            ? query
-                  .split(/\s+/)
-                  .map((token) => token.trim())
-                  .filter((token) => token.length > 1)
-            : []
-        if (query && miniSearch) {
-            const results = miniSearch.search(query, {
-                filter: (result) => {
-                    if (typeFilter !== 'all' && result.type !== typeFilter) return false
-                    if (titleFilter !== 'all' && result.groupTitle !== titleFilter) return false
-                    if (authorFilter !== 'all' && result.groupAuthor !== authorFilter) return false
-                    return true
-                },
-            })
-            filteredItems = results
-                .map((result) => idToItem.get(String(result.id)))
-                .filter((item): item is NormalizedClipping => Boolean(item))
-        } else {
-            filteredItems = normalized.filter((item) => {
-                if (typeFilter !== 'all' && item.type !== typeFilter) return false
-                if (titleFilter !== 'all' && (item.title?.trim() || 'Untitled') !== titleFilter)
-                    return false
-                if (
-                    authorFilter !== 'all' &&
-                    (item.author?.trim() || 'Unknown Author') !== authorFilter
-                )
-                    return false
-                return true
-            })
-        }
-
-        totalPages = Math.max(1, Math.ceil(filteredItems.length / pageSize))
-        pageIndex = Math.min(pageIndex, totalPages - 1)
-    }
-
-    function escapeHtml(value: string): string {
-        return value
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;')
-    }
-
-    function escapeRegExp(value: string): string {
-        return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-    }
-
-    function highlightText(value?: string): string {
-        if (!value) return '—'
-        const safe = escapeHtml(value)
-        if (!highlightTokens.length) return safe
-        const pattern = new RegExp(`(${highlightTokens.map(escapeRegExp).join('|')})`, 'gi')
-        return safe.replace(pattern, '<mark>$1</mark>')
-    }
-
-    function resetFilters() {
-        titleFilter = 'all'
-        authorFilter = 'all'
-        typeFilter = 'all'
-        searchQuery = ''
+        pageSize
         pageIndex = 0
     }
 
@@ -491,10 +401,12 @@
     <p class="viewer-count">{filteredItems.length} items</p>
 
     <div class="viewer-list">
-        {#each filteredItems.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize) as item (item.sourceIndex)}
+        {#each filteredItems.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize) as item}
             <article class="viewer-item">
                 <p class="viewer-content">
-                    {@html highlightText(item.content)}
+                    {#each highlightText(item.content) as part}
+                        {#if part.matched}<mark>{part.text}</mark>{:else}{part.text}{/if}
+                    {/each}
                 </p>
                 <div class="viewer-meta">
                     <button
