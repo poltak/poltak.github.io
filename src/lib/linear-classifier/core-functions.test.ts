@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach, vi } from 'vitest'
+import { describe, test, expect } from 'vitest'
 import * as coreFunctions from './core-functions.js'
 
 describe('linear classifier', () => {
@@ -34,7 +34,18 @@ describe('linear classifier', () => {
         const bias = [1, 2]
 
         const result = coreFunctions.linearClassifier(inputVector, weights, bias)
-        expect(result).toEqual([14, 32])
+        expect(result).toEqual([15, 34])
+    })
+
+    test('rejects an empty or ragged weight matrix', () => {
+        expect(() => coreFunctions.linearClassifier([1], [], [])).toThrow('at least one class')
+        expect(() => coreFunctions.linearClassifier([1], [[2], [3, 4]], [0, 0])).toThrow(
+            'column length',
+        )
+    })
+
+    test('can classify using bias alone', () => {
+        expect(coreFunctions.linearClassifier([], [[], []], [-2, 5])).toEqual([-2, 5])
     })
 })
 
@@ -44,6 +55,12 @@ describe('loss function', () => {
         expect(() => coreFunctions.calculateLoss(scores, 4)).toThrow()
         expect(() => coreFunctions.calculateLoss(scores, -4)).toThrow()
         expect(() => coreFunctions.calculateLoss([], 0)).toThrow()
+        expect(() => coreFunctions.calculateLoss(scores, 0.5)).toThrow()
+        expect(() => coreFunctions.calculateLoss(scores, NaN)).toThrow()
+    })
+
+    test.each([-1, NaN, Infinity])('rejects an invalid margin: %s', (margin) => {
+        expect(() => coreFunctions.calculateLoss([1, 2], 0, margin)).toThrow('Margin')
     })
 
     test('should calculate the correct loss', () => {
@@ -64,8 +81,8 @@ describe('linear classifier with loss function', () => {
         const bias = [1, 2]
 
         const scores = coreFunctions.linearClassifier(inputVector, weights, bias)
-        expect(scores).toEqual([14, 32])
-        expect(coreFunctions.calculateLoss(scores, 0)).toBe(19) // max(0, 14 - 32 + 1)
-        expect(coreFunctions.calculateLoss(scores, 1)).toBe(0) // max(0, 32 - 14 + 1)
+        expect(scores).toEqual([15, 34])
+        expect(coreFunctions.calculateLoss(scores, 0)).toBe(20)
+        expect(coreFunctions.calculateLoss(scores, 1)).toBe(0)
     })
 })
