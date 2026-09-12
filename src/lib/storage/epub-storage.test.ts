@@ -62,7 +62,8 @@ describe('EpubStorage transactions', () => {
         })
         await Promise.resolve()
 
-        expect(add).toHaveBeenCalledOnce()
+        expect(add).toHaveBeenCalledTimes(2)
+        expect(add.mock.calls[1][0]).not.toHaveProperty('epubData')
         expect(settled).toBe(false)
 
         transaction.oncomplete?.(new Event('complete'))
@@ -78,5 +79,89 @@ describe('EpubStorage transactions', () => {
         transaction.onabort?.(new Event('abort'))
 
         await expect(saving).rejects.toThrow('Unable to save the EPUB book.')
+    })
+
+    it('reuses the database connection across simultaneous initializations', async () => {
+        const { openRequest } = createDatabaseHarness()
+        const storage = new EpubStorage()
+        const first = storage.init()
+        const second = storage.init()
+        openRequest.onsuccess?.(new Event('success'))
+        await Promise.all([first, second])
+        await storage.init()
+        expect(indexedDB.open).toHaveBeenCalledOnce()
+    })
+
+    it('migrates legacy metadata without changing the book payload', async () => {
+        const { database, openRequest, transaction } = createDatabaseHarness()
+        const legacy = {
+            id: 'legacy',
+            title: book.title,
+            author: book.author,
+            addedDate: new Date('2024-01-01'),
+            lastReadDate: new Date('2024-01-02'),
+            totalWords: 2,
+            epubData: book,
+        }
+        const put = vi.fn()
+        const createIndex = vi.fn()
+        const cursor = { value: legacy, continue: vi.fn() }
+        const cursorRequest = { result: cursor, onsuccess: null } as unknown as IDBRequest
+        Object.assign(database, {
+            objectStoreNames: { contains: (name: string) => name !== 'book-metadata' },
+            createObjectStore: vi.fn(() => ({ put, createIndex })),
+        })
+        Object.assign(openRequest, { transaction })
+        vi.mocked(transaction.objectStore).mockReturnValue({
+            openCursor: () => cursorRequest,
+        } as unknown as IDBObjectStore)
+        const storage = new EpubStorage()
+        const initialization = storage.init()
+        const event = new Event('upgradeneeded')
+        Object.defineProperty(event, 'target', { value: openRequest })
+        openRequest.onupgradeneeded?.(event as IDBVersionChangeEvent)
+        cursorRequest.onsuccess?.(new Event('success'))
+        const { epubData: _, ...summary } = legacy
+        expect(put).toHaveBeenCalledExactlyOnceWith(summary)
+        expect(legacy.epubData).toBe(book)
+        expect(cursor.continue).toHaveBeenCalledOnce()
+        openRequest.onsuccess?.(new Event('success'))
+        await initialization
+    })
+
+    it('saves progress without reading or writing the book payload', async () => {
+        const { database, openRequest, transaction } = createDatabaseHarness()
+        const storage = new EpubStorage()
+        await initialize(storage, openRequest)
+        const put = vi.fn()
+        const metadataRequest = {
+            result: { id: 'book-1', title: 'Test book' },
+            onsuccess: null,
+        } as unknown as IDBRequest
+        vi.mocked(transaction.objectStore).mockImplementation((name) => {
+            expect(name).not.toBe('books')
+            return { put, get: () => metadataRequest } as unknown as IDBObjectStore
+        })
+        const progress = {
+            bookId: 'book-1',
+            currentWordIndex: 1,
+            wordsPerMinute: 250,
+            lastReadDate: new Date(),
+            progressPercentage: 100,
+        }
+        const saving = storage.saveProgress(progress)
+        metadataRequest.onsuccess?.(new Event('success'))
+        expect(database.transaction).toHaveBeenCalledWith(
+            ['progress', 'book-metadata'],
+            'readwrite',
+        )
+        expect(put).toHaveBeenCalledWith(progress)
+        expect(put).toHaveBeenCalledWith({
+            id: 'book-1',
+            title: 'Test book',
+            lastReadDate: progress.lastReadDate,
+        })
+        transaction.oncomplete?.(new Event('complete'))
+        await saving
     })
 })

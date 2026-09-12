@@ -2,7 +2,7 @@
     import { parseEpub, type EpubData, type TableOfContents } from 'poltak-epub-parser'
     import {
         epubStorage,
-        type StoredBook,
+        type BookSummary,
         type ReadingProgress,
         type SerializableEpubData,
     } from '$lib/storage/epub-storage'
@@ -22,15 +22,15 @@
     type ReaderMode = 'speed' | 'immersive'
 
     let fileInput = $state<HTMLInputElement>()
-    let epubData = $state<EpubData | null>(null)
+    let epubData = $state.raw<EpubData | null>(null)
     let currentBookId = $state<string | null>(null)
     let isLoading = $state(false)
     let errorMessage = $state('')
     let isPlaying = $state(false)
     let wordsPerMinute = $state(250)
     let currentWordIndex = $state(0)
-    let allWords = $state<string[]>([])
-    let storedBooks = $state<StoredBook[]>([])
+    let allWords = $state.raw<string[]>([])
+    let storedBooks = $state.raw<BookSummary[]>([])
     let showLibrary = $state(true)
     let isLoadingLibrary = $state(false)
     let bookProgresses = $state<Map<string, ReadingProgress>>(new Map())
@@ -214,15 +214,8 @@
         try {
             storedBooks = await epubStorage.getBooks()
 
-            // Load progress for each book
-            const progressMap = new Map<string, ReadingProgress>()
-            for (const book of storedBooks) {
-                const progress = await epubStorage.getProgress(book.id)
-                if (progress) {
-                    progressMap.set(book.id, progress)
-                }
-            }
-            bookProgresses = progressMap
+            const progresses = await epubStorage.getAllProgress()
+            bookProgresses = new Map(progresses.map((progress) => [progress.bookId, progress]))
         } catch (error) {
             console.error('Failed to load library:', error)
             errorMessage = `Unable to load your library: ${
@@ -280,11 +273,13 @@
         }
     }
 
-    async function openStoredBook(book: StoredBook) {
+    async function openStoredBook(book: BookSummary) {
         isLoading = true
         errorMessage = ''
         try {
-            const storedEpubData = validateStoredEpubData(book.epubData)
+            const storedBook = await epubStorage.getBook(book.id)
+            if (!storedBook) throw new Error('This book is no longer in your library.')
+            const storedEpubData = validateStoredEpubData(storedBook.epubData)
             epubData = storedEpubData
             currentBookId = book.id
             engine.loadBook(storedEpubData.allText, storedEpubData.tableOfContents)

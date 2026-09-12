@@ -5,6 +5,8 @@ import SpeedReaderPage from './+page.svelte'
 const mockStorage = vi.hoisted(() => ({
     init: vi.fn(),
     getBooks: vi.fn(),
+    getBook: vi.fn(),
+    getAllProgress: vi.fn(),
     saveBook: vi.fn(),
     getProgress: vi.fn(),
     updateLastReadDate: vi.fn(),
@@ -102,6 +104,8 @@ describe('SpeedReader page', () => {
         })
         mockStorage.init.mockResolvedValue(undefined)
         mockStorage.getBooks.mockResolvedValue([])
+        mockStorage.getBook.mockResolvedValue(storedBook)
+        mockStorage.getAllProgress.mockResolvedValue([])
         mockStorage.saveBook.mockResolvedValue('book-1')
         mockStorage.getProgress.mockResolvedValue(null)
         mockStorage.updateLastReadDate.mockResolvedValue(undefined)
@@ -217,12 +221,11 @@ describe('SpeedReader page', () => {
     })
 
     it('reports incomplete stored EPUB data instead of leaving a partial reader state', async () => {
-        mockStorage.getBooks.mockResolvedValue([
-            {
-                ...storedBook,
-                epubData: { ...storedBook.epubData, allText: undefined },
-            },
-        ])
+        mockStorage.getBooks.mockResolvedValue([storedBook])
+        mockStorage.getBook.mockResolvedValue({
+            ...storedBook,
+            epubData: { ...storedBook.epubData, allText: undefined },
+        })
 
         render(SpeedReaderPage)
 

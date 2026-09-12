@@ -30,6 +30,19 @@ export interface StoredBook {
     totalWords: number
 }
 
+export type BookSummary = Omit<StoredBook, 'epubData'>
+
+function summarizeBook(book: StoredBook): BookSummary {
+    return {
+        id: book.id,
+        title: book.title,
+        author: book.author,
+        addedDate: book.addedDate,
+        lastReadDate: book.lastReadDate,
+        totalWords: book.totalWords,
+    }
+}
+
 export interface ReadingProgress {
     bookId: string
     currentWordIndex: number
@@ -62,18 +75,27 @@ function serializeEpubData(epubData: EpubData): SerializableEpubData {
 
 export class EpubStorage {
     private db: IDBDatabase | null = null
+    private initialization: Promise<void> | null = null
     private readonly DB_NAME = 'EpubSpeedReader'
-    private readonly DB_VERSION = 1
+    private readonly DB_VERSION = 2
     private readonly BOOKS_STORE = 'books'
+    private readonly METADATA_STORE = 'book-metadata'
     private readonly PROGRESS_STORE = 'progress'
 
     async init(): Promise<void> {
-        return new Promise((resolve, reject) => {
+        if (this.db) return
+        if (this.initialization) return this.initialization
+        this.initialization = new Promise<void>((resolve, reject) => {
             const request = indexedDB.open(this.DB_NAME, this.DB_VERSION)
+            let cancelled = false
 
             request.onerror = () => reject(request.error)
             request.onsuccess = () => {
                 const db = request.result
+                if (cancelled) {
+                    db.close()
+                    return
+                }
                 this.db = db
                 db.onversionchange = () => {
                     db.close()
@@ -82,10 +104,16 @@ export class EpubStorage {
                 resolve()
             }
 
-            request.onblocked = () =>
+            request.onblocked = () => {
+                cancelled = true
                 reject(new Error('Another tab is using the EPUB database. Close it and try again.'))
+            }
 
             request.onupgradeneeded = (event) => {
+                if (cancelled) {
+                    request.transaction?.abort()
+                    return
+                }
                 const db = (event.target as IDBOpenDBRequest).result
 
                 // Create books store
@@ -102,8 +130,26 @@ export class EpubStorage {
                     })
                     progressStore.createIndex('lastReadDate', 'lastReadDate', { unique: false })
                 }
+
+                if (!db.objectStoreNames.contains(this.METADATA_STORE)) {
+                    const metadata = db.createObjectStore(this.METADATA_STORE, { keyPath: 'id' })
+                    metadata.createIndex('lastReadDate', 'lastReadDate', { unique: false })
+                    // The upgrade copies only metadata. Existing book text and progress stay intact.
+                    const cursorRequest = request
+                        .transaction!.objectStore(this.BOOKS_STORE)
+                        .openCursor()
+                    cursorRequest.onsuccess = () => {
+                        const cursor = cursorRequest.result
+                        if (!cursor) return
+                        metadata.put(summarizeBook(cursor.value))
+                        cursor.continue()
+                    }
+                }
             }
+        }).finally(() => {
+            this.initialization = null
         })
+        return this.initialization
     }
 
     private ensureDb(): IDBDatabase {
@@ -132,7 +178,7 @@ export class EpubStorage {
         }
 
         return new Promise((resolve, reject) => {
-            const transaction = db.transaction([this.BOOKS_STORE], 'readwrite')
+            const transaction = db.transaction([this.BOOKS_STORE, this.METADATA_STORE], 'readwrite')
             const store = transaction.objectStore(this.BOOKS_STORE)
             transaction.oncomplete = () => resolve(bookId)
             transaction.onerror = () =>
@@ -140,19 +186,20 @@ export class EpubStorage {
             transaction.onabort = () =>
                 reject(transaction.error ?? new Error('Unable to save the EPUB book.'))
             store.add(storedBook)
+            transaction.objectStore(this.METADATA_STORE).add(summarizeBook(storedBook))
         })
     }
 
-    async getBooks(): Promise<StoredBook[]> {
+    async getBooks(): Promise<BookSummary[]> {
         const db = this.ensureDb()
 
         return new Promise((resolve, reject) => {
-            const transaction = db.transaction([this.BOOKS_STORE], 'readonly')
-            const store = transaction.objectStore(this.BOOKS_STORE)
+            const transaction = db.transaction([this.METADATA_STORE], 'readonly')
+            const store = transaction.objectStore(this.METADATA_STORE)
             const index = store.index('lastReadDate')
             const request = index.openCursor(null, 'prev') // Most recently read first
 
-            const books: StoredBook[] = []
+            const books: BookSummary[] = []
             request.onsuccess = () => {
                 const cursor = request.result
                 if (cursor) {
@@ -170,12 +217,14 @@ export class EpubStorage {
         const db = this.ensureDb()
 
         return new Promise((resolve, reject) => {
-            const transaction = db.transaction([this.BOOKS_STORE], 'readonly')
+            const transaction = db.transaction([this.BOOKS_STORE, this.METADATA_STORE], 'readonly')
             const store = transaction.objectStore(this.BOOKS_STORE)
             const request = store.get(bookId)
+            const metadataRequest = transaction.objectStore(this.METADATA_STORE).get(bookId)
 
-            request.onsuccess = () => resolve(request.result || null)
-            request.onerror = () => reject(request.error)
+            transaction.oncomplete = () =>
+                resolve(request.result ? { ...request.result, ...metadataRequest.result } : null)
+            transaction.onerror = transaction.onabort = () => reject(transaction.error)
         })
     }
 
@@ -183,14 +232,17 @@ export class EpubStorage {
         const db = this.ensureDb()
 
         return new Promise((resolve, reject) => {
-            const transaction = db.transaction([this.BOOKS_STORE, this.PROGRESS_STORE], 'readwrite')
+            const transaction = db.transaction(
+                [this.BOOKS_STORE, this.METADATA_STORE, this.PROGRESS_STORE],
+                'readwrite',
+            )
 
-            // Delete from both stores
             const booksStore = transaction.objectStore(this.BOOKS_STORE)
             const progressStore = transaction.objectStore(this.PROGRESS_STORE)
 
-            const deleteBook = booksStore.delete(bookId)
-            const deleteProgress = progressStore.delete(bookId)
+            booksStore.delete(bookId)
+            progressStore.delete(bookId)
+            transaction.objectStore(this.METADATA_STORE).delete(bookId)
 
             transaction.oncomplete = () => resolve()
             transaction.onerror = () =>
@@ -204,14 +256,17 @@ export class EpubStorage {
         const db = this.ensureDb()
 
         return new Promise((resolve, reject) => {
-            const transaction = db.transaction([this.PROGRESS_STORE, this.BOOKS_STORE], 'readwrite')
+            const transaction = db.transaction(
+                [this.PROGRESS_STORE, this.METADATA_STORE],
+                'readwrite',
+            )
 
             // Update progress
             const progressStore = transaction.objectStore(this.PROGRESS_STORE)
             progressStore.put(progress)
 
             // Update book's lastReadDate
-            const booksStore = transaction.objectStore(this.BOOKS_STORE)
+            const booksStore = transaction.objectStore(this.METADATA_STORE)
             const getBookRequest = booksStore.get(progress.bookId)
 
             getBookRequest.onsuccess = () => {
@@ -243,13 +298,22 @@ export class EpubStorage {
         })
     }
 
+    async getAllProgress(): Promise<ReadingProgress[]> {
+        const transaction = this.ensureDb().transaction([this.PROGRESS_STORE], 'readonly')
+        const request = transaction.objectStore(this.PROGRESS_STORE).getAll()
+        return new Promise((resolve, reject) => {
+            request.onsuccess = () => resolve(request.result)
+            request.onerror = () => reject(request.error)
+        })
+    }
+
     async updateLastReadDate(bookId: string): Promise<void> {
         const db = this.ensureDb()
         const now = new Date()
 
         return new Promise((resolve, reject) => {
-            const transaction = db.transaction([this.BOOKS_STORE], 'readwrite')
-            const store = transaction.objectStore(this.BOOKS_STORE)
+            const transaction = db.transaction([this.METADATA_STORE], 'readwrite')
+            const store = transaction.objectStore(this.METADATA_STORE)
             const getRequest = store.get(bookId)
 
             getRequest.onsuccess = () => {
