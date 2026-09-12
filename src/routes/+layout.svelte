@@ -43,15 +43,32 @@
     let pickerOpen = $state(false)
     let reduceMotion = $state(false)
     let navLinksElement: HTMLDivElement
-    let navLinkElements: HTMLAnchorElement[] = []
+    let navLinkElements = $state<HTMLAnchorElement[]>([])
     let navIndicatorStyle = $state('opacity: 0;')
-    let shouldCloseOnClick = false
+    let themeToggle: HTMLButtonElement
+    let hasColorPreference = false
+
+    function readPreference(key: string): string | null {
+        try {
+            return localStorage.getItem(key)
+        } catch {
+            return null
+        }
+    }
+
+    function writePreference(key: string, value: string) {
+        try {
+            localStorage.setItem(key, value)
+        } catch {
+            // Theme controls still work when browser storage is unavailable.
+        }
+    }
 
     function applyTheme(theme: string) {
         currentTheme = theme
         if (typeof document !== 'undefined') {
             document.documentElement.dataset.theme = theme
-            localStorage.setItem('theme', theme)
+            writePreference('theme', theme)
         }
     }
 
@@ -60,7 +77,8 @@
         if (typeof document !== 'undefined') {
             document.documentElement.classList.toggle('dark', mode === 'dark')
             if (persist) {
-                localStorage.setItem('color-mode', mode)
+                hasColorPreference = true
+                writePreference('color-mode', mode)
             }
         }
     }
@@ -97,13 +115,14 @@
     })
 
     onMount(() => {
-        const saved = localStorage.getItem('theme')
-        const theme = saved || 'cyan'
+        const saved = readPreference('theme')
+        const theme = themes.some((theme) => theme.id === saved) ? saved! : 'cyan'
         currentTheme = theme
         document.documentElement.dataset.theme = theme
 
         const media = window.matchMedia('(prefers-color-scheme: dark)')
-        const savedColorMode = localStorage.getItem('color-mode')
+        const savedColorMode = readPreference('color-mode')
+        hasColorPreference = savedColorMode === 'light' || savedColorMode === 'dark'
         applyColorMode(
             savedColorMode === 'light' || savedColorMode === 'dark'
                 ? savedColorMode
@@ -113,7 +132,7 @@
             false,
         )
         const syncColorPreference = (event: MediaQueryListEvent) => {
-            if (!localStorage.getItem('color-mode')) {
+            if (!hasColorPreference) {
                 applyColorMode(event.matches ? 'dark' : 'light', false)
             }
         }
@@ -126,23 +145,23 @@
         }
         motionMedia.addEventListener('change', syncMotionPreference)
 
-        const closeOnOutside = (event: MouseEvent | TouchEvent) => {
-            const target = event.target as HTMLElement | null
-            if (!target?.closest('.theme-picker')) {
-                if (shouldCloseOnClick) {
-                    pickerOpen = false
-                } else {
-                    shouldCloseOnClick = true
-                }
+        const closeOnOutside = (event: PointerEvent) => {
+            const target = event.target
+            if (!(target instanceof Element) || !target.closest('.theme-picker')) pickerOpen = false
+        }
+        const closeOnEscape = (event: KeyboardEvent) => {
+            if (event.key === 'Escape' && pickerOpen) {
+                pickerOpen = false
+                themeToggle?.focus()
             }
         }
         window.addEventListener('resize', updateNavIndicator)
-        document.addEventListener('click', closeOnOutside, true)
-        document.addEventListener('touchstart', closeOnOutside, true)
+        document.addEventListener('pointerdown', closeOnOutside, true)
+        document.addEventListener('keydown', closeOnEscape)
         return () => {
             window.removeEventListener('resize', updateNavIndicator)
-            document.removeEventListener('click', closeOnOutside, true)
-            document.removeEventListener('touchstart', closeOnOutside, true)
+            document.removeEventListener('pointerdown', closeOnOutside, true)
+            document.removeEventListener('keydown', closeOnEscape)
             media.removeEventListener('change', syncColorPreference)
             motionMedia.removeEventListener('change', syncMotionPreference)
         }
@@ -236,43 +255,42 @@
     aria-label="Theme picker"
     role="presentation"
     class:open={pickerOpen}
-    onmouseenter={() => (pickerOpen = true)}
-    onmouseleave={() => (pickerOpen = false)}
+    onpointerenter={(event) => {
+        if (event.pointerType === 'mouse') pickerOpen = true
+    }}
+    onpointerleave={(event) => {
+        if (event.pointerType === 'mouse') pickerOpen = false
+    }}
 >
     <button
         type="button"
         class="theme-toggle"
+        bind:this={themeToggle}
         style={`--swatch:${themes.find((t) => t.id === currentTheme)?.color ?? '#00d4ff'}`}
         aria-label="Open theme picker"
-        onclick={(event) => {
-            event.stopPropagation()
-            pickerOpen = !pickerOpen
-            shouldCloseOnClick = false
-        }}
-        ontouchstart={(event) => {
-            event.stopPropagation()
-            shouldCloseOnClick = false
-            pickerOpen = !pickerOpen
-        }}
+        aria-expanded={pickerOpen}
+        aria-controls="theme-panel"
+        onclick={() => (pickerOpen = !pickerOpen)}
     ></button>
-    <div class="theme-panel">
-        <div class="theme-title">Theme</div>
-        <div class="theme-swatches">
-            {#each themes as theme}
-                <button
-                    type="button"
-                    class:active={currentTheme === theme.id}
-                    style={`--swatch:${theme.color}`}
-                    aria-label={`Switch to ${theme.label} theme`}
-                    onclick={(event) => {
-                        event.stopPropagation()
-                        applyTheme(theme.id)
-                        shouldCloseOnClick = true
-                    }}
-                ></button>
-            {/each}
+    {#if pickerOpen}
+        <div class="theme-panel" id="theme-panel">
+            <div class="theme-title">Theme</div>
+            <div class="theme-swatches">
+                {#each themes as theme}
+                    <button
+                        type="button"
+                        class:active={currentTheme === theme.id}
+                        style={`--swatch:${theme.color}`}
+                        aria-label={`Switch to ${theme.label} theme`}
+                        onclick={(event) => {
+                            event.stopPropagation()
+                            applyTheme(theme.id)
+                        }}
+                    ></button>
+                {/each}
+            </div>
         </div>
-    </div>
+    {/if}
 </div>
 
 <style>
@@ -726,14 +744,12 @@
             transform 0.2s ease;
     }
 
-    .theme-picker:hover .theme-panel,
     .theme-picker.open .theme-panel {
         opacity: 1;
         pointer-events: auto;
         transform: scale(1);
     }
 
-    .theme-picker:hover .theme-toggle,
     .theme-picker.open .theme-toggle {
         opacity: 0;
         pointer-events: none;
