@@ -1,7 +1,7 @@
 <script lang="ts">
     import seedrandom from 'seedrandom'
     import { generateMaze } from '$lib/maze-generator/generation-functions'
-    import { ALGO_CHOICES } from '$lib/maze-generator/constants'
+    import { ALGO_CHOICES, MAX_MAZE_SIZE } from '$lib/maze-generator/constants'
     import { MazeCell, indexToPoint } from '$lib/maze-generator/util'
     import type { MazeGenAlgorithm, RandomIntGenerator } from '$lib/maze-generator/types'
 
@@ -16,13 +16,19 @@
         return rngInstances.get(seed)!
     }
 
-    let mazeSize = $state(25)
+    let mazeSize = $state<number | undefined>(25)
+    let renderedMazeSize = $state(25)
+    const validMazeSize = $derived(
+        mazeSize !== undefined &&
+            Number.isInteger(mazeSize) &&
+            mazeSize >= 1 &&
+            mazeSize <= MAX_MAZE_SIZE,
+    )
     let startIndex = $state(0)
     let endIndex = $state(0)
     let maze = $state<MazeCell[]>([])
-    let history = $state<number[]>([])
     let algorithm = $state<MazeGenAlgorithm>('prim')
-    let startingPoint = $derived(indexToPoint(startIndex, mazeSize))
+    let startingPoint = $derived(indexToPoint(startIndex, renderedMazeSize))
 
     // Regenerate maze when seed, mazeSize, algorithm, or RNG instances change
     $effect(() => {
@@ -30,12 +36,13 @@
     })
 
     function regenerateMaze() {
+        if (!validMazeSize || mazeSize === undefined) return
         const randomInt = getRandomIntGenerator(seed)
-        let generated = generateMaze({ mazeSize, randomInt, algorithm })
+        const generated = generateMaze({ mazeSize, randomInt, algorithm })
+        renderedMazeSize = mazeSize
         maze = generated.maze
         startIndex = generated.startIndex
         endIndex = generated.endIndex
-        history = generated.history
     }
 
     function resetRNG() {
@@ -50,7 +57,7 @@
 
 <div class="maze-info">
     <p>Starting point: {startingPoint[0] + 1}, {startingPoint[1] + 1}</p>
-    <p>Maze size: {mazeSize} x {mazeSize}</p>
+    <p>Maze size: {renderedMazeSize} x {renderedMazeSize}</p>
 </div>
 
 <div class="maze-controls">
@@ -59,9 +66,18 @@
     <div class="control">
         <label for="maze-size">Maze size:</label>
         <div class="maze-size-input">
-            <input id="maze-size" type="number" min={1} max={100} bind:value={mazeSize} />
-            <p class="maze-size-warning">
-                Note: very large maze sizes can freeze or crash your browser. (e.g. 500).
+            <input
+                id="maze-size"
+                type="number"
+                min={1}
+                max={MAX_MAZE_SIZE}
+                step={1}
+                bind:value={mazeSize}
+                aria-invalid={!validMazeSize}
+                aria-describedby="maze-size-help"
+            />
+            <p id="maze-size-help" class="maze-size-warning">
+                Enter a whole number from 1 to {MAX_MAZE_SIZE}.
             </p>
         </div>
     </div>
@@ -82,15 +98,15 @@
     </div>
 
     <div class="control">
-        <button onclick={regenerateMaze}>Regenerate Maze</button>
+        <button onclick={regenerateMaze} disabled={!validMazeSize}>Regenerate Maze</button>
     </div>
 </div>
 
-<div class="maze" style="width: {mazeSize * 20}px; height: {mazeSize * 20}px;">
-    {#each Array.from({ length: mazeSize }, (_, rowIndex) => rowIndex) as rowIndex}
+<div class="maze" style="width: {renderedMazeSize * 20}px; height: {renderedMazeSize * 20}px;">
+    {#each Array.from({ length: renderedMazeSize }, (_, rowIndex) => rowIndex) as rowIndex}
         <div class="row">
-            {#each Array.from({ length: mazeSize }, (_, colIndex) => colIndex) as colIndex}
-                {@const cellIndex = rowIndex * mazeSize + colIndex}
+            {#each Array.from({ length: renderedMazeSize }, (_, colIndex) => colIndex) as colIndex}
+                {@const cellIndex = rowIndex * renderedMazeSize + colIndex}
                 {@const cell = maze[cellIndex]}
                 {#if cell}
                     <div

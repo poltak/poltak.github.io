@@ -1,4 +1,10 @@
-import type { Direction, Point, MazeCellInterface, NeighborCells } from './types'
+import type {
+    Direction,
+    Point,
+    MazeCellInterface,
+    NeighborCells,
+    RandomIntGenerator,
+} from './types'
 
 export function getOppositeDirection(direction: Direction): Direction {
     switch (direction) {
@@ -84,13 +90,17 @@ export function getRightNeighbor(index: number, distance: number, mazeSize: numb
     return null
 }
 
-export function pickRandomNeighborDirection(
-    neighbors: NeighborCells,
-    history: number[],
-    randomInt: (min: number, max: number) => number,
-): Direction | null {
+export function pickRandomNeighborDirection({
+    neighbors,
+    visited,
+    randomInt,
+}: {
+    neighbors: NeighborCells
+    visited: ReadonlySet<number>
+    randomInt: RandomIntGenerator
+}): Direction | null {
     const validDirections = Object.entries(neighbors)
-        .filter(([, neighborIndex]) => neighborIndex !== null && !history.includes(neighborIndex))
+        .filter(([, neighborIndex]) => neighborIndex !== null && !visited.has(neighborIndex))
         .map(([direction]) => direction as Direction)
     if (validDirections.length === 0) {
         return null
