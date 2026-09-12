@@ -34,6 +34,9 @@
     let showLibrary = $state(true)
     let isLoadingLibrary = $state(false)
     let bookProgresses = $state<Map<string, ReadingProgress>>(new Map())
+    let bookLoadId = 0
+    let libraryLoadId = 0
+    let disposed = false
 
     // Rewind functionality
     let isRewinding = $state(false)
@@ -174,8 +177,10 @@
     onMount(async () => {
         try {
             await epubStorage.init()
+            if (disposed) return
             await loadLibrary()
         } catch (error) {
+            if (disposed) return
             console.error('Failed to initialize storage:', error)
             errorMessage = `Unable to load your library: ${
                 error instanceof Error ? error.message : 'Unknown storage error'
@@ -203,19 +208,25 @@
     })
 
     async function loadLibrary() {
+        if (disposed) return
+        const loadId = ++libraryLoadId
         isLoadingLibrary = true
         try {
-            storedBooks = await epubStorage.getBooks()
-
-            const progresses = await epubStorage.getAllProgress()
+            const [books, progresses] = await Promise.all([
+                epubStorage.getBooks(),
+                epubStorage.getAllProgress(),
+            ])
+            if (disposed || loadId !== libraryLoadId) return
+            storedBooks = books
             bookProgresses = new Map(progresses.map((progress) => [progress.bookId, progress]))
         } catch (error) {
+            if (disposed || loadId !== libraryLoadId) return
             console.error('Failed to load library:', error)
             errorMessage = `Unable to load your library: ${
                 error instanceof Error ? error.message : 'Unknown storage error'
             }`
         } finally {
-            isLoadingLibrary = false
+            if (loadId === libraryLoadId) isLoadingLibrary = false
         }
     }
 
@@ -241,42 +252,48 @@
             return
         }
 
+        const loadId = ++bookLoadId
         isLoading = true
         errorMessage = ''
 
         try {
-            epubData = await parseEpub(file)
+            const parsed = await parseEpub(file)
+            if (disposed || loadId !== bookLoadId) return
+            const totalWords = parsed.chapters.reduce((sum, chapter) => sum + chapter.wordCount, 0)
+            const bookId = await epubStorage.saveBook(parsed, totalWords)
+            if (disposed || loadId !== bookLoadId) return
 
-            engine.loadBook(epubData.allText, epubData.tableOfContents)
-            speechController.setBook(epubData.chapters)
-
-            // Save the book to storage
-            currentBookId = await epubStorage.saveBook(epubData, allWords.length)
+            epubData = parsed
+            currentBookId = bookId
+            engine.loadBook(parsed.allText, parsed.tableOfContents)
+            speechController.setBook(parsed.chapters)
 
             currentWordIndex = 0
             currentChapterIndex = 0
             showLibrary = false
             await loadLibrary() // Refresh library
         } catch (error) {
-            console.error('Error parsing EPUB:', error)
-            errorMessage = `Error parsing EPUB: ${error instanceof Error ? error.message : 'Unknown error'}`
+            if (disposed || loadId !== bookLoadId) return
+            console.error('Unable to import EPUB:', error)
+            errorMessage = `Unable to import EPUB: ${error instanceof Error ? error.message : 'Unknown error'}`
             epubData = null
+            currentBookId = null
+            engine.loadBook('', [])
+            speechController.setBook([])
         } finally {
-            isLoading = false
+            if (loadId === bookLoadId) isLoading = false
         }
     }
 
     async function openStoredBook(book: BookSummary) {
+        const loadId = ++bookLoadId
         isLoading = true
         errorMessage = ''
         try {
             const storedBook = await epubStorage.getBook(book.id)
+            if (disposed || loadId !== bookLoadId) return
             if (!storedBook) throw new Error('This book is no longer in your library.')
             const storedEpubData = validateStoredEpubData(storedBook.epubData)
-            epubData = storedEpubData
-            currentBookId = book.id
-            engine.loadBook(storedEpubData.allText, storedEpubData.tableOfContents)
-            speechController.setBook(storedEpubData.chapters)
 
             // Load saved progress
             let progress: ReadingProgress | null = null
@@ -287,6 +304,12 @@
                 // mobile storage is temporarily unavailable or has been evicted.
                 console.error('Failed to load saved progress:', error)
             }
+            if (disposed || loadId !== bookLoadId) return
+
+            epubData = storedEpubData
+            currentBookId = book.id
+            engine.loadBook(storedEpubData.allText, storedEpubData.tableOfContents)
+            speechController.setBook(storedEpubData.chapters)
 
             if (progress) {
                 currentWordIndex = progress.currentWordIndex
@@ -306,6 +329,7 @@
 
             void refreshLibraryAfterBookOpen(book.id)
         } catch (error) {
+            if (disposed || loadId !== bookLoadId) return
             console.error('Error opening book:', error)
             errorMessage = `Unable to open this book: ${
                 error instanceof Error ? error.message : 'Unknown error'
@@ -315,7 +339,7 @@
             engine.loadBook('', [])
             speechController.setBook([])
         } finally {
-            isLoading = false
+            if (loadId === bookLoadId) isLoading = false
         }
     }
 
@@ -508,6 +532,7 @@
     }
 
     function backToLibrary() {
+        bookLoadId += 1
         void saveProgress().then(loadLibrary)
         speechController.setBook([])
         pauseReading()
@@ -545,6 +570,9 @@
         document.addEventListener('visibilitychange', handleVisibility)
         return () => {
             persist()
+            disposed = true
+            bookLoadId += 1
+            libraryLoadId += 1
             engine.cleanup()
             speechController.cleanup()
             window.removeEventListener('pagehide', persist)

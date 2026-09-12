@@ -331,4 +331,50 @@ describe('SpeedReader page', () => {
             ).getAttribute('aria-valuenow'),
         ).toBe('100')
     })
+
+    it('keeps the latest book selection when storage reads finish out of order', async () => {
+        const secondBook = {
+            ...storedBook,
+            id: 'second',
+            title: 'Second Book',
+            epubData: { ...baseEpubData, title: 'Second EPUB' },
+        }
+        let finishFirst!: (book: typeof storedBook) => void
+        mockStorage.getBooks.mockResolvedValue([storedBook, secondBook])
+        mockStorage.getBook.mockImplementation((id) =>
+            id === 'second'
+                ? Promise.resolve(secondBook)
+                : new Promise((resolve) => {
+                      finishFirst = resolve
+                  }),
+        )
+        render(SpeedReaderPage)
+        await fireEvent.click(await screen.findByRole('button', { name: 'Open Stored Book' }))
+        await fireEvent.click(screen.getByRole('button', { name: 'Open Second Book' }))
+        await screen.findByText('Speed reader')
+        finishFirst(storedBook)
+        await Promise.resolve()
+        expect(mockStorage.getProgress).toHaveBeenCalledExactlyOnceWith('second')
+        cleanup()
+        expect(mockStorage.saveProgress).toHaveBeenLastCalledWith(
+            expect.objectContaining({ bookId: 'second' }),
+        )
+    })
+
+    it('does not load an upload after the reader is unmounted', async () => {
+        let finishParsing!: (data: typeof baseEpubData) => void
+        mockParseEpub.mockReturnValue(
+            new Promise((resolve) => {
+                finishParsing = resolve
+            }),
+        )
+        const { container, unmount } = render(SpeedReaderPage)
+        await fireEvent.change(container.querySelector('input[type="file"]')!, {
+            target: { files: [new File(['epub'], 'late.epub')] },
+        })
+        unmount()
+        finishParsing(baseEpubData)
+        await Promise.resolve()
+        expect(mockStorage.saveBook).not.toHaveBeenCalled()
+    })
 })
