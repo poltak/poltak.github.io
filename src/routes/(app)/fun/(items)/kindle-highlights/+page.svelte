@@ -158,6 +158,7 @@
         <label class="file-input" for="clippings">
             <input
                 id="clippings"
+                class="visually-hidden"
                 type="file"
                 accept=".txt"
                 on:change={handleFileUpload}
@@ -293,8 +294,9 @@
         transform: translateY(-1px);
     }
 
-    .file-input input {
-        display: none;
+    .file-input:focus-within {
+        outline: 2px solid var(--c-primary);
+        outline-offset: 3px;
     }
 
     .file-name {
