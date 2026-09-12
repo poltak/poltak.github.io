@@ -54,8 +54,8 @@
         {
             title: 'Maze Generator',
             description:
-                'A visual maze generator using various algorithms. I want to use this as a starting point for some simple browser-baesd games.',
-            icon: 'maximize', // Using maximize as a placeholder for a grid-like icon
+                'A visual maze generator using various algorithms. I want to use this as a starting point for some simple browser-based games.',
+            icon: 'maximize',
             link: `${base}/fun/maze-generator`,
             color: 'var(--c-accent)',
         },
@@ -85,8 +85,6 @@
         <p class="terminal-index">04 / Experiments</p>
     </header>
 
-    <h1>Fun Projects</h1>
-
     <p>
         These are misc. browser-based mini projects done in my spare time. These are experiments,
         utilities, and ideas I build for fun, for personal use, and to learn. I'd like to do more of
@@ -97,10 +95,7 @@
 <div class="projects-grid">
     {#each projects as project (project.title)}
         <a href={project.link} class="project-card">
-            <div
-                class="icon-wrapper"
-                style="color: {project.color}; background: {project.color}15; border-color: {project.color}30"
-            >
+            <div class="icon-wrapper" style:--project-color={project.color}>
                 {#if 'image' in project}
                     {#if isImageUrl(project.image)}
                         <img src={project.image} alt={project.title} class="project-icon-img" />
@@ -179,10 +174,6 @@
         margin: 0;
     }
 
-    .fun-intro > h1 {
-        display: none;
-    }
-
     .fun-intro > p {
         color: var(--c-text-light);
         font-size: 1.05rem;
@@ -210,6 +201,9 @@
     }
 
     .icon-wrapper {
+        color: var(--project-color);
+        background: color-mix(in srgb, var(--project-color) 8%, transparent);
+        border: 1px solid color-mix(in srgb, var(--project-color) 20%, transparent);
         width: 3.8rem;
         height: 3.8rem;
         border-radius: 0;
