@@ -1,4 +1,8 @@
+/// <reference lib="webworker" />
+
 import { base, build, files, prerendered, version } from '$service-worker'
+
+declare const self: ServiceWorkerGlobalScope
 
 const CACHE_PREFIX = 'poltak-site'
 const CACHE_NAME = `${CACHE_PREFIX}-${version}`

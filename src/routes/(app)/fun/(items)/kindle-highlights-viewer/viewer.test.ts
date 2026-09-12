@@ -39,7 +39,7 @@ describe('clippings viewer', () => {
         await upload()
         await fireEvent.input(screen.getByRole('searchbox'), { target: { value: 'entry' } })
         expect(search).toHaveBeenCalledOnce()
-        await fireEvent.click(screen.getByRole('button', { name: 'Next', exact: true }))
+        await fireEvent.click(screen.getByRole('button', { name: 'Next' }))
         expect(screen.getByText('Page 2 of 4')).toBeTruthy()
         expect(search).toHaveBeenCalledOnce()
         await fireEvent.change(screen.getByLabelText('Type'), { target: { value: 'Highlight' } })
