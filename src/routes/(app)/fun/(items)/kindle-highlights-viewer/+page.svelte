@@ -1,7 +1,8 @@
 <script lang="ts">
     import { createClippingsSearch, createTextHighlighter } from '$lib/clippings-search'
     import { parseClippings, type NormalizedClipping } from 'kindle-highlights-parser'
-    import { onMount } from 'svelte'
+    import { onDestroy, onMount } from 'svelte'
+    import { base } from '$app/paths'
 
     let normalized: NormalizedClipping[] = []
     let errorMessage = ''
@@ -20,8 +21,22 @@
     let authorFilter = 'all'
     let uniqueTitles: string[] = []
     let uniqueAuthors: string[] = []
+    let loadId = 0
+    let siteRequest: AbortController | null = null
+
+    function beginLoad() {
+        siteRequest?.abort()
+        siteRequest = null
+        isLoadingStatic = false
+        return ++loadId
+    }
+
+    onDestroy(() => {
+        beginLoad()
+    })
 
     async function handleFileUpload(event: Event) {
+        const requestId = beginLoad()
         const input = event.currentTarget as HTMLInputElement
         const file = input.files?.[0]
 
@@ -38,6 +53,7 @@
 
         try {
             const text = await file.text()
+            if (requestId !== loadId) return
             const result = parseClippings(text)
             normalized = result.normalized.filter((item) => item.type !== 'Bookmark')
             if (normalized.length === 0) {
@@ -45,6 +61,7 @@
                     'No clippings found. Check that this is a Kindle "My Clippings.txt" file.'
             }
         } catch (error) {
+            if (requestId !== loadId) return
             normalized = []
             errorMessage =
                 error instanceof Error
@@ -54,15 +71,21 @@
     }
 
     async function loadSiteClippings() {
+        const requestId = beginLoad()
+        const controller = new AbortController()
+        siteRequest = controller
         isLoadingStatic = true
         statusMessage = ''
         errorMessage = ''
         try {
-            const response = await fetch('/My%20Clippings.txt')
+            const response = await fetch(`${base}/My%20Clippings.txt`, {
+                signal: controller.signal,
+            })
             if (!response.ok) {
                 throw new Error('Unable to load the site clippings file.')
             }
             const text = await response.text()
+            if (requestId !== loadId) return
             const result = parseClippings(text)
             normalized = result.normalized.filter((item) => item.type !== 'Bookmark')
             sourceFileName = 'Jon\'s "My Clippings.txt"'
@@ -70,11 +93,15 @@
                 errorMessage = 'No clippings found in the site file. Check the uploaded content.'
             }
         } catch (error) {
+            if (requestId !== loadId) return
             normalized = []
             errorMessage =
                 error instanceof Error ? error.message : 'Unable to load the site clippings file.'
         } finally {
-            isLoadingStatic = false
+            if (requestId === loadId) {
+                isLoadingStatic = false
+                siteRequest = null
+            }
         }
     }
 
@@ -98,8 +125,10 @@
     }
 
     async function loadSavedClippings() {
+        const requestId = beginLoad()
+        let db: IDBDatabase | undefined
         try {
-            const db = await openDatabase()
+            db = await openDatabase()
             const tx = db.transaction('files', 'readonly')
             const store = tx.objectStore('files')
             const request = store.get('default')
@@ -111,15 +140,18 @@
                 request.onerror = () =>
                     reject(request.error ?? new Error('Unable to read saved data.'))
             })
+            if (requestId !== loadId) return
             if (saved?.normalized?.length) {
                 normalized = saved.normalized
                 sourceFileName = saved.sourceFileName ?? ''
                 statusMessage = 'Loaded saved clippings from this browser.'
             }
-            db.close()
         } catch (error) {
+            if (requestId !== loadId) return
             statusMessage =
                 error instanceof Error ? error.message : 'Unable to load saved clippings.'
+        } finally {
+            db?.close()
         }
     }
 
@@ -127,8 +159,9 @@
         if (!normalized.length) return
         isSaving = true
         statusMessage = ''
+        let db: IDBDatabase | undefined
         try {
-            const db = await openDatabase()
+            db = await openDatabase()
             const tx = db.transaction('files', 'readwrite')
             const store = tx.objectStore('files')
             store.put({ normalized, sourceFileName, savedAt: new Date().toISOString() }, 'default')
@@ -138,10 +171,10 @@
                 tx.onabort = () => reject(tx.error ?? new Error('Unable to save clippings.'))
             })
             statusMessage = 'Saved clippings to this browser.'
-            db.close()
         } catch (error) {
             statusMessage = error instanceof Error ? error.message : 'Unable to save clippings.'
         } finally {
+            db?.close()
             isSaving = false
         }
     }
@@ -153,12 +186,16 @@
             )
             if (!ok) return
         }
+        beginLoad()
         normalized = []
         sourceFileName = ''
         pageIndex = 0
         statusMessage = ''
+        errorMessage = ''
+        if (fileInput) fileInput.value = ''
+        let db: IDBDatabase | undefined
         try {
-            const db = await openDatabase()
+            db = await openDatabase()
             const tx = db.transaction('files', 'readwrite')
             const store = tx.objectStore('files')
             store.delete('default')
@@ -168,20 +205,11 @@
                 tx.onabort = () => reject(tx.error ?? new Error('Unable to clear saved clippings.'))
             })
             statusMessage = 'Cleared saved clippings from this browser.'
-            db.close()
         } catch (error) {
             statusMessage =
                 error instanceof Error ? error.message : 'Unable to clear saved clippings.'
-        }
-    }
-
-    function clearAll() {
-        normalized = []
-        errorMessage = ''
-        statusMessage = ''
-        sourceFileName = ''
-        if (fileInput) {
-            fileInput.value = ''
+        } finally {
+            db?.close()
         }
     }
 
@@ -227,13 +255,9 @@
     }
 
     onMount(() => {
-        loadSavedClippings()
-        if (typeof window !== 'undefined') {
-            const params = new URLSearchParams(window.location.search)
-            if (params.get('source') === 'site') {
-                loadSiteClippings()
-            }
-        }
+        const params = new URLSearchParams(window.location.search)
+        if (params.get('source') === 'site') void loadSiteClippings()
+        else void loadSavedClippings()
     })
 </script>
 
