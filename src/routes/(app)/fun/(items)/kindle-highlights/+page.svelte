@@ -2,6 +2,7 @@
     import { parseClippings, type NormalizedClipping } from 'kindle-highlights-parser'
     import { toCsv } from 'kindle-highlights-parser/outputs/csv'
     import { toJson } from 'kindle-highlights-parser/outputs/json'
+    import { onDestroy } from 'svelte'
 
     type OutputFormat = 'csv' | 'json'
 
@@ -15,6 +16,12 @@
     let statusMessage = ''
     let sourceFileName = ''
     let fileInput: HTMLInputElement | null = null
+    let uploadId = 0
+
+    onDestroy(() => {
+        uploadId += 1
+        if (downloadUrl) URL.revokeObjectURL(downloadUrl)
+    })
 
     function buildOutputFilename(): string {
         const baseName = sourceFileName
@@ -27,6 +34,7 @@
     }
 
     async function handleFileUpload(event: Event) {
+        const requestId = ++uploadId
         const input = event.currentTarget as HTMLInputElement
         const file = input.files?.[0]
 
@@ -43,6 +51,7 @@
 
         try {
             const text = await file.text()
+            if (requestId !== uploadId) return
             const result = parseClippings(text)
             normalized = result.normalized
             if (normalized.length === 0) {
@@ -50,6 +59,7 @@
                     'No clippings found. Check that this is a Kindle \"My Clippings.txt\" file.'
             }
         } catch (error) {
+            if (requestId !== uploadId) return
             normalized = []
             errorMessage =
                 error instanceof Error
@@ -83,6 +93,7 @@
     }
 
     function clearAll() {
+        uploadId += 1
         normalized = []
         output = ''
         outputFilename = ''
@@ -98,6 +109,7 @@
         normalized
         outputFormat
         prettyJson
+        sourceFileName
         updateOutput()
     }
 
@@ -228,9 +240,7 @@
         class="output"
         readonly
         placeholder="Upload a file to see the output here."
-        bind:value={output}
-    >
-    </textarea>
+        bind:value={output}></textarea>
 </section>
 
 <style>
