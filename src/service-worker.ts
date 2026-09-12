@@ -27,7 +27,19 @@ function isBookUrl(url: string): boolean {
 }
 
 const precacheUrls = Array.from(
-    new Set([APP_SHELL_URL, ...build, ...files, ...prerendered].filter((url) => !isBookUrl(url))),
+    new Set(
+        [
+            APP_SHELL_URL,
+            ...build,
+            ...files.filter(
+                (url) =>
+                    isReaderUrl(url) ||
+                    url.startsWith(`${base}/icons/`) ||
+                    url === `${base}/favicon.png`,
+            ),
+            ...prerendered.filter(isReaderUrl),
+        ].filter((url) => !isBookUrl(url)),
+    ),
 )
 const precachePaths = new Set(
     precacheUrls.map((url) => new URL(url, self.location.origin).pathname),
@@ -84,8 +96,9 @@ self.addEventListener('fetch', (event) => {
 
         event.respondWith(
             fetch(request).catch(async () => {
-                const cachedPage = await caches.match(request, { ignoreSearch: true })
-                return cachedPage ?? (await caches.match(APP_SHELL_URL)) ?? Response.error()
+                const cache = await caches.open(CACHE_NAME)
+                const cachedPage = await cache.match(request, { ignoreSearch: true })
+                return cachedPage ?? (await cache.match(APP_SHELL_URL)) ?? Response.error()
             }),
         )
         return
@@ -100,7 +113,8 @@ self.addEventListener('fetch', (event) => {
                 if (!client || !isReaderUrl(client.url)) return fetch(request)
             }
 
-            const cachedResponse = await caches.match(request, { ignoreSearch: true })
+            const cache = await caches.open(CACHE_NAME)
+            const cachedResponse = await cache.match(request, { ignoreSearch: true })
             return cachedResponse ?? fetch(request)
         })(),
     )
