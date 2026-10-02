@@ -48,6 +48,46 @@ const precacheUrls = Array.from(
 const precachePaths = new Set(
     precacheUrls.map((url) => new URL(url, self.location.origin).pathname),
 )
+// Build files have a content hash in the name, so a copy from the HTTP cache is safe. Pages and
+// static files have no version in the name. Fetch them from the network, or the new cache can
+// hold a shell from the previous deployment that names chunks this cache does not have.
+const immutableUrls = new Set(build)
+const precacheRequests = precacheUrls.map((url) =>
+    immutableUrls.has(url)
+        ? url
+        : new Request(new URL(url, self.location.origin), { cache: 'reload' }),
+)
+// After this time a reader navigation uses the cached shell, not a slow network.
+const NAVIGATION_TIMEOUT_MS = 3000
+
+async function readCachedPage(request: Request): Promise<Response | undefined> {
+    const cache = await caches.open(CACHE_NAME)
+    return (
+        (await cache.match(request, { ignoreSearch: true })) ?? (await cache.match(APP_SHELL_URL))
+    )
+}
+
+async function respondToNavigation(request: Request): Promise<Response> {
+    const cached = readCachedPage(request)
+    const network = fetch(request)
+    // The cached shell can win the race. A later network failure then has no other handler.
+    network.catch(() => undefined)
+
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const timeout = new Promise<null>((resolve) => {
+        timer = setTimeout(() => resolve(null), NAVIGATION_TIMEOUT_MS)
+    })
+    try {
+        const response = await Promise.race([network, timeout])
+        if (response) return response
+    } catch {
+        // Offline. Use the cached shell below.
+    } finally {
+        clearTimeout(timer)
+    }
+
+    return (await cached) ?? network.catch(() => Response.error())
+}
 
 function hasReaderScope(): boolean {
     return new URL(self.registration.scope).pathname === READER_SCOPE_PATH
@@ -62,7 +102,7 @@ self.addEventListener('install', (event) => {
     event.waitUntil(
         caches
             .open(CACHE_NAME)
-            .then((cache) => cache.addAll(precacheUrls))
+            .then((cache) => cache.addAll(precacheRequests))
             .then(() => self.skipWaiting()),
     )
 })
@@ -98,13 +138,7 @@ self.addEventListener('fetch', (event) => {
     if (request.mode === 'navigate') {
         if (!isReaderUrl(request.url)) return
 
-        event.respondWith(
-            fetch(request).catch(async () => {
-                const cache = await caches.open(CACHE_NAME)
-                const cachedPage = await cache.match(request, { ignoreSearch: true })
-                return cachedPage ?? (await cache.match(APP_SHELL_URL)) ?? Response.error()
-            }),
-        )
+        event.respondWith(respondToNavigation(request))
         return
     }
 

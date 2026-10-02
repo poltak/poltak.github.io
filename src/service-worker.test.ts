@@ -75,7 +75,7 @@ describe('PWA shell', () => {
         expect(serviceWorker).toContain('hasReaderScope')
         expect(serviceWorker).toContain('self.registration.unregister()')
         expect(serviceWorker).toContain('if (!isReaderUrl(request.url)) return')
-        expect(serviceWorker).toContain('cache.addAll(precacheUrls)')
+        expect(serviceWorker).toContain('cache.addAll(precacheRequests)')
         expect(serviceWorker).toContain("endsWith('.epub')")
         expect(serviceWorker).toContain('.filter((cacheName) =>')
         expect(serviceWorker).toContain('self.clients.claim()')

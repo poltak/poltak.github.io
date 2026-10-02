@@ -56,12 +56,21 @@ describe('reader service worker runtime', () => {
             },
         })
         await installed
-        expect(cache.addAll).toHaveBeenCalledExactlyOnceWith([
-            '/fun/speed-reader/',
+        expect(cache.addAll).toHaveBeenCalledOnce()
+        const requests = cache.addAll.mock.calls[0][0] as Array<string | Request>
+        // Only the hashed build file can come from the HTTP cache.
+        expect(
+            requests.map((request) =>
+                typeof request === 'string'
+                    ? request
+                    : [new URL(request.url).pathname, request.cache],
+            ),
+        ).toEqual([
+            ['/fun/speed-reader/', 'reload'],
             '/_app/immutable/app.js',
-            '/icons/icon-192.png',
-            '/favicon.png',
-            '/fun/speed-reader/manifest.webmanifest',
+            ['/icons/icon-192.png', 'reload'],
+            ['/favicon.png', 'reload'],
+            ['/fun/speed-reader/manifest.webmanifest', 'reload'],
         ])
     })
 
@@ -103,5 +112,49 @@ describe('reader service worker runtime', () => {
         })
         expect(await (await response).text()).toBe('reader shell')
         expect(cachesMock.match).not.toHaveBeenCalled()
+    })
+
+    it('uses the cached reader shell when the network is slow', async () => {
+        vi.useFakeTimers()
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(() => new Promise<Response>(() => {})),
+        )
+        cache.match.mockResolvedValue(new Response('reader shell'))
+        let response!: Promise<Response>
+        listeners.get('fetch')!({
+            request: {
+                method: 'GET',
+                mode: 'navigate',
+                url: 'https://example.com/fun/speed-reader/',
+            },
+            respondWith: (promise: Promise<Response>) => {
+                response = promise
+            },
+        })
+        let settled = false
+        void response.then(() => (settled = true))
+        await vi.advanceTimersByTimeAsync(2900)
+        expect(settled).toBe(false)
+        await vi.advanceTimersByTimeAsync(200)
+        expect(await (await response).text()).toBe('reader shell')
+        vi.useRealTimers()
+    })
+
+    it('uses the network response when it arrives in time', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('fresh page')))
+        cache.match.mockResolvedValue(new Response('reader shell'))
+        let response!: Promise<Response>
+        listeners.get('fetch')!({
+            request: {
+                method: 'GET',
+                mode: 'navigate',
+                url: 'https://example.com/fun/speed-reader/',
+            },
+            respondWith: (promise: Promise<Response>) => {
+                response = promise
+            },
+        })
+        expect(await (await response).text()).toBe('fresh page')
     })
 })
