@@ -6,6 +6,9 @@
 
     type OutputFormat = 'csv' | 'json'
 
+    // A textarea takes more than 100 ms to lay out 1 MB of text. Copy and Download use the full output.
+    const PREVIEW_CHARACTER_LIMIT = 50_000
+
     let outputFormat: OutputFormat = 'csv'
     let prettyJson = true
     let normalized: NormalizedClipping[] = []
@@ -112,6 +115,9 @@
         sourceFileName
         updateOutput()
     }
+
+    $: isPreviewShortened = output.length > PREVIEW_CHARACTER_LIMIT
+    $: preview = isPreviewShortened ? output.slice(0, PREVIEW_CHARACTER_LIMIT) : output
 
     $: if (typeof window !== 'undefined') {
         if (downloadUrl) {
@@ -241,7 +247,13 @@
         class="output"
         readonly
         placeholder="Upload a file to see the output here."
-        bind:value={output}></textarea>
+        value={preview}></textarea>
+    {#if isPreviewShortened}
+        <p class="hint preview-note">
+            This preview shows the first {PREVIEW_CHARACTER_LIMIT.toLocaleString()} of {output.length.toLocaleString()}
+            characters. Copy and Download give you the full output.
+        </p>
+    {/if}
 </section>
 
 <style>
@@ -470,6 +482,10 @@
         line-height: 1.5;
         background: var(--c-bg-input);
         color: var(--c-text);
+    }
+
+    .preview-note {
+        margin: 0.75rem 0 0;
     }
 
     @media (max-width: 768px) {
