@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
     SpeechController,
+    createBrowserSpeechProvider,
     dedupeSpeechVoices,
     splitSpeechText,
     type SpeechProvider,
@@ -58,13 +59,22 @@ describe('SpeechController', () => {
         ])
 
         controller.play()
-        expect(provider.utterances[0].text.length).toBeLessThanOrEqual(1500)
-        provider.utterances[0].onEnd()
-        expect(provider.utterances[1].text.length).toBeLessThanOrEqual(1500)
-        expect(onChapterChange).not.toHaveBeenCalled()
-        provider.utterances[1].onEnd()
+        const longChapterChunks = splitSpeechText('word '.repeat(400)).length
+        expect(longChapterChunks).toBeGreaterThan(1)
+        for (let index = 0; index < longChapterChunks; index++) {
+            expect(provider.utterances).toHaveLength(index + 1)
+            expect(provider.utterances[index].text.length).toBeLessThanOrEqual(200)
+            expect(onChapterChange).not.toHaveBeenCalled()
+            provider.utterances[index].onEnd()
+        }
         expect(onChapterChange).toHaveBeenCalledWith(1)
-        expect(provider.utterances[2].text).toBe('Next chapter')
+        expect(provider.utterances[longChapterChunks].text).toBe('Next chapter')
+    })
+
+    it('ends an utterance at a sentence end when the chunk is long enough', () => {
+        const chunks = splitSpeechText('Aa bb. Cc dd ee ff. Gg hh ii jj kk ll.', 20)
+
+        expect(chunks).toEqual(['Aa bb. Cc dd ee ff.', 'Gg hh ii jj kk ll.'])
     })
 
     it('continues with the next chapter and completes', () => {
@@ -169,5 +179,30 @@ describe('SpeechController', () => {
         controller.play(0)
         expect(onChapterChange).not.toHaveBeenCalled()
         expect(provider.utterances.map((utterance) => utterance.text)).toEqual(['first', 'first'])
+    })
+
+    it('clears a paused synthesizer when it cancels speech', () => {
+        const calls: string[] = []
+        const synthesis = {
+            speak: () => calls.push('speak'),
+            pause: () => calls.push('pause'),
+            resume: () => calls.push('resume'),
+            cancel: () => calls.push('cancel'),
+            getVoices: () => [],
+        }
+        class Utterance {
+            rate = 1
+            constructor(public text: string) {}
+        }
+        const provider = createBrowserSpeechProvider(
+            synthesis,
+            Utterance as unknown as typeof SpeechSynthesisUtterance,
+        )
+
+        provider.pause()
+        provider.cancel()
+        provider.speak({ text: 'Next', rate: 1, onEnd: () => {}, onError: () => {} })
+
+        expect(calls).toEqual(['pause', 'cancel', 'resume', 'speak'])
     })
 })

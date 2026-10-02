@@ -54,7 +54,10 @@ export function dedupeSpeechVoices(voices: SpeechVoice[]): SpeechVoice[] {
 
 const MIN_RATE = 0.5
 const MAX_RATE = 2
-const MAX_UTTERANCE_LENGTH = 1500
+// Chrome stops a long utterance from a network voice after about 15 seconds and sends no end
+// event. Short utterances, cut at sentence ends where possible, do not reach that limit.
+const MAX_UTTERANCE_LENGTH = 200
+const SENTENCE_END = /[.!?\u2026]["'\u201D\u2019)\]]*$/
 
 export function clampSpeechRate(rate: number): number {
     if (!Number.isFinite(rate)) return 1
@@ -84,6 +87,11 @@ export function splitSpeechText(text: string, maxLength = MAX_UTTERANCE_LENGTH):
         const next = current ? `${current} ${word}` : word
         if (next.length <= safeMaxLength) {
             current = next
+            // The pause between two utterances is least audible after a sentence.
+            if (current.length >= safeMaxLength / 2 && SENTENCE_END.test(word)) {
+                chunks.push(current)
+                current = ''
+            }
         } else {
             chunks.push(current)
             current = word
@@ -323,6 +331,9 @@ export function createBrowserSpeechProvider(
         : undefined,
 ): SpeechProvider {
     const supported = Boolean(synthesis && UtteranceConstructor)
+    // Chromium can garbage collect an utterance that has no other reference, and then its
+    // end event does not fire. This reference keeps the current one alive.
+    let currentUtterance: SpeechSynthesisUtterance | null = null
 
     return {
         supported,
@@ -348,12 +359,25 @@ export function createBrowserSpeechProvider(
                     .find((candidate) => candidate.name === voice.name)
                 if (browserVoice) utterance.voice = browserVoice
             }
-            utterance.onend = onEnd
-            utterance.onerror = onError
+            utterance.onend = () => {
+                if (currentUtterance === utterance) currentUtterance = null
+                onEnd()
+            }
+            utterance.onerror = (event) => {
+                if (currentUtterance === utterance) currentUtterance = null
+                onError(event)
+            }
+            currentUtterance = utterance
             synthesis!.speak(utterance)
         },
         pause: () => synthesis?.pause(),
         resume: () => synthesis?.resume(),
-        cancel: () => synthesis?.cancel(),
+        cancel: () => {
+            currentUtterance = null
+            synthesis?.cancel()
+            // `cancel()` does not end a paused state. Without `resume()`, speech that starts
+            // after a pause and a stop stays silent.
+            synthesis?.resume()
+        },
     }
 }
