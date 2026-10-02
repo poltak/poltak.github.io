@@ -9,6 +9,7 @@
         description: string
         link: string
         color: string
+        external?: boolean
     } & ({ icon: IconName } | { image: string })
 
     function isImageUrl(value: string): boolean {
@@ -74,9 +75,14 @@
             image: '🧵',
             link: 'https://hoian-embroidery.com',
             color: 'var(--c-primary)',
+            external: true,
         },
     ]
 </script>
+
+<svelte:head>
+    <title>Fun projects · Jon Samosir</title>
+</svelte:head>
 
 <section class="fun-intro">
     <header class="terminal-hero">
@@ -94,7 +100,12 @@
 
 <div class="projects-grid">
     {#each projects as project (project.title)}
-        <a href={project.link} class="project-card">
+        <a
+            href={project.link}
+            class="project-card"
+            target={project.external ? '_blank' : undefined}
+            rel={project.external ? 'noopener noreferrer' : undefined}
+        >
             <div class="icon-wrapper" style:--project-color={project.color}>
                 {#if 'image' in project}
                     {#if isImageUrl(project.image)}
@@ -120,8 +131,12 @@
                 <h3>{project.title}</h3>
                 <p>{project.description}</p>
                 <div class="project-action">
-                    <span>View project</span>
-                    <Icon name="arrow-right" size={18} />
+                    {#if project.external}
+                        <span>Visit site ↗</span>
+                    {:else}
+                        <span>View project</span>
+                        <Icon name="arrow-right" size={18} />
+                    {/if}
                 </div>
             </div>
         </a>
@@ -138,11 +153,6 @@
 </aside>
 
 <style>
-    :global(.content-wrapper:has(.fun-intro)),
-    :global(.content-wrapper:has(.fun-intro) *) {
-        font-family: var(--font-mono);
-    }
-
     .projects-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
@@ -150,68 +160,46 @@
         margin-top: 2rem;
     }
 
-    .fun-intro {
-        max-width: 100%;
-    }
-
-    .terminal-hero {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        align-items: baseline;
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px dashed var(--c-border-dashed);
-    }
-
-    .terminal-prompt,
-    .terminal-index {
-        color: var(--c-primary);
-        font-weight: 800;
-        letter-spacing: 0.08em;
-        margin: 0;
-        text-transform: uppercase;
-    }
-
-    .terminal-hero h1 {
-        color: var(--c-text);
-        font-family: var(--font-sans);
-        font-size: clamp(2.75rem, 7vw, 4.25rem);
-        font-weight: 400;
-        letter-spacing: 0.04em;
-        margin: 0;
-    }
-
     .fun-intro > p {
         color: var(--c-text-light);
         font-size: 1.05rem;
         line-height: 1.75;
-        max-width: 72ch;
+        max-width: var(--measure);
         margin: 0;
     }
 
     .project-card {
         display: flex;
         flex-direction: column;
-        min-height: 250px;
         border: 1px solid var(--c-border);
         padding: 1.3rem;
+        /* The card is a link, but only its heading and action use the bold link weight. */
+        font-weight: 400;
         text-decoration: none;
         transition:
             transform 0.2s ease,
-            background 0.2s ease;
+            background 0.2s ease,
+            border-color 0.2s ease;
     }
 
     .project-card:hover {
         background: var(--c-primary-light);
+        border-color: var(--c-primary);
         transform: translateY(-2px);
         text-decoration: none;
+    }
+
+    /* The content fills the card, so the action row sits on the bottom edge of each card in a row. */
+    .content {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
     }
 
     .icon-wrapper {
         color: var(--project-color);
         background: color-mix(in srgb, var(--project-color) 8%, transparent);
-        border: 1px solid color-mix(in srgb, var(--project-color) 20%, transparent);
+        border: 1px solid color-mix(in srgb, var(--project-color) 45%, transparent);
         width: 3.8rem;
         height: 3.8rem;
         border-radius: 0;
@@ -219,7 +207,6 @@
         align-items: center;
         justify-content: center;
         margin-bottom: 1.25rem;
-        border: 1px solid;
     }
 
     .project-icon-img {
@@ -235,9 +222,9 @@
 
     .content h3 {
         margin: 0 0 0.8rem 0;
-        font-size: 1.25rem;
+        font-size: 1.2rem;
+        line-height: 1.25;
         color: var(--c-primary);
-        font-family: var(--font-mono);
         letter-spacing: 0.02em;
     }
 
@@ -260,10 +247,13 @@
         font-size: 0.8rem;
         font-weight: 800;
         text-transform: uppercase;
-        transition: all 0.2s ease;
     }
 
-    .project-card:hover .project-action {
+    .project-action :global(svg) {
+        transition: transform 0.2s ease;
+    }
+
+    .project-card:hover .project-action :global(svg) {
         transform: translateX(4px);
     }
 
@@ -298,11 +288,6 @@
     }
 
     @media (max-width: 768px) {
-        .terminal-hero {
-            grid-template-columns: 1fr;
-            gap: 0.5rem;
-        }
-
         .open-source-note {
             grid-template-columns: 1fr;
         }
