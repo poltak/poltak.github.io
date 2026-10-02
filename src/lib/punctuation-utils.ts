@@ -1,3 +1,32 @@
+/*
+ * Look at the *first* punctuation mark from the end of the word, but skip over
+ * any trailing quote / bracket characters and citation patterns like [1], (123), etc.
+ * This way `you?"`, `hello!')`, and `test.[1]` are all handled correctly.
+ */
+const TRAILING_SKIPPABLE = new Set([
+    '"',
+    "'",
+    '\u201C', // “
+    '\u201D', // ”
+    '\u2018', // ‘
+    '\u2019', // ’
+    ')',
+    ']',
+    '}',
+    '\u203A', // ›
+    '\u2039', // ‹
+    '\u00BB', // »
+    '\u00AB', // «
+    '\u2010', // ‐
+    '-',
+    '\u2014', // —
+    '\u2013', // –
+    '\u2026', // …
+])
+const CITATION_PATTERN = /(\[[0-9]+\]|\([0-9]+\))([^\w]*?)$/
+const POTENTIAL_CITATION_PATTERN = /(\[[^\]]*[\]\)]|\([^\)]*[\)\]])$/
+const VALID_CITATION_PATTERN = /^(\[[0-9]+\]|\([0-9]+\))$/
+
 /**
  * Determines the pause multiplier for a word based on its ending punctuation.
  * Handles complex cases including quotes, brackets, and citation patterns.
@@ -16,35 +45,6 @@ export function getPunctuationMultiplier(
     semicolonMultiplier: number = 2.5,
     exclamationMultiplier: number = 3,
 ): number {
-    /*
-     * Look at the *first* punctuation mark from the end of the word, but skip over
-     * any trailing quote / bracket characters and citation patterns like [1], (123), etc.
-     * This way `you?"`, `hello!')`, and `test.[1]` are all handled correctly.
-     */
-    const trailingSkippable = new Set([
-        '"',
-        "'",
-        '\u201C', // "
-        '\u2019', // '
-        ')',
-        ']',
-        '}',
-        '\u203A', // ›
-        '\u00BB', // »
-        '\u201D', // "
-        '\u201C', // "
-        '\u2018', // '
-        '\u2019', // '
-        '\u203A', // ›
-        '\u00AB', // «
-        '\u2039', // ‹
-        '\u2010', // ‐
-        '-',
-        '\u2014', // —
-        '\u2013', // –
-        '\u2026', // …
-    ])
-
     let wordToAnalyze = word
 
     // Strategy: repeatedly remove valid citations and trailing chars from the end
@@ -54,8 +54,7 @@ export function getPunctuationMultiplier(
         changed = false
 
         // FIRST: Remove valid citations from the end, regardless of trailing characters
-        const citationPattern = /(\[[0-9]+\]|\([0-9]+\))([^\w]*?)$/
-        const citationMatch = wordToAnalyze.match(citationPattern)
+        const citationMatch = wordToAnalyze.match(CITATION_PATTERN)
         if (citationMatch) {
             const startPos = citationMatch.index
             // Remove just the citation part, leave trailing characters for later processing
@@ -66,12 +65,11 @@ export function getPunctuationMultiplier(
 
         // SECOND: Remove malformed citation patterns
         // Look for any pattern that has opening bracket/paren and some kind of closing
-        const potentialCitationPattern = /(\[[^\]]*[\]\)]|\([^\)]*[\)\]])$/
-        const potentialMatch = wordToAnalyze.match(potentialCitationPattern)
+        const potentialMatch = wordToAnalyze.match(POTENTIAL_CITATION_PATTERN)
         if (potentialMatch) {
             const pattern = potentialMatch[0]
             // Check if it's a valid citation: [digits] or (digits)
-            const isValidCitation = /^(\[[0-9]+\]|\([0-9]+\))$/.test(pattern)
+            const isValidCitation = VALID_CITATION_PATTERN.test(pattern)
 
             if (!isValidCitation) {
                 // It looks like a citation but isn't valid, remove it
@@ -85,7 +83,7 @@ export function getPunctuationMultiplier(
         // This continues until we hit a non-skippable character or run out of characters
         while (wordToAnalyze.length > 0) {
             const lastChar = wordToAnalyze[wordToAnalyze.length - 1]
-            if (!trailingSkippable.has(lastChar)) {
+            if (!TRAILING_SKIPPABLE.has(lastChar)) {
                 break
             }
             wordToAnalyze = wordToAnalyze.slice(0, -1)

@@ -135,15 +135,6 @@
 
     const immersiveChapter = $derived(epubData?.chapters[currentChapterIndex] ?? null)
 
-    const isChapterActive = $derived((item: TableOfContents): boolean => {
-        if (!epubData) return false
-        const nextChapter = epubData.tableOfContents[item.order + 1]
-        return (
-            currentWordIndex >= item.wordStartIndex &&
-            (nextChapter ? currentWordIndex < nextChapter.wordStartIndex : true)
-        )
-    })
-
     const engine = new SpeedReaderEngine({
         onUpdate: (state) => {
             allWords = state.allWords
@@ -902,7 +893,7 @@
                         >
                             <div
                                 class="chapter-fill"
-                                style="width: {chapterProgress.percentage}%"
+                                style:transform="scaleX({chapterProgress.percentage / 100})"
                             ></div>
                         </div>
                         {#if chapterProgress.timeRemaining > 0}
@@ -987,7 +978,7 @@
                         aria-valuemin="0"
                         aria-valuemax="100"
                         aria-valuenow={progressPercentage}
-                        style="width: {progressPercentage}%"
+                        style:transform="scaleX({progressPercentage / 100})"
                     ></div>
                 </div>
 
@@ -1249,7 +1240,7 @@
                                         1,
                                         Math.round(wordCount / wordsPerMinute),
                                     )}
-                                    {@const isActive = isChapterActive(item)}
+                                    {@const isActive = idx === currentChapterIndex}
 
                                     <button
                                         type="button"
@@ -1758,10 +1749,12 @@
         background: var(--c-border-light);
     }
 
+    /* The fills scale on the compositor. A width change on each word would run layout. */
     .chapter-fill {
         height: 100%;
         background: var(--c-accent);
-        transition: width 0.2s linear;
+        transform-origin: left;
+        transition: transform 0.2s linear;
     }
 
     .chapter-time {
@@ -1988,7 +1981,8 @@
     .main-progress-fill {
         height: 100%;
         background: var(--c-primary);
-        transition: width 0.3s ease;
+        transform-origin: left;
+        transition: transform 0.3s ease;
     }
 
     .primary-controls {
