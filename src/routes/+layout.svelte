@@ -256,9 +256,6 @@
                 {/each}
             </div>
         </div>
-        <div class="sidebar-footer">
-            <p>© 2026 poltak</p>
-        </div>
     </nav>
 </div>
 
@@ -273,6 +270,7 @@
     </div>
     <footer class="terminal-footer" aria-label="Site footer">
         <span>jon@poltak:~% <i></i></span>
+        <span class="copyright">© 2026 poltak</span>
         <nav>
             <a href="https://github.com/poltak">GitHub ↗</a>
             <a href="https://www.linkedin.com/in/jsamosir/">LinkedIn ↗</a>
@@ -317,7 +315,7 @@
         top: 1.5rem;
         display: flex;
         flex-direction: column;
-        gap: 1.1rem;
+        gap: 0.9rem;
         border: 1px solid var(--c-border-light);
         padding: 1.35rem 1.25rem;
         background: color-mix(in srgb, var(--c-bg-subtle) 38%, transparent);
@@ -457,7 +455,7 @@
         grid-template-columns: 1.4rem 1fr auto;
         gap: 0.65rem;
         align-items: center;
-        padding: 0.65rem 0.8rem;
+        padding: 0.5rem 0.8rem;
         border-radius: 0;
         margin-right: 0;
         border: 1px solid transparent;
@@ -512,16 +510,15 @@
         color: var(--c-primary);
     }
 
-    .sidebar-panel,
-    .sidebar-footer {
+    .sidebar-panel {
         border: 1px solid var(--c-border-light);
-        padding: 0.8rem;
+        padding: 0.75rem 0.8rem;
         font-family: var(--font-mono);
     }
 
     .sidebar-stats {
         display: grid;
-        gap: 0.6rem;
+        gap: 0.5rem;
     }
 
     /* The label goes above its value. Two columns made the values wrap to three lines. */
@@ -536,6 +533,7 @@
         font-size: 0.68rem;
         font-weight: 800;
         letter-spacing: 0.08em;
+        line-height: 1.3;
         text-transform: uppercase;
     }
 
@@ -661,26 +659,10 @@
         background: linear-gradient(135deg, var(--c-primary) 50%, var(--c-text) 50%);
     }
 
-    .sidebar-footer p {
-        color: var(--c-text-muted);
-        font-size: 0.78rem;
-        margin: 0;
-    }
-
-    .sidebar-footer {
-        display: grid;
-        gap: 0.55rem;
-    }
-
-    .sidebar-footer p:last-child {
-        color: color-mix(in srgb, var(--c-primary) 60%, var(--c-text-muted));
-    }
-
     @media (max-width: 992px) {
         .nav-glyph,
         .nav-link.active::after,
-        .sidebar-panel,
-        .sidebar-footer {
+        .sidebar-panel {
             display: none;
         }
 
@@ -760,6 +742,11 @@
         font-family: var(--font-mono);
         font-size: 0.88rem;
         flex-wrap: wrap;
+    }
+
+    .terminal-footer .copyright {
+        color: var(--c-text-muted);
+        font-size: 0.78rem;
     }
 
     .terminal-footer span i {
