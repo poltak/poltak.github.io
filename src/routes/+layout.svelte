@@ -5,6 +5,14 @@
     import { cubicOut } from 'svelte/easing'
     import { onMount, tick } from 'svelte'
     import { fade } from 'svelte/transition'
+    import {
+        COLOR_MODE_STORAGE_KEY,
+        DEFAULT_THEME,
+        THEMES as themes,
+        THEME_STORAGE_KEY,
+        isThemeId,
+        type ColorMode,
+    } from '$lib/theme'
 
     let { children } = $props()
 
@@ -26,25 +34,15 @@
         return pathname === target || pathname.startsWith(`${target}/`)
     }
 
-    const themes = [
-        { id: 'cyan', label: 'Cyan', color: '#00d4ff' },
-        { id: 'acid', label: 'Acid', color: '#2cff8e' },
-        { id: 'amber', label: 'Amber', color: '#f0a01e' },
-        { id: 'magenta', label: 'Magenta', color: '#ff6fe9' },
-        { id: 'red', label: 'Red', color: '#ff6a4f' },
-        { id: 'teal', label: 'Teal', color: '#2bd3c3' },
-        { id: 'violet', label: 'Violet', color: '#7c5cff' },
-    ]
-
-    type ColorMode = 'light' | 'dark'
-
-    let currentTheme = $state('cyan')
+    let currentTheme = $state<string>(DEFAULT_THEME)
     let colorMode = $state<ColorMode>('dark')
     let pickerOpen = $state(false)
     let reduceMotion = $state(false)
     let navLinksElement: HTMLDivElement
     let navLinkElements = $state<HTMLAnchorElement[]>([])
     let navIndicatorStyle = $state('opacity: 0;')
+    // Until the first measurement is painted, the active link draws its own highlight.
+    let navIndicatorReady = $state(false)
     let themeToggle: HTMLButtonElement
     let hasColorPreference = false
 
@@ -68,7 +66,7 @@
         currentTheme = theme
         if (typeof document !== 'undefined') {
             document.documentElement.dataset.theme = theme
-            writePreference('theme', theme)
+            writePreference(THEME_STORAGE_KEY, theme)
         }
     }
 
@@ -78,7 +76,7 @@
             document.documentElement.classList.toggle('dark', mode === 'dark')
             if (persist) {
                 hasColorPreference = true
-                writePreference('color-mode', mode)
+                writePreference(COLOR_MODE_STORAGE_KEY, mode)
             }
         }
     }
@@ -107,6 +105,10 @@
             `height: ${activeRect.height}px`,
             `transform: translate3d(${activeRect.left - containerRect.left}px, ${activeRect.top - containerRect.top}px, 0)`,
         ].join(';')
+
+        if (!navIndicatorReady) {
+            requestAnimationFrame(() => (navIndicatorReady = true))
+        }
     }
 
     $effect(() => {
@@ -115,13 +117,13 @@
     })
 
     onMount(() => {
-        const saved = readPreference('theme')
-        const theme = themes.some((theme) => theme.id === saved) ? saved! : 'cyan'
+        const saved = readPreference(THEME_STORAGE_KEY)
+        const theme = isThemeId(saved) ? saved : DEFAULT_THEME
         currentTheme = theme
         document.documentElement.dataset.theme = theme
 
         const media = window.matchMedia('(prefers-color-scheme: dark)')
-        const savedColorMode = readPreference('color-mode')
+        const savedColorMode = readPreference(COLOR_MODE_STORAGE_KEY)
         hasColorPreference = savedColorMode === 'light' || savedColorMode === 'dark'
         applyColorMode(
             savedColorMode === 'light' || savedColorMode === 'dark'
@@ -173,7 +175,7 @@
         <div class="nav-header">
             <a href="{base}/" class="site-title">Jon Samosir</a>
         </div>
-        <div class="nav-links" bind:this={navLinksElement}>
+        <div class="nav-links" class:ready={navIndicatorReady} bind:this={navLinksElement}>
             <span class="nav-active-indicator" style={navIndicatorStyle}></span>
             {#each navItems as item, index}
                 <a
@@ -208,18 +210,17 @@
         <div class="sidebar-panel color-panel" aria-label="Color mode">
             <div class="panel-title">Color Mode</div>
             <div class="mode-row">
-                <span class:active={colorMode === 'light'}>Light</span>
+                <span>Light</span>
                 <button
                     type="button"
                     class="mode-switch"
-                    class:light={colorMode === 'light'}
                     aria-label={`Switch to ${colorMode === 'dark' ? 'light' : 'dark'} mode`}
                     aria-pressed={colorMode === 'dark'}
                     onclick={toggleColorMode}
                 >
                     <i></i>
                 </button>
-                <span class:active={colorMode === 'dark'}>Dark</span>
+                <span>Dark</span>
             </div>
         </div>
         <div class="sidebar-footer">
@@ -420,11 +421,21 @@
         border: 1px solid var(--c-border);
         background: var(--c-primary-light);
         pointer-events: none;
+        visibility: hidden;
+    }
+
+    .nav-links.ready .nav-active-indicator {
+        visibility: visible;
         transition:
             transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
             width 0.3s cubic-bezier(0.22, 1, 0.36, 1),
             height 0.3s cubic-bezier(0.22, 1, 0.36, 1),
             opacity 0.16s ease;
+    }
+
+    .nav-links:not(.ready) .nav-link.active {
+        border-color: var(--c-border);
+        background: var(--c-primary-light);
     }
 
     .nav-link {
@@ -447,6 +458,10 @@
         text-align: left;
         box-sizing: border-box;
         text-transform: uppercase;
+        /* No background transition: the highlight moves to the indicator without a fade. */
+        transition:
+            color 0.2s,
+            border-color 0.2s;
 
         @media (max-width: 992px) {
             padding: 0.45rem 0;
@@ -548,16 +563,13 @@
         font-size: 0.78rem;
     }
 
-    .mode-row span.active {
-        color: var(--c-primary);
-    }
-
+    /* The root class drives this control, so it is correct before hydration. */
     .mode-row span:last-child {
-        color: var(--c-text-light);
         text-align: right;
     }
 
-    .mode-row span:last-child.active {
+    :global(:root:not(.dark)) .mode-row span:first-child,
+    :global(:root.dark) .mode-row span:last-child {
         color: var(--c-primary);
     }
 
@@ -574,7 +586,7 @@
     .mode-switch i {
         position: absolute;
         top: 50%;
-        right: 0.25rem;
+        right: calc(100% - 1.1rem);
         width: 0.85rem;
         height: 0.85rem;
         background: var(--c-primary);
@@ -583,8 +595,8 @@
         transition: right 0.18s ease;
     }
 
-    .mode-switch.light i {
-        right: calc(100% - 1.1rem);
+    :global(:root.dark) .mode-switch i {
+        right: 0.25rem;
     }
 
     .mode-switch:focus-visible {
@@ -623,7 +635,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .nav-active-indicator {
+        .nav-links.ready .nav-active-indicator {
             transition: none;
         }
     }
