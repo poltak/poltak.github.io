@@ -1,9 +1,14 @@
 <script lang="ts">
     import type { IconName } from './types'
-    export let name: IconName
-    export let size: number = 20
-    export let strokeWidth: number = 2
-    export let className: string = ''
+
+    interface Props {
+        name: IconName
+        size?: number
+        strokeWidth?: number
+        className?: string
+    }
+
+    let { name, size = 20, strokeWidth = 2, className = '' }: Props = $props()
 </script>
 
 <svg
@@ -17,6 +22,7 @@
     stroke-linecap="round"
     stroke-linejoin="round"
     class={className}
+    aria-hidden="true"
 >
     {#if name === 'book'}
         <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
@@ -71,6 +77,8 @@
         <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
         <polyline points="16,16 12,12 8,16" />
     {:else if name === 'moon'}
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    {:else if name === 'sun'}
         <circle cx="12" cy="12" r="5" />
         <line x1="12" y1="1" x2="12" y2="3" />
         <line x1="12" y1="21" x2="12" y2="23" />
@@ -80,8 +88,6 @@
         <line x1="21" y1="12" x2="23" y2="12" />
         <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
         <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-    {:else if name === 'sun'}
-        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
     {:else if name === 'x'}
         <line x1="18" y1="6" x2="6" y2="18" />
         <line x1="6" y1="6" x2="18" y2="18" />
