@@ -3,30 +3,32 @@
     import { toCsv } from 'kindle-highlights-parser/outputs/csv'
     import { toJson } from 'kindle-highlights-parser/outputs/json'
     import { onDestroy } from 'svelte'
+    import { base } from '$app/paths'
 
     type OutputFormat = 'csv' | 'json'
 
     // A textarea takes more than 100 ms to lay out 1 MB of text. Copy and Download use the full output.
     const PREVIEW_CHARACTER_LIMIT = 50_000
 
-    let outputFormat: OutputFormat = 'csv'
-    let prettyJson = true
-    let normalized: NormalizedClipping[] = []
-    let output = ''
-    let outputFilename = ''
-    let downloadUrl: string | null = null
-    let errorMessage = ''
-    let statusMessage = ''
-    let sourceFileName = ''
-    let fileInput: HTMLInputElement | null = null
+    let outputFormat = $state<OutputFormat>('csv')
+    let prettyJson = $state(true)
+    // The parsed clippings are replaced as a whole, so they do not need a deep proxy.
+    let normalized = $state.raw<NormalizedClipping[]>([])
+    let errorMessage = $state('')
+    let statusMessage = $state('')
+    let sourceFileName = $state('')
+    let fileInput = $state<HTMLInputElement | null>(null)
     let uploadId = 0
 
-    onDestroy(() => {
-        uploadId += 1
-        if (downloadUrl) URL.revokeObjectURL(downloadUrl)
-    })
-
-    function buildOutputFilename(): string {
+    const output = $derived(
+        normalized.length === 0
+            ? ''
+            : outputFormat === 'csv'
+              ? toCsv(normalized)
+              : toJson(normalized, { pretty: prettyJson }),
+    )
+    const outputFilename = $derived.by(() => {
+        if (!output) return ''
         const baseName = sourceFileName
             ? sourceFileName
                   .replace(/\.txt$/i, '')
@@ -34,7 +36,32 @@
                   .toLowerCase()
             : 'kindle-clippings'
         return `${baseName}.${outputFormat}`
-    }
+    })
+    const isPreviewShortened = $derived(output.length > PREVIEW_CHARACTER_LIMIT)
+    const preview = $derived(isPreviewShortened ? output.slice(0, PREVIEW_CHARACTER_LIMIT) : output)
+
+    // One object URL for the current output. The cleanup releases it on a change and on route exit.
+    let downloadUrl = $state<string | null>(null)
+    $effect(() => {
+        if (!output) return
+        const url = URL.createObjectURL(
+            new Blob([output], {
+                type:
+                    outputFormat === 'csv'
+                        ? 'text/csv;charset=utf-8'
+                        : 'application/json;charset=utf-8',
+            }),
+        )
+        downloadUrl = url
+        return () => {
+            URL.revokeObjectURL(url)
+            downloadUrl = null
+        }
+    })
+
+    onDestroy(() => {
+        uploadId += 1
+    })
 
     async function handleFileUpload(event: Event) {
         const requestId = ++uploadId
@@ -71,18 +98,6 @@
         }
     }
 
-    function updateOutput() {
-        if (normalized.length === 0) {
-            output = ''
-            outputFilename = ''
-            return
-        }
-
-        output =
-            outputFormat === 'csv' ? toCsv(normalized) : toJson(normalized, { pretty: prettyJson })
-        outputFilename = buildOutputFilename()
-    }
-
     async function copyToClipboard() {
         if (!output) return
 
@@ -98,8 +113,6 @@
     function clearAll() {
         uploadId += 1
         normalized = []
-        output = ''
-        outputFilename = ''
         errorMessage = ''
         statusMessage = ''
         sourceFileName = ''
@@ -107,42 +120,15 @@
             fileInput.value = ''
         }
     }
-
-    $: {
-        normalized
-        outputFormat
-        prettyJson
-        sourceFileName
-        updateOutput()
-    }
-
-    $: isPreviewShortened = output.length > PREVIEW_CHARACTER_LIMIT
-    $: preview = isPreviewShortened ? output.slice(0, PREVIEW_CHARACTER_LIMIT) : output
-
-    $: if (typeof window !== 'undefined') {
-        if (downloadUrl) {
-            URL.revokeObjectURL(downloadUrl)
-        }
-        downloadUrl = output
-            ? URL.createObjectURL(
-                  new Blob([output], {
-                      type:
-                          outputFormat === 'csv'
-                              ? 'text/csv;charset=utf-8'
-                              : 'application/json;charset=utf-8',
-                  }),
-              )
-            : null
-    }
 </script>
 
 <svelte:head>
     <title>Kindle Clippings Converter</title>
 </svelte:head>
 
-<p class="viewer-link">
+<p class="note">
     Check out my
-    <a href="./kindle-highlights-viewer">Kindle Clippings Viewer</a>
+    <a href="{base}/fun/kindle-highlights-viewer">Kindle Clippings Viewer</a>
     page if you want to browse through your clippings in a simple interface.
 </p>
 
@@ -167,7 +153,7 @@
                 class="visually-hidden"
                 type="file"
                 accept=".txt"
-                on:change={handleFileUpload}
+                onchange={handleFileUpload}
                 bind:this={fileInput}
             />
             <span>Choose &quot;My Clippings.txt&quot;</span>
@@ -185,21 +171,21 @@
 <section class="card">
     <h2>2. Choose output</h2>
     <p class="note">
-        Feel free to <a href="/contact">contact me</a> if you need a different output format.
+        Feel free to <a href="{base}/contact">contact me</a> if you need a different output format.
     </p>
     <div class="controls">
         <div class="toggle-group" role="group" aria-label="Output format">
             <button
                 type="button"
                 class:active={outputFormat === 'csv'}
-                on:click={() => (outputFormat = 'csv')}
+                onclick={() => (outputFormat = 'csv')}
             >
                 CSV
             </button>
             <button
                 type="button"
                 class:active={outputFormat === 'json'}
-                on:click={() => (outputFormat = 'json')}
+                onclick={() => (outputFormat = 'json')}
             >
                 JSON
             </button>
@@ -208,7 +194,7 @@
             <input type="checkbox" bind:checked={prettyJson} disabled={outputFormat !== 'json'} />
             Pretty JSON
         </label>
-        <button type="button" class="ghost" on:click={clearAll}> Reset </button>
+        <button type="button" class="ghost" onclick={clearAll}> Reset </button>
     </div>
 
     <div class="summary">
@@ -227,7 +213,7 @@
     <div class="output-header">
         <h2>3. Export</h2>
         <div class="actions">
-            <button type="button" on:click={copyToClipboard} disabled={!output}> Copy </button>
+            <button type="button" onclick={copyToClipboard} disabled={!output}> Copy </button>
             <a
                 class:disabled={!downloadUrl}
                 href={downloadUrl ?? '#'}
@@ -258,9 +244,18 @@
 
 <style>
     .note {
-        margin: 0 0 1.5rem 0;
+        margin: 0 0 0.6rem 0;
+        max-width: var(--measure);
         color: var(--c-text-muted);
         font-size: 0.95rem;
+    }
+
+    .note + .card {
+        margin-top: 1.5rem;
+    }
+
+    .card .note {
+        margin-bottom: 1.25rem;
     }
 
     .note a {
@@ -311,13 +306,19 @@
         outline-offset: 3px;
     }
 
+    .file-name,
+    .hint {
+        margin: 0;
+        max-width: none;
+    }
+
     .file-name {
         color: var(--c-text-light);
         font-size: 0.95rem;
     }
 
     .hint {
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         color: var(--c-text-muted);
     }
 
@@ -472,9 +473,12 @@
     }
 
     .output {
-        width: 95%;
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
         min-height: 260px;
         margin-top: 1rem;
+        resize: vertical;
         border: 1px solid var(--c-border);
         padding: 1rem;
         font-family: var(--font-mono);
