@@ -102,6 +102,10 @@ export class EpubStorage {
                     db.close()
                     if (this.db === db) this.db = null
                 }
+                // A browser can close an idle connection, for example in a background tab.
+                db.onclose = () => {
+                    if (this.db === db) this.db = null
+                }
                 resolve()
             }
 
@@ -153,15 +157,49 @@ export class EpubStorage {
         return this.initialization
     }
 
-    private ensureDb(): IDBDatabase {
-        if (!this.db) {
-            throw new Error('Database not initialized. Call init() first.')
+    /**
+     * Run one transaction and settle when it completes or fails.
+     *
+     * `work` adds its requests and returns a function that gives the result after completion.
+     * If the connection is closed, the database is opened again one time. With an open
+     * connection the transaction starts synchronously.
+     */
+    private run<T>(
+        storeNames: string[],
+        mode: IDBTransactionMode,
+        failureMessage: string,
+        work: (transaction: IDBTransaction) => () => T,
+    ): Promise<T> {
+        const start = (db: IDBDatabase) => {
+            const transaction = db.transaction(storeNames, mode)
+            return new Promise<T>((resolve, reject) => {
+                const fail = () => reject(transaction.error ?? new Error(failureMessage))
+                transaction.onerror = fail
+                transaction.onabort = fail
+                const getResult = work(transaction)
+                transaction.oncomplete = () => resolve(getResult())
+            })
         }
-        return this.db
+        const reopen = () =>
+            this.init().then(() => {
+                if (!this.db) throw new Error(failureMessage)
+                return start(this.db)
+            })
+
+        if (!this.db) return reopen()
+        try {
+            return start(this.db)
+        } catch (error) {
+            // `transaction()` throws this when the browser closed the connection without an event.
+            if (!(error instanceof DOMException) || error.name !== 'InvalidStateError') {
+                return Promise.reject(error)
+            }
+            this.db = null
+            return reopen()
+        }
     }
 
     async saveBook(epubData: EpubData, totalWords: number): Promise<string> {
-        const db = this.ensureDb()
         const bookId = crypto.randomUUID()
         const now = new Date()
 
@@ -178,159 +216,133 @@ export class EpubStorage {
             totalWords,
         }
 
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction([this.BOOKS_STORE, this.METADATA_STORE], 'readwrite')
-            const store = transaction.objectStore(this.BOOKS_STORE)
-            transaction.oncomplete = () => resolve(bookId)
-            transaction.onerror = () =>
-                reject(transaction.error ?? new Error('Unable to save the EPUB book.'))
-            transaction.onabort = () =>
-                reject(transaction.error ?? new Error('Unable to save the EPUB book.'))
-            store.add(storedBook)
-            transaction.objectStore(this.METADATA_STORE).add(summarizeBook(storedBook))
-        })
+        return this.run(
+            [this.BOOKS_STORE, this.METADATA_STORE],
+            'readwrite',
+            'Unable to save the EPUB book.',
+            (transaction) => {
+                transaction.objectStore(this.BOOKS_STORE).add(storedBook)
+                transaction.objectStore(this.METADATA_STORE).add(summarizeBook(storedBook))
+                return () => bookId
+            },
+        )
     }
 
     async getBooks(): Promise<BookSummary[]> {
-        const db = this.ensureDb()
-
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction([this.METADATA_STORE], 'readonly')
-            const store = transaction.objectStore(this.METADATA_STORE)
-            const index = store.index('lastReadDate')
-            const request = index.openCursor(null, 'prev') // Most recently read first
-
-            const books: BookSummary[] = []
-            request.onsuccess = () => {
-                const cursor = request.result
-                if (cursor) {
+        return this.run(
+            [this.METADATA_STORE],
+            'readonly',
+            'Unable to read the library.',
+            (transaction) => {
+                const index = transaction.objectStore(this.METADATA_STORE).index('lastReadDate')
+                const request = index.openCursor(null, 'prev') // Most recently read first
+                const books: BookSummary[] = []
+                request.onsuccess = () => {
+                    const cursor = request.result
+                    if (!cursor) return
                     books.push(cursor.value)
                     cursor.continue()
-                } else {
-                    resolve(books)
                 }
-            }
-            request.onerror = () => reject(request.error)
-        })
+                return () => books
+            },
+        )
     }
 
     async getBook(bookId: string): Promise<StoredBook | null> {
-        const db = this.ensureDb()
-
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction([this.BOOKS_STORE, this.METADATA_STORE], 'readonly')
-            const store = transaction.objectStore(this.BOOKS_STORE)
-            const request = store.get(bookId)
-            const metadataRequest = transaction.objectStore(this.METADATA_STORE).get(bookId)
-
-            transaction.oncomplete = () =>
-                resolve(request.result ? { ...request.result, ...metadataRequest.result } : null)
-            transaction.onerror = transaction.onabort = () => reject(transaction.error)
-        })
+        return this.run(
+            [this.BOOKS_STORE, this.METADATA_STORE],
+            'readonly',
+            'Unable to read the EPUB book.',
+            (transaction) => {
+                const request = transaction.objectStore(this.BOOKS_STORE).get(bookId)
+                const metadataRequest = transaction.objectStore(this.METADATA_STORE).get(bookId)
+                return () =>
+                    request.result ? { ...request.result, ...metadataRequest.result } : null
+            },
+        )
     }
 
     async deleteBook(bookId: string): Promise<void> {
-        const db = this.ensureDb()
-
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction(
-                [this.BOOKS_STORE, this.METADATA_STORE, this.PROGRESS_STORE],
-                'readwrite',
-            )
-
-            const booksStore = transaction.objectStore(this.BOOKS_STORE)
-            const progressStore = transaction.objectStore(this.PROGRESS_STORE)
-
-            booksStore.delete(bookId)
-            progressStore.delete(bookId)
-            transaction.objectStore(this.METADATA_STORE).delete(bookId)
-
-            transaction.oncomplete = () => resolve()
-            transaction.onerror = () =>
-                reject(transaction.error ?? new Error('Unable to delete the EPUB book.'))
-            transaction.onabort = () =>
-                reject(transaction.error ?? new Error('Unable to delete the EPUB book.'))
-        })
+        return this.run(
+            [this.BOOKS_STORE, this.METADATA_STORE, this.PROGRESS_STORE],
+            'readwrite',
+            'Unable to delete the EPUB book.',
+            (transaction) => {
+                transaction.objectStore(this.BOOKS_STORE).delete(bookId)
+                transaction.objectStore(this.PROGRESS_STORE).delete(bookId)
+                transaction.objectStore(this.METADATA_STORE).delete(bookId)
+                return () => undefined
+            },
+        )
     }
 
     async saveProgress(progress: ReadingProgress): Promise<void> {
-        const db = this.ensureDb()
+        return this.run(
+            [this.PROGRESS_STORE, this.METADATA_STORE],
+            'readwrite',
+            'Unable to save reading progress.',
+            (transaction) => {
+                transaction.objectStore(this.PROGRESS_STORE).put(progress)
 
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction(
-                [this.PROGRESS_STORE, this.METADATA_STORE],
-                'readwrite',
-            )
-
-            // Update progress
-            const progressStore = transaction.objectStore(this.PROGRESS_STORE)
-            progressStore.put(progress)
-
-            // Update book's lastReadDate
-            const booksStore = transaction.objectStore(this.METADATA_STORE)
-            const getBookRequest = booksStore.get(progress.bookId)
-
-            getBookRequest.onsuccess = () => {
-                const book = getBookRequest.result
-                if (book) {
-                    book.lastReadDate = progress.lastReadDate
-                    booksStore.put(book)
+                // Update the book's lastReadDate in the small metadata record.
+                const booksStore = transaction.objectStore(this.METADATA_STORE)
+                const getBookRequest = booksStore.get(progress.bookId)
+                getBookRequest.onsuccess = () => {
+                    const book = getBookRequest.result
+                    if (book) {
+                        book.lastReadDate = progress.lastReadDate
+                        booksStore.put(book)
+                    }
                 }
-            }
-
-            transaction.oncomplete = () => resolve()
-            transaction.onerror = () =>
-                reject(transaction.error ?? new Error('Unable to save reading progress.'))
-            transaction.onabort = () =>
-                reject(transaction.error ?? new Error('Unable to save reading progress.'))
-        })
+                return () => undefined
+            },
+        )
     }
 
     async getProgress(bookId: string): Promise<ReadingProgress | null> {
-        const db = this.ensureDb()
-
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction([this.PROGRESS_STORE], 'readonly')
-            const store = transaction.objectStore(this.PROGRESS_STORE)
-            const request = store.get(bookId)
-
-            request.onsuccess = () => resolve(request.result || null)
-            request.onerror = () => reject(request.error)
-        })
+        return this.run(
+            [this.PROGRESS_STORE],
+            'readonly',
+            'Unable to read reading progress.',
+            (transaction) => {
+                const request = transaction.objectStore(this.PROGRESS_STORE).get(bookId)
+                return () => request.result || null
+            },
+        )
     }
 
     async getAllProgress(): Promise<ReadingProgress[]> {
-        const transaction = this.ensureDb().transaction([this.PROGRESS_STORE], 'readonly')
-        const request = transaction.objectStore(this.PROGRESS_STORE).getAll()
-        return new Promise((resolve, reject) => {
-            request.onsuccess = () => resolve(request.result)
-            request.onerror = () => reject(request.error)
-        })
+        return this.run(
+            [this.PROGRESS_STORE],
+            'readonly',
+            'Unable to read reading progress.',
+            (transaction) => {
+                const request = transaction.objectStore(this.PROGRESS_STORE).getAll()
+                return () => request.result
+            },
+        )
     }
 
     async updateLastReadDate(bookId: string): Promise<void> {
-        const db = this.ensureDb()
         const now = new Date()
 
-        return new Promise((resolve, reject) => {
-            const transaction = db.transaction([this.METADATA_STORE], 'readwrite')
-            const store = transaction.objectStore(this.METADATA_STORE)
-            const getRequest = store.get(bookId)
-
-            getRequest.onsuccess = () => {
-                const book = getRequest.result
-                if (book) {
-                    book.lastReadDate = now
-                    store.put(book)
+        return this.run(
+            [this.METADATA_STORE],
+            'readwrite',
+            'Unable to update the book date.',
+            (transaction) => {
+                const store = transaction.objectStore(this.METADATA_STORE)
+                const getRequest = store.get(bookId)
+                getRequest.onsuccess = () => {
+                    const book = getRequest.result
+                    if (book) {
+                        book.lastReadDate = now
+                        store.put(book)
+                    }
                 }
-            }
-
-            transaction.oncomplete = () => resolve()
-            transaction.onerror = () =>
-                reject(transaction.error ?? new Error('Unable to update the book date.'))
-            transaction.onabort = () =>
-                reject(transaction.error ?? new Error('Unable to update the book date.'))
-        })
+                return () => undefined
+            },
+        )
     }
 }
 

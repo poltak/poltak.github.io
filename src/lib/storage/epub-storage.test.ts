@@ -165,4 +165,57 @@ describe('EpubStorage transactions', () => {
         transaction.oncomplete?.(new Event('complete'))
         await saving
     })
+
+    it('rejects a read when its transaction aborts', async () => {
+        const { openRequest, transaction } = createDatabaseHarness()
+        const storage = new EpubStorage()
+        await initialize(storage, openRequest)
+        vi.mocked(transaction.objectStore).mockReturnValue({
+            getAll: () => ({ result: [] }),
+        } as unknown as IDBObjectStore)
+
+        const reading = storage.getAllProgress()
+        transaction.onabort?.(new Event('abort'))
+
+        await expect(reading).rejects.toThrow('Unable to read reading progress.')
+    })
+
+    it('opens the database again after the browser closes the connection', async () => {
+        const { database, openRequest, transaction } = createDatabaseHarness()
+        const storage = new EpubStorage()
+        await initialize(storage, openRequest)
+        vi.mocked(transaction.objectStore).mockReturnValue({
+            getAll: () => ({ result: ['progress'] }),
+        } as unknown as IDBObjectStore)
+
+        database.onclose?.(new Event('close'))
+        const reading = storage.getAllProgress()
+        expect(indexedDB.open).toHaveBeenCalledTimes(2)
+        openRequest.onsuccess?.(new Event('success'))
+        await vi.waitFor(() => expect(transaction.oncomplete).not.toBeNull())
+        transaction.oncomplete?.(new Event('complete'))
+
+        await expect(reading).resolves.toEqual(['progress'])
+    })
+
+    it('opens the database again when a transaction finds the connection closed', async () => {
+        const { database, openRequest, transaction } = createDatabaseHarness()
+        const storage = new EpubStorage()
+        await initialize(storage, openRequest)
+        vi.mocked(transaction.objectStore).mockReturnValue({
+            getAll: () => ({ result: [] }),
+        } as unknown as IDBObjectStore)
+        vi.mocked(database.transaction).mockImplementationOnce(() => {
+            throw new DOMException('The database connection is closing.', 'InvalidStateError')
+        })
+
+        const reading = storage.getAllProgress()
+        expect(indexedDB.open).toHaveBeenCalledTimes(2)
+        openRequest.onsuccess?.(new Event('success'))
+        await vi.waitFor(() => expect(transaction.oncomplete).not.toBeNull())
+        transaction.oncomplete?.(new Event('complete'))
+
+        await expect(reading).resolves.toEqual([])
+        expect(database.transaction).toHaveBeenCalledTimes(2)
+    })
 })
