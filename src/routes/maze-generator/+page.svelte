@@ -2,7 +2,7 @@
     import seedrandom from 'seedrandom'
     import { generateMaze } from '$lib/maze-generator/generation-functions'
     import { ALGO_CHOICES, MAX_MAZE_SIZE } from '$lib/maze-generator/constants'
-    import { MazeCell, indexToPoint } from '$lib/maze-generator/util'
+    import { indexToPoint, mazeToWallPath } from '$lib/maze-generator/util'
     import type { MazeGenAlgorithm, RandomIntGenerator } from '$lib/maze-generator/types'
 
     let rngInstances = $state(new Map<string, RandomIntGenerator>())
@@ -26,9 +26,13 @@
     )
     let startIndex = $state(0)
     let endIndex = $state(0)
-    let maze = $state<MazeCell[]>([])
+    // One path string holds all walls. A cell element for each of up to 10,000 cells is too slow.
+    let wallPath = $state('')
     let algorithm = $state<MazeGenAlgorithm>('prim')
     let startingPoint = $derived(indexToPoint(startIndex, renderedMazeSize))
+    let endPoint = $derived(indexToPoint(endIndex, renderedMazeSize))
+
+    const CELL_SIZE_PX = 20
 
     // Regenerate maze when seed, mazeSize, algorithm, or RNG instances change
     $effect(() => {
@@ -40,7 +44,7 @@
         const randomInt = getRandomIntGenerator(seed)
         const generated = generateMaze({ mazeSize, randomInt, algorithm })
         renderedMazeSize = mazeSize
-        maze = generated.maze
+        wallPath = mazeToWallPath(generated.maze, mazeSize)
         startIndex = generated.startIndex
         endIndex = generated.endIndex
     }
@@ -56,7 +60,8 @@
 <p>I'm hoping to use this as a starting point for some simple browser-based games.</p>
 
 <div class="maze-info">
-    <p>Starting point: {startingPoint[0] + 1}, {startingPoint[1] + 1}</p>
+    <p><i class="swatch start"></i>Start: {startingPoint[0] + 1}, {startingPoint[1] + 1}</p>
+    <p><i class="swatch end"></i>End: {endPoint[0] + 1}, {endPoint[1] + 1}</p>
     <p>Maze size: {renderedMazeSize} x {renderedMazeSize}</p>
 </div>
 
@@ -102,71 +107,69 @@
     </div>
 </div>
 
-<div class="maze" style="width: {renderedMazeSize * 20}px; height: {renderedMazeSize * 20}px;">
-    {#each Array.from({ length: renderedMazeSize }, (_, rowIndex) => rowIndex) as rowIndex}
-        <div class="row">
-            {#each Array.from({ length: renderedMazeSize }, (_, colIndex) => colIndex) as colIndex}
-                {@const cellIndex = rowIndex * renderedMazeSize + colIndex}
-                {@const cell = maze[cellIndex]}
-                {#if cell}
-                    <div
-                        class="cell"
-                        style="
-                        {startIndex === cellIndex
-                            ? 'background-color: var(--maze-start-bg);'
-                            : endIndex === cellIndex
-                              ? 'background-color: var(--maze-end-bg);'
-                              : ''}
-                        border-top: 2px solid {cell.walls.top
-                            ? 'var(--maze-wall-color)'
-                            : 'transparent'};
-                        border-right: 2px solid {cell.walls.right
-                            ? 'var(--maze-wall-color)'
-                            : 'transparent'};
-                        border-bottom: 2px solid {cell.walls.bottom
-                            ? 'var(--maze-wall-color)'
-                            : 'transparent'};
-                        border-left: 2px solid {cell.walls.left
-                            ? 'var(--maze-wall-color)'
-                            : 'transparent'};
-                    "
-                    ></div>
-                {/if}
-            {/each}
-        </div>
-    {/each}
-</div>
+<!-- Cell 0 is at the bottom left, so the y axis is turned over. -->
+<svg
+    class="maze"
+    viewBox="-0.5 -0.5 {renderedMazeSize + 1} {renderedMazeSize + 1}"
+    style:width="{(renderedMazeSize + 1) * CELL_SIZE_PX}px"
+    role="img"
+    aria-label="Generated maze, {renderedMazeSize} by {renderedMazeSize} cells"
+>
+    <rect class="maze-floor" x="0" y="0" width={renderedMazeSize} height={renderedMazeSize} />
+    <rect
+        class="maze-end"
+        x={endPoint[0]}
+        y={renderedMazeSize - 1 - endPoint[1]}
+        width="1"
+        height="1"
+    />
+    <rect
+        class="maze-start"
+        x={startingPoint[0]}
+        y={renderedMazeSize - 1 - startingPoint[1]}
+        width="1"
+        height="1"
+    />
+    <path class="maze-walls" d={wallPath} />
+</svg>
 
 <style>
-    :root {
-        --maze-wall-color: var(--c-primary);
-        --maze-cell-bg: var(--c-bg-input);
-        --maze-start-bg: var(--c-danger);
-        --maze-end-bg: var(--c-accent);
-    }
-
     .maze {
-        display: flex;
-        flex-direction: column-reverse;
+        display: block;
         max-width: 100%;
-        overflow: auto;
+        height: auto;
         border: 1px solid var(--c-border);
         background: var(--c-bg-subtle);
-        padding: 0.75rem;
-        box-sizing: content-box;
     }
 
-    .row {
-        display: flex;
-        flex-direction: row;
+    .maze-floor {
+        fill: var(--c-bg-input);
     }
 
-    .cell {
-        width: 20px;
-        height: 20px;
-        box-sizing: border-box;
-        background: var(--maze-cell-bg);
-        transition: background 0.2s;
+    .maze-start,
+    .swatch.start {
+        fill: var(--c-danger);
+        background: var(--c-danger);
+    }
+
+    .maze-end,
+    .swatch.end {
+        fill: var(--c-accent);
+        background: var(--c-accent);
+    }
+
+    .maze-walls {
+        fill: none;
+        stroke: var(--c-primary);
+        stroke-width: 0.12;
+        stroke-linecap: square;
+    }
+
+    .swatch {
+        display: inline-block;
+        width: 0.7rem;
+        height: 0.7rem;
+        margin-right: 0.45rem;
     }
 
     .maze-controls {

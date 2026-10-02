@@ -107,3 +107,25 @@ export function pickRandomNeighborDirection({
     }
     return validDirections[randomInt(0, validDirections.length - 1)]
 }
+
+/**
+ * Build one SVG path for all maze walls, in cell units with the y axis pointing down.
+ *
+ * Cell index 0 is at the bottom left, so row 0 is drawn last. Each inner wall is shared by
+ * two cells; only the top and right wall of each cell is drawn, plus the left and bottom edges.
+ */
+export function mazeToWallPath(maze: readonly MazeCellInterface[], mazeSize: number): string {
+    const segments: string[] = [`M0 0V${mazeSize}H${mazeSize}`]
+
+    for (let row = 0; row < mazeSize; row++) {
+        const y = mazeSize - 1 - row
+        for (let column = 0; column < mazeSize; column++) {
+            const walls = maze[row * mazeSize + column]?.walls
+            if (!walls) continue
+            if (walls.top) segments.push(`M${column} ${y}h1`)
+            if (walls.right) segments.push(`M${column + 1} ${y}v1`)
+        }
+    }
+
+    return segments.join('')
+}
