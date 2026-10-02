@@ -58,6 +58,8 @@
     let pagedViewport = $state<HTMLElement>()
     let pagedContent = $state<HTMLElement>()
     let continuousViewport = $state<HTMLElement>()
+    let enterFullscreenButton = $state<HTMLButtonElement>()
+    let wasFullscreen = false
     let renderedChapterId = $state<string | null>(null)
     let isFullscreen = $state(false)
     let usesFullscreenFallback = $state(false)
@@ -249,6 +251,8 @@
 
     function handlePointerDown(event: PointerEvent) {
         if (!event.isPrimary) return
+        // Only the main mouse button turns a page. A right click opens the context menu.
+        if (event.pointerType === 'mouse' && event.button !== 0) return
 
         const pointerType = event.pointerType || 'touch'
         const pointer = {
@@ -411,6 +415,18 @@
             document.removeEventListener('webkitfullscreenchange', handleFullscreenChange)
             paginationGeneration += 1
             if (usesFullscreenFallback) stopFullscreenFallback()
+        }
+    })
+
+    // The fullscreen blocks replace the focused button, so move focus with the view:
+    // to the page surface for the arrow keys, and back to the button on exit.
+    $effect(() => {
+        if (isFullscreen) {
+            wasFullscreen = true
+            if (fullscreenMode === 'paged') pagedViewport?.focus({ preventScroll: true })
+        } else if (wasFullscreen) {
+            wasFullscreen = false
+            enterFullscreenButton?.focus({ preventScroll: true })
         }
     })
 
@@ -681,7 +697,12 @@
                 >
                     Reading settings
                 </button>
-                <button type="button" class="enter-fullscreen" onclick={enterFullscreen}>
+                <button
+                    type="button"
+                    class="enter-fullscreen"
+                    bind:this={enterFullscreenButton}
+                    onclick={enterFullscreen}
+                >
                     Full screen
                 </button>
             </div>
@@ -1144,8 +1165,12 @@
         user-select: text;
     }
 
+    /*
+     * The width is the measured page width in whole pixels. With a fractional width, each
+     * column is wider than the scroll step, and the pages drift.
+     */
     .paged-content {
-        width: 100%;
+        width: var(--page-width);
         height: 100%;
         column-width: var(--page-width);
         column-gap: 0;
