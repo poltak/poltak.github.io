@@ -95,6 +95,7 @@
     :global(.fun-body .extras-panel),
     :global(.fun-body .action-card),
     :global(.fun-body .viewer-item),
+    :global(.fun-body .immersive-reader),
     :global(.fun-body .modal-card) {
         border-radius: 0 !important;
         box-shadow: none !important;
@@ -108,28 +109,34 @@
         border-radius: 0 !important;
     }
 
-    :global(.fun-body .app-container) {
+    /* The element name makes this rule stronger than the page's own container rule. */
+    :global(.fun-body main.app-container) {
         align-items: stretch;
         font-family: var(--font-mono);
         min-height: 0;
         padding: 0;
     }
 
+    /* The page header above already has the title and the description. */
     :global(.fun-body .library-header) {
-        border-bottom: 1px dashed var(--c-border-dashed);
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
+        margin-bottom: 1.25rem;
         text-align: left !important;
     }
 
-    :global(.fun-body .logo-circle) {
+    :global(.fun-body .logo-circle),
+    :global(.fun-body .library-header h1),
+    :global(.fun-body .library-header > p:not(.built-on)) {
         display: none !important;
     }
 
-    :global(.fun-body .library-header h1) {
+    :global(.fun-body .library-header .built-on) {
+        margin: 0;
+        color: var(--c-text-muted);
+    }
+
+    :global(.fun-body .library-header-row h2),
+    :global(.fun-body .speech-heading-row h3) {
         color: var(--c-primary);
-        font-family: var(--font-mono);
-        font-size: 1.35rem;
         text-transform: uppercase;
     }
 
@@ -138,10 +145,18 @@
     :global(.fun-body .book-card),
     :global(.fun-body .reader-stage),
     :global(.fun-body .reader-controls-container),
-    :global(.fun-body .extras-panel),
-    :global(.fun-body .modal-card) {
+    :global(.fun-body .extras-panel) {
         background: transparent !important;
         border: 1px solid var(--c-border) !important;
+    }
+
+    /* The dialog is above page content, so it needs a solid surface. */
+    :global(.fun-body .modal-card) {
+        border: 1px solid var(--c-border) !important;
+    }
+
+    :global(.fun-body .immersive-reader) {
+        border: 1px solid var(--c-border);
     }
 
     :global(.fun-body .file-input-wrapper),
@@ -158,9 +173,14 @@
     :global(.fun-body .fs-btn),
     :global(.fun-body .fs-toggle),
     :global(.fun-body .delete-btn),
-    :global(.fun-body .book-badge),
     :global(.fun-body .icon-danger) {
         box-shadow: none !important;
+    }
+
+    :global(.fun-body .book-badge),
+    :global(.fun-body .progress-track),
+    :global(.fun-body .main-progress-track) {
+        border-radius: 0 !important;
     }
 
     :global(.fun-body .current-word),

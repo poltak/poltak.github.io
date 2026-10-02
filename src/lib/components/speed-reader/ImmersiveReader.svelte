@@ -711,9 +711,9 @@
         --reader-text-scale: 100%;
         width: 100%;
         min-width: 0;
-        max-width: 52rem;
-        margin: 0 auto;
+        /* The card has the width of the other reader panels. The text column stays at a reading width. */
         padding: clamp(1.25rem, 4vw, 3rem);
+        padding-inline: max(clamp(1.25rem, 4vw, 3rem), calc((100% - 46rem) / 2));
         box-sizing: border-box;
         background: var(--reader-bg);
         color: var(--reader-text);

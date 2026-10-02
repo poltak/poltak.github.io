@@ -789,16 +789,8 @@
                                         >
                                     </div>
 
-                                    {#if progressPercentage > 0}
-                                        <div
-                                            class="book-badge {progressPercentage >= 100
-                                                ? 'completed'
-                                                : 'in-progress'}"
-                                        >
-                                            {progressPercentage >= 100
-                                                ? 'Done'
-                                                : `${progressPercentage}%`}
-                                        </div>
+                                    {#if progressPercentage >= 100}
+                                        <div class="book-badge">Done</div>
                                     {/if}
                                 </button>
 
@@ -819,6 +811,19 @@
         </div>
     {:else}
         <div class="reader-view">
+            <div class="reader-topbar">
+                <button type="button" onclick={backToLibrary} class="back-link">
+                    <Icon name="arrow-left" size={14} />
+                    <span>Back to Library</span>
+                </button>
+                <p class="reader-book-title">
+                    {epubData?.title || 'Untitled Book'}
+                    {#if epubData?.author}
+                        <span>by {epubData.author}</span>
+                    {/if}
+                </p>
+            </div>
+
             <div class="mode-toggle" role="group" aria-label="Reading mode">
                 <button
                     type="button"
@@ -1264,11 +1269,6 @@
                         {/if}
                     </div>
                 {/if}
-
-                <button onclick={backToLibrary} class="back-link">
-                    <Icon name="arrow-left" size={14} />
-                    <span>Back to Library</span>
-                </button>
             </div>
         </div>
     {/if}
@@ -1511,6 +1511,17 @@
         margin-bottom: 1.5rem;
     }
 
+    .library-header-row h2 {
+        font-size: 1.1rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+    }
+
+    .library-header-row h2 span {
+        color: var(--c-text-muted);
+        font-weight: 500;
+    }
+
     .book-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -1565,8 +1576,8 @@
     }
 
     .book-author {
-        font-family: var(--font-sans);
         font-size: 0.875rem;
+        margin: 0;
         color: var(--c-text-light);
     }
 
@@ -1602,25 +1613,16 @@
 
     .book-badge {
         position: absolute;
-        top: -0.5rem;
+        top: -0.6rem;
         left: 1rem;
-        padding: 0.25rem 0.75rem;
+        padding: 0.2rem 0.6rem;
         border-radius: var(--radius-full);
+        background: var(--c-success);
+        color: var(--c-on-primary);
         font-size: 0.7rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        box-shadow: var(--shadow-sm);
-    }
-
-    .book-badge.completed {
-        background: var(--c-success);
-        color: var(--c-on-primary);
-    }
-
-    .book-badge.in-progress {
-        background: var(--c-primary);
-        color: var(--c-on-primary);
     }
 
     .delete-btn {
@@ -1634,8 +1636,16 @@
         transition: all 0.2s;
     }
 
-    .book-card:hover .delete-btn {
+    .book-card:hover .delete-btn,
+    .delete-btn:focus-visible {
         opacity: 1;
+    }
+
+    /* A touch screen has no hover, so the button must always show there. */
+    @media (hover: none) {
+        .delete-btn {
+            opacity: 1;
+        }
     }
 
     .delete-btn:hover {
@@ -1655,6 +1665,31 @@
         display: flex;
         flex-direction: column;
         gap: 2rem;
+    }
+
+    .reader-topbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem 1rem;
+        min-width: 0;
+    }
+
+    .reader-book-title {
+        flex: 1 1 12rem;
+        min-width: 0;
+        margin: 0;
+        max-width: none;
+        overflow: hidden;
+        color: var(--c-text);
+        font-weight: 700;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .reader-book-title span {
+        color: var(--c-text-muted);
+        font-weight: 400;
     }
 
     .mode-toggle {
@@ -1685,7 +1720,8 @@
         box-shadow:
             var(--shadow-lg),
             inset 0 0 0 1px var(--c-border-light);
-        height: 660px;
+        /* On a phone the play button must stay in view below the stage. */
+        height: min(660px, 55svh);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -2286,22 +2322,22 @@
 
     .back-link {
         display: flex;
+        flex: 0 0 auto;
         align-items: center;
-        justify-content: center;
         gap: 0.5rem;
-        width: 100%;
-        padding: 1rem;
-        margin-top: 2rem;
-        color: var(--c-text-light);
-        background: var(--c-bg-subtle);
+        padding: 0.55rem 0.85rem;
+        border: 1px solid var(--c-border);
         border-radius: var(--radius-md);
-        font-weight: 500;
-        transition: all 0.2s;
+        color: var(--c-text-light);
+        font-weight: 600;
+        transition:
+            border-color 0.2s,
+            color 0.2s;
     }
 
     .back-link:hover {
-        background: var(--c-border);
-        color: var(--c-text);
+        border-color: var(--c-primary);
+        color: var(--c-primary);
     }
 
     /* Modal */
