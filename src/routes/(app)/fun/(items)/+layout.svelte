@@ -8,14 +8,15 @@
     const description = $derived(($page.data?.fun?.description ?? '') as string)
 </script>
 
-<section class="fun-item-hero">
-    <div class="hero-text">
-        <p class="terminal-prompt">&gt;_</p>
-        <h1>{title}</h1>
-        <p class="terminal-index">Fun / {title}</p>
-    </div>
-    <a class="back-link" href="{base}/fun">../ Fun</a>
-</section>
+<svelte:head>
+    <title>{title} · Jon Samosir</title>
+</svelte:head>
+
+<header class="terminal-hero fun-item-hero">
+    <p class="terminal-prompt">&gt;_</p>
+    <h1>{title}</h1>
+    <a class="terminal-index hero-back" href="{base}/fun">../ Fun</a>
+</header>
 
 {#if description}
     <p class="lede">{description}</p>
@@ -26,71 +27,24 @@
 </div>
 
 <style>
-    :global(.content-wrapper:has(.fun-item-hero)),
-    :global(.content-wrapper:has(.fun-item-hero) *) {
-        font-family: var(--font-mono);
-    }
-
     .fun-item-hero {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        align-items: start;
-        gap: 1.5rem;
         margin-bottom: 1.25rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px dashed var(--c-border-dashed);
     }
 
-    .hero-text {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        align-items: baseline;
-        gap: 1rem 1.5rem;
-        min-width: 0;
-    }
-
-    .terminal-prompt,
-    .terminal-index {
-        color: var(--c-primary);
-        font-weight: 800;
-        letter-spacing: 0.08em;
-        margin: 0;
-        text-transform: uppercase;
-    }
-
-    .fun-item-hero h1 {
-        color: var(--c-text);
-        font-family: var(--font-sans);
-        font-size: clamp(2.5rem, 6vw, 4.25rem);
-        font-weight: 400;
-        letter-spacing: 0.04em;
-        line-height: 1.05;
-        margin: 0;
-    }
-
-    .terminal-index {
-        grid-column: 2;
-        font-size: 0.8rem;
+    /* Project titles are longer than the section titles, so they use a smaller size. */
+    :global(.content-area) .fun-item-hero h1 {
+        font-size: clamp(1.9rem, 4.5vw, 3rem);
     }
 
     .lede {
         color: var(--c-text-light);
-        font-size: 1rem;
+        font-size: 1.05rem;
         line-height: 1.7;
         margin: 0 0 2rem;
-        max-width: 78ch;
+        max-width: var(--measure);
     }
 
-    .back-link {
-        color: var(--c-primary);
-        text-decoration: none;
-        font-weight: 800;
-        letter-spacing: 0.08em;
-        padding: 0.55rem 0;
-        text-transform: uppercase;
-    }
-
-    .back-link:hover {
+    .hero-back:hover {
         color: var(--c-text);
         text-decoration: underline;
         text-underline-offset: 0.25rem;
@@ -212,20 +166,5 @@
     :global(.fun-body .current-word),
     :global(.fun-body .book-title) {
         font-family: var(--font-mono);
-    }
-
-    @media (max-width: 768px) {
-        .fun-item-hero {
-            grid-template-columns: 1fr;
-        }
-
-        .hero-text {
-            grid-template-columns: 1fr;
-            gap: 0.5rem;
-        }
-
-        .terminal-index {
-            grid-column: 1;
-        }
     }
 </style>

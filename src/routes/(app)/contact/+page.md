@@ -1,6 +1,10 @@
 ---
 ---
 
+<svelte:head>
+<title>Contact · Jon Samosir</title>
+</svelte:head>
+
 <section class="terminal-page contact-page">
     <header class="terminal-hero">
         <p class="terminal-prompt">&gt;_</p>
@@ -34,106 +38,41 @@
 </section>
 
 <style>
-    .terminal-page,
-    .terminal-page * {
-        font-family: var(--font-mono);
-    }
-
-    .terminal-hero {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        align-items: baseline;
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px dashed var(--c-border-dashed);
-    }
-
-    .terminal-prompt,
-    .terminal-index {
-        color: var(--c-primary);
-        font-weight: 800;
-        letter-spacing: 0.08em;
-        margin: 0;
-        text-transform: uppercase;
-    }
-
-    .terminal-hero h1 {
-        color: var(--c-text);
-        font-family: var(--font-sans);
-        font-size: clamp(2.75rem, 7vw, 4.25rem);
-        font-weight: 400;
-        letter-spacing: 0.04em;
-        margin: 0;
-    }
-
     .contact-copy {
         display: grid;
         gap: 1.35rem;
-        max-width: 70ch;
+        max-width: var(--measure);
     }
 
     .contact-copy p,
     .contact-copy li {
-        color: var(--c-text);
-        font-size: 1.08rem;
+        color: var(--c-text-light);
+        font-size: 1.05rem;
         line-height: 1.75;
         margin: 0;
+        max-width: none;
     }
 
     .contact-copy ul {
         display: grid;
         gap: 0.6rem;
         margin: 0;
+        padding-left: 1.4rem;
     }
 
-    .contact-copy a,
+    .contact-copy li::marker {
+        color: var(--c-primary);
+    }
+
     .email-link {
-        color: var(--c-primary);
-    }
-
-    .terminal-callout {
-        display: grid;
-        grid-template-columns: 4.5rem 1fr;
-        gap: 1.35rem;
-        align-items: center;
-        max-width: 86ch;
-        margin-top: 2rem;
-        padding: 1.2rem 1.5rem;
-        border: 1px dashed var(--c-border-dashed);
-    }
-
-    .callout-icon {
-        display: grid;
-        place-items: center;
-        width: 3.6rem;
-        height: 3.6rem;
-        border: 1px solid var(--c-border);
-        color: var(--c-primary);
-        font-size: 2rem;
+        font-size: 1.18rem;
+        overflow-wrap: anywhere;
     }
 
     .terminal-callout h2 {
         color: var(--c-text);
-        font-family: var(--font-mono);
         font-size: 1.15rem;
+        font-weight: 800;
         margin: 0 0 0.45rem;
-    }
-
-    .terminal-callout p {
-        color: var(--c-text);
-        line-height: 1.65;
-        margin: 0;
-    }
-
-    @media (max-width: 768px) {
-        .terminal-hero {
-            grid-template-columns: 1fr;
-            gap: 0.5rem;
-        }
-
-        .terminal-callout {
-            grid-template-columns: 1fr;
-        }
     }
 </style>

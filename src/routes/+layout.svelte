@@ -170,6 +170,11 @@
     })
 </script>
 
+<!-- The default title. A page sets its own title after this one. -->
+<svelte:head>
+    <title>Jon Samosir</title>
+</svelte:head>
+
 <div class="nav-area">
     <nav class="nav-bar">
         <div class="nav-header">
@@ -233,7 +238,7 @@
     <div class="content-wrapper">
         {#key $page.url.pathname}
             <!-- No outro: an outgoing page that stays in the flow puts two pages in the document. -->
-            <div in:fade={{ duration: reduceMotion ? 0 : 120, easing: cubicOut }}>
+            <div class="page" in:fade={{ duration: reduceMotion ? 0 : 120, easing: cubicOut }}>
                 {@render children?.()}
             </div>
         {/key}
@@ -665,6 +670,12 @@
         padding: 0;
         box-sizing: border-box;
         flex: 1 0 auto;
+    }
+
+    /* All pages use the monospace face. Page styles set the exceptions (titles, reader text). */
+    .page,
+    .page :global(*) {
+        font-family: var(--font-mono);
     }
 
     .terminal-footer {

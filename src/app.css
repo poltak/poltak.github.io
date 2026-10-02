@@ -79,6 +79,8 @@
 
     --content-max-width: 1040px;
     --sidebar-width: 300px;
+    /* Reading width for body text. About 73 monospace characters. */
+    --measure: 46rem;
 }
 
 html {
@@ -922,6 +924,83 @@ details details {
     box-shadow: none;
     border: 1px solid var(--c-border-light);
     border-radius: 0;
+}
+
+/* Page header: prompt, title, and section index. */
+.terminal-hero {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: baseline;
+    gap: 0.5rem 1.5rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px dashed var(--c-border-dashed);
+}
+
+.terminal-prompt,
+.terminal-index {
+    color: var(--c-primary);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+/* The extra class makes this rule stronger than the monospace rule for page content. */
+.content-area .terminal-hero h1 {
+    color: var(--c-text);
+    font-family: var(--font-sans);
+    font-size: clamp(2.25rem, 6vw, 4.25rem);
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    line-height: 1.05;
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.terminal-callout {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.35rem;
+    align-items: center;
+    max-width: var(--measure);
+    margin-top: 2rem;
+    padding: 1.2rem 1.5rem;
+    border: 1px dashed var(--c-border-dashed);
+}
+
+.callout-icon {
+    display: grid;
+    place-items: center;
+    width: 3.6rem;
+    height: 3.6rem;
+    border: 1px solid var(--c-border);
+    color: var(--c-primary);
+    font-size: 2rem;
+}
+
+.terminal-callout p {
+    color: var(--c-text);
+    line-height: 1.65;
+    margin: 0;
+    max-width: none;
+}
+
+@media (max-width: 768px) {
+    /* The prompt and the title share a line; the index goes below them. */
+    .terminal-hero {
+        grid-template-columns: auto 1fr;
+    }
+
+    .terminal-hero .terminal-index {
+        grid-column: 1 / -1;
+        font-size: 0.8rem;
+    }
+
+    .terminal-callout {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Layout Grid */
