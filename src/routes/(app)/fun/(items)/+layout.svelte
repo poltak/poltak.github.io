@@ -1,11 +1,11 @@
 <script lang="ts">
     import { base } from '$app/paths'
-    import { page } from '$app/stores'
+    import { page } from '$app/state'
 
     let { children } = $props()
 
-    const title = $derived(($page.data?.fun?.title ?? 'Fun') as string)
-    const description = $derived(($page.data?.fun?.description ?? '') as string)
+    const title = $derived((page.data?.fun?.title ?? 'Fun') as string)
+    const description = $derived((page.data?.fun?.description ?? '') as string)
 </script>
 
 <svelte:head>

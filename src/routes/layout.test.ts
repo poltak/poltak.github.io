@@ -1,10 +1,9 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/svelte'
 import { createRawSnippet } from 'svelte'
-import { writable } from 'svelte/store'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import Layout from './+layout.svelte'
 
-vi.mock('$app/stores', () => ({ page: writable({ url: new URL('https://example.com/') }) }))
+vi.mock('$app/state', () => ({ page: { url: new URL('https://example.com/') } }))
 
 describe('theme controls', () => {
     beforeEach(() => {

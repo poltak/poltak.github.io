@@ -1,7 +1,7 @@
 <script lang="ts">
     import '../app.css'
     import { base } from '$app/paths'
-    import { page } from '$app/stores'
+    import { page } from '$app/state'
     import { cubicOut } from 'svelte/easing'
     import { onMount, tick } from 'svelte'
     import { fade } from 'svelte/transition'
@@ -24,7 +24,7 @@
     ]
 
     const isActive = (path: string) => {
-        const pathname = $page.url.pathname
+        const pathname = page.url.pathname
         const target = `${base}${path}`
 
         if (path === '/') {
@@ -117,7 +117,7 @@
     }
 
     $effect(() => {
-        $page.url.pathname
+        page.url.pathname
         updateNavIndicator()
     })
 
@@ -261,7 +261,7 @@
 
 <div class="content-area">
     <div class="content-wrapper">
-        {#key $page.url.pathname}
+        {#key page.url.pathname}
             <!-- No outro: an outgoing page that stays in the flow puts two pages in the document. -->
             <div class="page" in:fade={{ duration: reduceMotion ? 0 : 120, easing: cubicOut }}>
                 {@render children?.()}
