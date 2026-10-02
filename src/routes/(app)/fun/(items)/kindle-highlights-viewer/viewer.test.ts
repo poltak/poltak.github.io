@@ -39,11 +39,12 @@ describe('clippings viewer', () => {
         await upload()
         await fireEvent.input(screen.getByRole('searchbox'), { target: { value: 'entry' } })
         expect(search).toHaveBeenCalledOnce()
-        await fireEvent.click(screen.getByRole('button', { name: 'Next' }))
-        expect(screen.getByText('Page 2 of 4')).toBeTruthy()
+        // The pager is above and below the list.
+        await fireEvent.click(screen.getAllByRole('button', { name: 'Next' })[0])
+        expect(screen.getAllByText('Page 2 of 4')).toHaveLength(2)
         expect(search).toHaveBeenCalledOnce()
         await fireEvent.change(screen.getByLabelText('Type'), { target: { value: 'Highlight' } })
-        expect(screen.getByText('Page 1 of 2')).toBeTruthy()
+        expect(screen.getAllByText('Page 1 of 2')).toHaveLength(2)
     })
 
     it('renders highlighted markup as literal text', async () => {

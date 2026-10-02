@@ -1,28 +1,100 @@
 <script lang="ts">
     import { createClippingsSearch, createTextHighlighter } from '$lib/clippings-search'
     import { parseClippings, type NormalizedClipping } from 'kindle-highlights-parser'
-    import { onDestroy, onMount } from 'svelte'
+    import { onDestroy, onMount, tick } from 'svelte'
     import { base } from '$app/paths'
 
-    let normalized: NormalizedClipping[] = []
-    let errorMessage = ''
-    let statusMessage = ''
-    let sourceFileName = ''
-    let fileInput: HTMLInputElement | null = null
-    let isSaving = false
-    let isLoadingStatic = false
-    let pageIndex = 0
-    let pageSize = 25
-    let filteredItems: NormalizedClipping[] = []
-    let totalPages = 1
-    let searchQuery = ''
-    let typeFilter: 'all' | 'Highlight' | 'Note' = 'all'
-    let titleFilter = 'all'
-    let authorFilter = 'all'
-    let uniqueTitles: string[] = []
-    let uniqueAuthors: string[] = []
+    type TypeFilter = 'all' | 'Highlight' | 'Note'
+
+    // A clippings file has thousands of entries. They are replaced as a whole, so no deep proxy.
+    let normalized = $state.raw<NormalizedClipping[]>([])
+    let errorMessage = $state('')
+    let statusMessage = $state('')
+    let sourceFileName = $state('')
+    let fileInput = $state<HTMLInputElement | null>(null)
+    let listTop = $state<HTMLElement | null>(null)
+    let isSaving = $state(false)
+    let isLoadingStatic = $state(false)
+    let pageIndex = $state(0)
+    let pageSize = $state(25)
+    let searchQuery = $state('')
+    let typeFilter = $state<TypeFilter>('all')
+    let titleFilter = $state('all')
+    let authorFilter = $state('all')
     let loadId = 0
     let siteRequest: AbortController | null = null
+
+    const titleOf = (item: NormalizedClipping) => item.title?.trim() || 'Untitled'
+    const authorOf = (item: NormalizedClipping) => item.author?.trim() || 'Unknown Author'
+
+    const uniqueTitles = $derived(
+        [...new Set(normalized.map(titleOf))].sort((a, b) => a.localeCompare(b)),
+    )
+    const uniqueAuthors = $derived(
+        [...new Set(normalized.map(authorOf))].sort((a, b) => a.localeCompare(b)),
+    )
+    const searchClippings = $derived(createClippingsSearch(normalized))
+    const highlightText = $derived(createTextHighlighter(searchQuery))
+    const filteredItems = $derived(
+        searchClippings({
+            query: searchQuery,
+            type: typeFilter,
+            title: titleFilter,
+            author: authorFilter,
+        }),
+    )
+    const totalPages = $derived(Math.max(1, Math.ceil(filteredItems.length / pageSize)))
+    const currentPage = $derived(Math.min(pageIndex, totalPages - 1))
+    const pageItems = $derived(
+        filteredItems.slice(currentPage * pageSize, (currentPage + 1) * pageSize),
+    )
+
+    /** Replace the clippings. Filters that the new data cannot satisfy go back to "all". */
+    function setClippings(items: NormalizedClipping[]) {
+        normalized = items
+        pageIndex = 0
+        if (titleFilter !== 'all' && !items.some((item) => titleOf(item) === titleFilter)) {
+            titleFilter = 'all'
+        }
+        if (authorFilter !== 'all' && !items.some((item) => authorOf(item) === authorFilter)) {
+            authorFilter = 'all'
+        }
+    }
+
+    // Each filter change goes back to the first page. The title and author filters exclude each other.
+    function setSearchQuery(value: string) {
+        searchQuery = value
+        pageIndex = 0
+    }
+
+    function setTypeFilter(value: TypeFilter) {
+        typeFilter = value
+        pageIndex = 0
+    }
+
+    function setTitleFilter(value: string) {
+        titleFilter = value
+        if (value !== 'all') authorFilter = 'all'
+        pageIndex = 0
+    }
+
+    function setAuthorFilter(value: string) {
+        authorFilter = value
+        if (value !== 'all') titleFilter = 'all'
+        pageIndex = 0
+    }
+
+    function setPageSize(value: number) {
+        pageSize = value
+        pageIndex = 0
+    }
+
+    async function goToPage(index: number, scrollToList = false) {
+        pageIndex = Math.max(0, Math.min(totalPages - 1, index))
+        if (!scrollToList) return
+        await tick()
+        listTop?.scrollIntoView?.({ block: 'start' })
+    }
 
     function beginLoad() {
         siteRequest?.abort()
@@ -44,7 +116,7 @@
         errorMessage = ''
 
         if (!file) {
-            normalized = []
+            setClippings([])
             sourceFileName = ''
             return
         }
@@ -55,14 +127,14 @@
             const text = await file.text()
             if (requestId !== loadId) return
             const result = parseClippings(text)
-            normalized = result.normalized.filter((item) => item.type !== 'Bookmark')
+            setClippings(result.normalized.filter((item) => item.type !== 'Bookmark'))
             if (normalized.length === 0) {
                 errorMessage =
                     'No clippings found. Check that this is a Kindle "My Clippings.txt" file.'
             }
         } catch (error) {
             if (requestId !== loadId) return
-            normalized = []
+            setClippings([])
             errorMessage =
                 error instanceof Error
                     ? error.message
@@ -87,14 +159,14 @@
             const text = await response.text()
             if (requestId !== loadId) return
             const result = parseClippings(text)
-            normalized = result.normalized.filter((item) => item.type !== 'Bookmark')
+            setClippings(result.normalized.filter((item) => item.type !== 'Bookmark'))
             sourceFileName = 'Jon\'s "My Clippings.txt"'
             if (normalized.length === 0) {
                 errorMessage = 'No clippings found in the site file. Check the uploaded content.'
             }
         } catch (error) {
             if (requestId !== loadId) return
-            normalized = []
+            setClippings([])
             errorMessage =
                 error instanceof Error ? error.message : 'Unable to load the site clippings file.'
         } finally {
@@ -142,7 +214,7 @@
             })
             if (requestId !== loadId) return
             if (saved?.normalized?.length) {
-                normalized = saved.normalized
+                setClippings(saved.normalized)
                 sourceFileName = saved.sourceFileName ?? ''
                 statusMessage = 'Loaded saved clippings from this browser.'
             }
@@ -187,9 +259,8 @@
             if (!ok) return
         }
         beginLoad()
-        normalized = []
+        setClippings([])
         sourceFileName = ''
-        pageIndex = 0
         statusMessage = ''
         errorMessage = ''
         if (fileInput) fileInput.value = ''
@@ -213,47 +284,6 @@
         }
     }
 
-    $: {
-        normalized
-        const titleSet = new Set<string>()
-        const authorSet = new Set<string>()
-        for (const item of normalized) {
-            titleSet.add(item.title?.trim() || 'Untitled')
-            authorSet.add(item.author?.trim() || 'Unknown Author')
-        }
-        uniqueTitles = Array.from(titleSet).sort((a, b) => a.localeCompare(b))
-        uniqueAuthors = Array.from(authorSet).sort((a, b) => a.localeCompare(b))
-    }
-
-    $: if (titleFilter !== 'all' && !uniqueTitles.includes(titleFilter)) titleFilter = 'all'
-    $: if (
-        authorFilter !== 'all' &&
-        (!uniqueAuthors.includes(authorFilter) || titleFilter !== 'all')
-    ) {
-        authorFilter = 'all'
-    }
-
-    $: searchClippings = createClippingsSearch(normalized)
-    $: highlightText = createTextHighlighter(searchQuery)
-    $: filteredItems = searchClippings({
-        query: searchQuery,
-        type: typeFilter,
-        title: titleFilter,
-        author: authorFilter,
-    })
-    $: totalPages = Math.max(1, Math.ceil(filteredItems.length / pageSize))
-    $: pageIndex = Math.min(pageIndex, totalPages - 1)
-
-    $: {
-        normalized
-        searchQuery
-        typeFilter
-        titleFilter
-        authorFilter
-        pageSize
-        pageIndex = 0
-    }
-
     onMount(() => {
         const params = new URLSearchParams(window.location.search)
         if (params.get('source') === 'site') void loadSiteClippings()
@@ -265,12 +295,28 @@
     <title>Kindle Clippings Viewer</title>
 </svelte:head>
 
-<section class="card viewer-card">
-    <div class="viewer-header">
-        <div>
-            <h2>Upload &amp; browse</h2>
-        </div>
+{#snippet pager(scrollToList: boolean)}
+    <div class="pager">
+        <button
+            type="button"
+            onclick={() => goToPage(currentPage - 1, scrollToList)}
+            disabled={!normalized.length || currentPage === 0}
+        >
+            Previous
+        </button>
+        <span>Page {currentPage + 1} of {totalPages}</span>
+        <button
+            type="button"
+            onclick={() => goToPage(currentPage + 1, scrollToList)}
+            disabled={!normalized.length || currentPage >= totalPages - 1}
+        >
+            Next
+        </button>
     </div>
+{/snippet}
+
+<section class="card viewer-card">
+    <h2>Upload &amp; browse</h2>
     <div class="upload-panel">
         <div class="upload-row">
             <label class="file-input" for="clippings">
@@ -279,7 +325,7 @@
                     class="visually-hidden"
                     type="file"
                     accept=".txt"
-                    on:change={handleFileUpload}
+                    onchange={handleFileUpload}
                     bind:this={fileInput}
                 />
                 <span>Choose &quot;My Clippings.txt&quot;</span>
@@ -288,7 +334,7 @@
             <button
                 type="button"
                 class="ghost upload-alt"
-                on:click={loadSiteClippings}
+                onclick={loadSiteClippings}
                 disabled={isLoadingStatic}
             >
                 {isLoadingStatic ? 'Loading...' : 'Browse my own personal highlights'}
@@ -300,35 +346,29 @@
         <p class="hint">Your file never leaves the browser. Everything stays local.</p>
     </div>
     {#if errorMessage}
-        <div class="alert">{errorMessage}</div>
-    {/if}
-    {#if statusMessage}
-        <p class="status">{statusMessage}</p>
+        <div class="alert" role="alert">{errorMessage}</div>
     {/if}
 
     <div class="viewer-actions">
-        <div class="action-card">
-            <button
-                type="button"
-                class="ghost"
-                on:click={saveToIndexedDb}
-                disabled={!normalized.length || isSaving}
-            >
-                {isSaving ? 'Saving...' : 'Save'}
-            </button>
-            <p class="action-help">
-                Stores your parsed clippings in this browser so they load automatically next time.
-            </p>
-        </div>
-        <div class="action-card">
-            <button type="button" class="ghost" on:click={clearSavedClippings}>
-                Clear saved data
-            </button>
-            <p class="action-help">
-                Removes the saved copy from this browser only. It does not change your file.
-            </p>
-        </div>
+        <button
+            type="button"
+            class="ghost"
+            onclick={saveToIndexedDb}
+            disabled={!normalized.length || isSaving}
+        >
+            {isSaving ? 'Saving...' : 'Save'}
+        </button>
+        <button type="button" class="ghost" onclick={clearSavedClippings}>
+            Clear saved data
+        </button>
+        <p class="action-help">
+            Save keeps your parsed clippings in this browser, so they load automatically next time.
+            Clear removes that saved copy only. It does not change your file.
+        </p>
     </div>
+    {#if statusMessage}
+        <p class="status" role="status">{statusMessage}</p>
+    {/if}
 
     <div class="viewer-controls">
         <label class="field field-wide">
@@ -336,14 +376,18 @@
             <input
                 type="search"
                 placeholder="Search titles, authors, or highlight text"
-                bind:value={searchQuery}
+                bind:value={() => searchQuery, setSearchQuery}
                 disabled={!normalized.length}
             />
         </label>
         <div class="field">
-            <span>Book title</span>
+            <label for="title-filter">Book title</label>
             <div class="select-wrap">
-                <select bind:value={titleFilter} disabled={!normalized.length}>
+                <select
+                    id="title-filter"
+                    bind:value={() => titleFilter, setTitleFilter}
+                    disabled={!normalized.length}
+                >
                     <option value="all">All titles</option>
                     {#each uniqueTitles as title}
                         <option value={title}>{title}</option>
@@ -353,7 +397,7 @@
                     <button
                         type="button"
                         class="clear-filter"
-                        on:click={() => (titleFilter = 'all')}
+                        onclick={() => setTitleFilter('all')}
                         aria-label="Clear book title filter"
                     >
                         ×
@@ -362,10 +406,11 @@
             </div>
         </div>
         <div class="field">
-            <span>Author</span>
+            <label for="author-filter">Author</label>
             <div class="select-wrap">
                 <select
-                    bind:value={authorFilter}
+                    id="author-filter"
+                    bind:value={() => authorFilter, setAuthorFilter}
                     disabled={!normalized.length || titleFilter !== 'all'}
                 >
                     <option value="all">All authors</option>
@@ -377,9 +422,8 @@
                     <button
                         type="button"
                         class="clear-filter"
-                        on:click={() => (authorFilter = 'all')}
+                        onclick={() => setAuthorFilter('all')}
                         aria-label="Clear author filter"
-                        disabled={titleFilter !== 'all'}
                     >
                         ×
                     </button>
@@ -388,7 +432,7 @@
         </div>
         <label class="field">
             <span>Type</span>
-            <select bind:value={typeFilter} disabled={!normalized.length}>
+            <select bind:value={() => typeFilter, setTypeFilter} disabled={!normalized.length}>
                 <option value="all">All types</option>
                 <option value="Highlight">Highlight</option>
                 <option value="Note">Note</option>
@@ -396,37 +440,21 @@
         </label>
         <label class="field">
             <span>Per page</span>
-            <select
-                on:change={(event) => (pageSize = Number(event.currentTarget.value))}
-                disabled={!normalized.length}
-            >
-                <option value="25" selected={pageSize === 25}>25</option>
-                <option value="50" selected={pageSize === 50}>50</option>
-                <option value="100" selected={pageSize === 100}>100</option>
+            <select bind:value={() => pageSize, setPageSize} disabled={!normalized.length}>
+                <option value={25}>25</option>
+                <option value={50}>50</option>
+                <option value={100}>100</option>
             </select>
         </label>
-        <div class="pager">
-            <button
-                type="button"
-                on:click={() => (pageIndex = Math.max(0, pageIndex - 1))}
-                disabled={!normalized.length || pageIndex === 0}
-            >
-                Previous
-            </button>
-            <span>Page {pageIndex + 1} of {totalPages}</span>
-            <button
-                type="button"
-                on:click={() => (pageIndex = Math.min(totalPages - 1, pageIndex + 1))}
-                disabled={!normalized.length || pageIndex >= totalPages - 1}
-            >
-                Next
-            </button>
-        </div>
     </div>
-    <p class="viewer-count">{filteredItems.length} items</p>
+
+    <div class="list-bar" bind:this={listTop}>
+        <p class="viewer-count">{filteredItems.length.toLocaleString()} items</p>
+        {@render pager(false)}
+    </div>
 
     <div class="viewer-list">
-        {#each filteredItems.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize) as item}
+        {#each pageItems as item}
             <article class="viewer-item">
                 <p class="viewer-content">
                     {#each highlightText(item.content) as part}
@@ -437,10 +465,7 @@
                     <button
                         type="button"
                         class="meta-link"
-                        on:click={() => {
-                            titleFilter = item.title?.trim() || 'Untitled'
-                            authorFilter = 'all'
-                        }}
+                        onclick={() => setTitleFilter(titleOf(item))}
                     >
                         {item.title}
                     </button>
@@ -449,10 +474,7 @@
                         <button
                             type="button"
                             class="meta-link"
-                            on:click={() => {
-                                authorFilter = item.author?.trim() || 'Unknown Author'
-                                titleFilter = 'all'
-                            }}
+                            onclick={() => setAuthorFilter(authorOf(item))}
                         >
                             {item.author}
                         </button>
@@ -468,8 +490,20 @@
                     {/if}
                 </div>
             </article>
+        {:else}
+            <p class="empty">
+                {normalized.length
+                    ? 'No clippings match these filters.'
+                    : 'Choose a clippings file to see your highlights here.'}
+            </p>
         {/each}
     </div>
+
+    {#if totalPages > 1}
+        <div class="list-bar list-bar-bottom">
+            {@render pager(true)}
+        </div>
+    {/if}
 </section>
 
 <style>
@@ -481,13 +515,6 @@
         box-sizing: border-box;
     }
 
-    .viewer-card {
-        max-width: 1000px;
-        width: 100%;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
     .upload-panel {
         display: flex;
         flex-direction: column;
@@ -496,7 +523,7 @@
 
     .upload-row {
         display: grid;
-        align-items: center;
+        align-items: stretch;
         gap: 0.75rem;
         grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     }
@@ -506,37 +533,37 @@
         font-weight: 700;
         letter-spacing: 0.1em;
         color: var(--c-text-muted);
-        text-align: center;
         align-self: center;
-        height: 56px;
+    }
+
+    .file-input,
+    .ghost {
         display: flex;
         align-items: center;
         justify-content: center;
+        min-height: 3.25rem;
+        padding: 0.6rem 1rem;
+        box-sizing: border-box;
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 600;
+        line-height: 1.3;
+        text-align: center;
     }
 
     .file-input {
         border: 1px dashed var(--c-border-dashed);
-        padding: 0.75rem 1rem;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        font-weight: 600;
         color: var(--c-primary-dark);
         background: var(--c-primary-light);
-        transition:
-            border-color 0.2s ease,
-            transform 0.2s ease;
-        width: 100%;
-        justify-content: center;
-        text-align: center;
-        height: 56px;
-        box-sizing: border-box;
+        transition: border-color 0.2s ease;
+    }
+
+    :global(:root.dark) .file-input {
+        color: var(--c-primary);
     }
 
     .file-input:hover {
         border-color: var(--c-primary);
-        transform: translateY(-1px);
     }
 
     .file-input:focus-within {
@@ -544,14 +571,40 @@
         outline-offset: 3px;
     }
 
+    .ghost {
+        border: 1px solid var(--c-border);
+        background: transparent;
+        color: var(--c-text-light);
+    }
+
+    .ghost:hover:not(:disabled) {
+        border-color: var(--c-primary);
+        color: var(--c-primary);
+    }
+
+    .ghost:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+
+    .file-name,
+    .hint,
+    .action-help,
+    .status {
+        margin: 0;
+        max-width: none;
+    }
+
     .file-name {
         color: var(--c-text-light);
         font-size: 0.95rem;
     }
 
-    .hint {
-        font-size: 0.9rem;
+    .hint,
+    .action-help {
         color: var(--c-text-muted);
+        font-size: 0.85rem;
+        line-height: 1.5;
     }
 
     .alert {
@@ -563,76 +616,37 @@
     }
 
     .status {
-        margin-top: 1rem;
+        margin-top: 0.75rem;
         color: var(--c-success);
         font-weight: 600;
     }
 
-    .ghost {
-        border: 1px solid var(--c-border);
-        background: transparent;
-        padding: 0.45rem 1.1rem;
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 0.95rem;
-        line-height: 1;
-        color: var(--c-text-light);
-        width: 100%;
-        height: 56px;
-        box-sizing: border-box;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .ghost:hover {
-        border-color: var(--c-primary);
-        color: var(--c-primary-dark);
-    }
-
-    .viewer-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        flex-wrap: wrap;
-        margin-bottom: 1.25rem;
-    }
-
+    /* Two small buttons with one line of help. They are secondary to the list. */
     .viewer-actions {
-        display: grid;
-        gap: 1rem;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        margin-bottom: 1.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 1.25rem;
+        padding-top: 1.25rem;
+        border-top: 1px dashed var(--c-border-dashed);
     }
 
-    .action-card {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        padding: 0.75rem 1rem;
-        border: 1px solid var(--c-border);
-        background: transparent;
+    .viewer-actions .ghost {
+        min-height: 2.4rem;
+        padding: 0.4rem 1rem;
+        font-size: 0.85rem;
     }
 
     .action-help {
-        margin: 0;
-        color: var(--c-text-muted);
-        font-size: 0.9rem;
-        line-height: 1.4;
+        flex: 1 1 18rem;
     }
 
     .viewer-controls {
         display: grid;
         gap: 1rem;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        margin-bottom: 1.5rem;
-    }
-
-    .viewer-count {
-        margin: 0 0 1rem 0;
-        color: var(--c-text-light);
-        font-weight: 600;
+        margin: 1.5rem 0;
     }
 
     .field-wide {
@@ -648,7 +662,8 @@
         min-width: 0;
     }
 
-    .field span {
+    .field > span,
+    .field > label {
         font-size: 0.8rem;
         letter-spacing: 0.08em;
         text-transform: uppercase;
@@ -661,12 +676,12 @@
     }
 
     .select-wrap select {
-        padding-right: 2.25rem;
+        padding-right: 3.5rem;
     }
 
     .clear-filter {
         position: absolute;
-        right: 0.5rem;
+        right: 1.6rem;
         border: 1px solid var(--c-border-light);
         background: var(--c-bg-subtle);
         color: var(--c-text-light);
@@ -674,23 +689,16 @@
         font-weight: 700;
         width: 1.6rem;
         height: 1.6rem;
+        padding: 0;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        transition:
-            background 0.2s ease,
-            color 0.2s ease;
     }
 
     .clear-filter:hover {
         background: var(--c-primary-light);
-        color: var(--c-primary-dark);
-    }
-
-    .clear-filter:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
+        color: var(--c-primary);
     }
 
     select,
@@ -702,24 +710,54 @@
         color: var(--c-text);
         width: 100%;
         max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* The item count and the pager share a row above the list. */
+    .list-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem 1rem;
+        margin-bottom: 1rem;
+        scroll-margin-top: 1rem;
+    }
+
+    .list-bar-bottom {
+        justify-content: flex-end;
+        margin: 1rem 0 0;
+    }
+
+    .viewer-count {
+        margin: 0;
+        color: var(--c-text-light);
+        font-weight: 600;
     }
 
     .pager {
-        display: inline-flex;
+        display: flex;
         align-items: center;
         gap: 0.75rem;
-        flex-wrap: wrap;
+        color: var(--c-text-light);
+        font-size: 0.9rem;
+        white-space: nowrap;
     }
 
     .pager button {
         border: 1px solid var(--c-border);
         background: transparent;
-        padding: 0.4rem 1rem;
+        padding: 0.45rem 0.9rem;
         cursor: pointer;
         font-weight: 600;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         line-height: 1;
         color: var(--c-text-light);
+    }
+
+    .pager button:hover:not(:disabled) {
+        border-color: var(--c-primary);
+        color: var(--c-primary);
     }
 
     .pager button:disabled {
@@ -734,8 +772,9 @@
     }
 
     .viewer-item {
-        padding: 1rem;
-        border: 1px solid var(--c-border);
+        padding: 1rem 1.1rem;
+        border: 1px solid var(--c-border-light);
+        border-left: 2px solid var(--c-border);
         background: transparent;
         width: 100%;
         box-sizing: border-box;
@@ -744,16 +783,17 @@
 
     .viewer-content {
         margin: 0 0 0.75rem 0;
+        max-width: var(--measure);
+        color: var(--c-text);
         font-size: 1rem;
+        line-height: 1.65;
         overflow-wrap: anywhere;
-        word-break: break-word;
     }
 
-    :global(.viewer-content mark) {
+    .viewer-content mark {
         background: rgba(245, 158, 11, 0.3);
         color: inherit;
         padding: 0 0.15rem;
-        border-radius: 0.2rem;
     }
 
     .viewer-meta {
@@ -763,7 +803,6 @@
         flex-wrap: wrap;
         gap: 0.35rem;
         overflow-wrap: anywhere;
-        word-break: break-word;
         max-width: 100%;
     }
 
@@ -774,6 +813,7 @@
         color: inherit;
         font: inherit;
         cursor: pointer;
+        text-align: left;
         text-decoration: underline;
         text-underline-offset: 2px;
     }
@@ -782,7 +822,20 @@
         color: var(--c-primary);
     }
 
+    .empty {
+        margin: 0;
+        padding: 2rem 1rem;
+        max-width: none;
+        border: 1px dashed var(--c-border-dashed);
+        color: var(--c-text-muted);
+        text-align: center;
+    }
+
     @media (max-width: 768px) {
+        .card {
+            padding: 1.1rem;
+        }
+
         .viewer-controls {
             grid-template-columns: 1fr;
         }
@@ -791,22 +844,12 @@
             grid-column: span 1;
         }
 
-        .viewer-card {
-            padding: 1.25rem;
-        }
-
-        .viewer-item {
-            padding: 0.9rem;
-        }
-
         .upload-row {
             grid-template-columns: 1fr;
         }
-    }
 
-    @media (max-width: 576px) {
-        .viewer-actions {
-            grid-template-columns: 1fr;
+        .upload-or {
+            justify-self: center;
         }
     }
 </style>
