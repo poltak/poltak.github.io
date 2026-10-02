@@ -231,11 +231,8 @@
 <div class="content-area">
     <div class="content-wrapper">
         {#key $page.url.pathname}
-            <div
-                class="route-transition"
-                in:fade={{ duration: reduceMotion ? 0 : 50, easing: cubicOut }}
-                out:fade={{ duration: reduceMotion ? 0 : 50, easing: cubicOut }}
-            >
+            <!-- No outro: an outgoing page that stays in the flow puts two pages in the document. -->
+            <div in:fade={{ duration: reduceMotion ? 0 : 120, easing: cubicOut }}>
                 {@render children?.()}
             </div>
         {/key}
@@ -656,10 +653,6 @@
         padding: 0;
         box-sizing: border-box;
         flex: 1 0 auto;
-    }
-
-    .route-transition {
-        will-change: opacity, transform;
     }
 
     .terminal-footer {
