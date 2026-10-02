@@ -5,9 +5,10 @@
     >
         <img
             src="https://fonts.gstatic.com/s/i/productlogos/chrome_store/v7/192px.svg"
-            alt="Chrome Web Store logo"
+            alt=""
             width="24"
             height="24"
+            decoding="async"
         />
         Chrome Web Store listing
     </a>

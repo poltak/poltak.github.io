@@ -59,12 +59,6 @@
 
 <p>I'm hoping to use this as a starting point for some simple browser-based games.</p>
 
-<div class="maze-info">
-    <p><i class="swatch start"></i>Start: {startingPoint[0] + 1}, {startingPoint[1] + 1}</p>
-    <p><i class="swatch end"></i>End: {endPoint[0] + 1}, {endPoint[1] + 1}</p>
-    <p>Maze size: {renderedMazeSize} x {renderedMazeSize}</p>
-</div>
-
 <div class="maze-controls">
     <h3>Controls</h3>
 
@@ -105,6 +99,12 @@
     <div class="control">
         <button onclick={regenerateMaze} disabled={!validMazeSize}>Regenerate Maze</button>
     </div>
+</div>
+
+<div class="maze-info">
+    <p><i class="swatch start"></i>Start: {startingPoint[0] + 1}, {startingPoint[1] + 1}</p>
+    <p><i class="swatch end"></i>End: {endPoint[0] + 1}, {endPoint[1] + 1}</p>
+    <p>Maze size: {renderedMazeSize} x {renderedMazeSize}</p>
 </div>
 
 <!-- Cell 0 is at the bottom left, so the y axis is turned over. -->
@@ -241,19 +241,29 @@
         gap: 4px;
     }
 
+    /* The range hint is neutral. It turns red only when the value is not valid. */
     .maze-size-warning {
         margin: 0;
-        font-size: 0.9rem;
-        color: var(--c-danger);
+        font-size: 0.85rem;
+        color: var(--c-text-muted);
         max-width: 42ch;
+    }
+
+    input[aria-invalid='true'] {
+        border-color: var(--c-danger);
+    }
+
+    input[aria-invalid='true'] + .maze-size-warning {
+        color: var(--c-danger);
     }
 
     .maze-info {
         display: flex;
         flex-wrap: wrap;
-        gap: 1rem;
+        gap: 0.5rem 1.5rem;
         margin: 1rem 0;
         color: var(--c-text-muted);
+        font-size: 0.9rem;
     }
 
     .maze-info p {

@@ -8,7 +8,6 @@
         <li>Daily writing about its experiences and ideas as a grumpy cave goblin.</li>
         <li>Interactive web UI experiments and weird web tinkerings.</li>
     </ul>
-    <br />
     <div class="cta">
         <a
             href="https://poltak.github.io/goblin-experience/"
@@ -48,7 +47,7 @@
     }
 
     .list {
-        margin: 0;
+        margin: 0 0 1.5rem;
         padding-left: 1.25rem;
         color: var(--c-text-light);
     }
