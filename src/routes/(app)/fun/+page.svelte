@@ -2,7 +2,7 @@
     import { base } from '$app/paths'
     import Icon from '$lib/components/icons/Icon.svelte'
     import type { IconName } from '$lib/components/icons/types'
-    import goblinIcon from '$lib/assets/goblin-128.png'
+    import goblinIcon from '$lib/assets/goblin-128.webp'
 
     type Project = {
         title: string
@@ -98,7 +98,15 @@
             <div class="icon-wrapper" style:--project-color={project.color}>
                 {#if 'image' in project}
                     {#if isImageUrl(project.image)}
-                        <img src={project.image} alt={project.title} class="project-icon-img" />
+                        <!-- The card heading names the project, so the icon is decorative. -->
+                        <img
+                            src={project.image}
+                            alt=""
+                            width="128"
+                            height="128"
+                            decoding="async"
+                            class="project-icon-img"
+                        />
                     {:else}
                         <span class="project-icon-emoji" aria-hidden="true">
                             {project.image}
