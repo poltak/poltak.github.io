@@ -1,14 +1,16 @@
-<section class="cv-hero">
-    <p class="cv-prompt">&gt;_</p>
-    <h1>Resume</h1>
-    <p class="cv-section-index">02 / RESUME</p>
-</section>
+<svelte:head>
+<title>Resume · Jon Samosir</title>
+</svelte:head>
 
-<div class="cv-actions">
-    <a class="cv-download" href="/Jonathan_Samosir_Resume.pdf" download>Download PDF</a>
-</div>
+<header class="terminal-hero">
+    <p class="terminal-prompt">&gt;_</p>
+    <h1>Resume</h1>
+    <p class="terminal-index">02 / Resume</p>
+</header>
 
 <section class="cv-summary">
+
+<div class="cv-actions"><a class="cv-download" href="/Jonathan_Samosir_Resume.pdf" download>Download PDF</a></div>
 
 ## Senior Full-Stack Product Engineer
 
@@ -307,105 +309,64 @@ Bachelor of Computer Science (First Class Honours): _2010 - 2015_
 </details>
 
 <style>
-    :global(.content-wrapper:has(.cv-hero)) {
-        max-width: 1120px;
+    .cv-summary {
+        margin-bottom: 1.5rem;
     }
 
-    :global(.content-wrapper:has(.cv-hero)),
-    :global(.content-wrapper:has(.cv-hero) *) {
-        font-family: var(--font-mono);
+    .cv-summary p {
+        color: var(--c-text-light);
+        line-height: 1.7;
+        max-width: var(--measure);
     }
 
     .cv-actions {
-        display: flex;
-        grid-column: 2 / -1;
-        justify-content: flex-end;
-        margin: -0.35rem 0 0;
+        float: right;
+        margin: 0 0 1rem 1.5rem;
     }
 
     .cv-download {
+        display: inline-block;
         border: 1px solid var(--c-border);
-        background: transparent;
         color: var(--c-primary);
-        padding: 0.75rem 1.35rem;
+        padding: 0.65rem 1.1rem;
+        font-size: 0.85rem;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.16em;
-        cursor: pointer;
-        box-shadow: none;
+        letter-spacing: 0.12em;
     }
 
     .cv-download:hover {
         background: var(--c-primary-light);
-    }
-
-    .cv-hero {
-        display: grid;
-        grid-template-columns: auto 1fr auto;
-        align-items: baseline;
-        column-gap: 1.5rem;
-        row-gap: 0.85rem;
-        margin: 0 0 2rem;
-        padding: 0 0 0.9rem;
-        border-bottom: 1px dashed var(--c-border-dashed);
-    }
-
-    .cv-prompt,
-    .cv-section-index {
-        color: var(--c-primary);
-        font-weight: 800;
-        letter-spacing: 0.08em;
-        margin: 0;
-        text-transform: uppercase;
-    }
-
-    .cv-hero h1 {
-        color: var(--c-text);
-        font-family: var(--font-sans);
-        font-size: clamp(2.75rem, 7vw, 4.25rem);
-        font-weight: 400;
-        margin: 0;
-        letter-spacing: 0.04em;
+        border-color: var(--c-primary);
+        text-decoration: none;
     }
 
     h2 {
         color: var(--c-primary);
-        font-family: var(--font-mono);
         font-size: 1.35rem;
         font-weight: 800;
         letter-spacing: 0.02em;
     }
 
-    h2, h3, h4 {
+    h2,
+    h3 {
         display: inline-block;
-    }
-
-    details > summary ~ * {
-        @media screen and (max-width: 768px) {
-            margin-left: 1rem;
-        }
-    }
-
-    .skill-lists > ul {
-        margin-top: 0.5rem;
-        margin-left: 0;
     }
 
     h4 {
         color: var(--c-text-muted);
-        font-family: var(--font-mono);
-        font-size: 0.88rem;
+        font-size: 0.82rem;
         letter-spacing: 0.08em;
-        margin-top: 0.5rem;
-        margin-bottom: 0;
         text-transform: uppercase;
     }
 
+    /* Top-level sections: a heading with its entries below. */
     details {
         background: transparent;
         border: none;
         border-radius: 0;
         box-shadow: none;
+        counter-reset: cv-entry;
     }
 
     details > summary {
@@ -417,36 +378,43 @@ Bachelor of Computer Science (First Class Honours): _2010 - 2015_
         display: none;
     }
 
+    details > ul {
+        color: var(--c-text-light);
+        max-width: var(--measure);
+    }
+
+    /* Entries: a numbered card for each job, school, or skill group. */
     details details {
         border: 1px solid var(--c-border);
         margin: 1rem 0;
         padding: 0;
+        counter-reset: none;
+        counter-increment: cv-entry;
     }
 
     details details summary {
         display: grid;
-        grid-template-columns: 5.5rem 1fr auto;
-        gap: 1.5rem;
+        grid-template-columns: 3rem 1fr auto;
+        gap: 1.25rem;
         align-items: center;
-        min-height: 5.4rem;
         padding: 1rem 1.5rem;
+    }
+
+    details details[open] summary {
         border-bottom: 1px dashed var(--c-border-dashed);
     }
 
     details details summary::before {
-        content: '▰';
+        content: counter(cv-entry, decimal-leading-zero);
         display: grid;
         place-items: center;
-        width: 4.5rem;
-        height: 4.5rem;
+        width: 3rem;
+        height: 3rem;
         color: var(--c-primary);
         border: 1px solid var(--c-border);
-        font-size: 2rem;
+        font-size: 0.95rem;
+        font-weight: 800;
         line-height: 1;
-    }
-
-    details details summary br {
-        display: none;
     }
 
     details details summary::after {
@@ -456,10 +424,14 @@ Bachelor of Computer Science (First Class Honours): _2010 - 2015_
         grid-row: 1;
     }
 
+    /* Markdown needs these breaks in the source; they must not add space. */
+    details details br {
+        display: none;
+    }
+
     details details h3 {
         color: var(--c-primary);
-        font-family: var(--font-mono);
-        font-size: 1.35rem;
+        font-size: 1.2rem;
         font-weight: 800;
         margin: 0;
     }
@@ -468,9 +440,24 @@ Bachelor of Computer Science (First Class Honours): _2010 - 2015_
         color: inherit;
     }
 
+    /* The body lines up with the entry title, to the right of the number box. */
     details details > *:not(summary) {
-        margin: 1.35rem 2rem 1.8rem 7rem;
-        max-width: 86ch;
+        margin: 0 1.5rem 0.9rem 5.75rem;
+        max-width: var(--measure);
+    }
+
+    details details > summary + * {
+        margin-top: 1.25rem;
+    }
+
+    details details > *:last-child {
+        margin-bottom: 1.5rem;
+    }
+
+    details details > h4 {
+        display: block;
+        margin-top: 1.5rem;
+        margin-bottom: 0.6rem;
     }
 
     details details p {
@@ -492,27 +479,55 @@ Bachelor of Computer Science (First Class Honours): _2010 - 2015_
         color: var(--c-primary);
     }
 
-    @media screen and (max-width: 768px) {
-        .cv-hero {
-            grid-template-columns: 1fr;
-            gap: 0.5rem;
-        }
+    /* Skill groups go side by side when there is room. */
+    .skill-lists > ul {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+        gap: 1.25rem 2rem;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
 
+    .skill-lists li {
+        margin: 0;
+    }
+
+    .skill-lists > ul > li:has(> ul) {
+        color: var(--c-primary);
+        font-weight: 800;
+    }
+
+    .skill-lists ul ul {
+        display: grid;
+        gap: 0.35rem;
+        margin: 0.6rem 0 0;
+        color: var(--c-text-light);
+        font-weight: 400;
+    }
+
+    @media screen and (max-width: 768px) {
         .cv-actions {
-            grid-column: 1;
-            margin-top: 0.25rem;
+            float: none;
+            margin: 0 0 1rem;
         }
 
         details details summary {
             grid-template-columns: 1fr auto;
+            padding: 1rem;
         }
 
         details details summary::before {
             display: none;
         }
 
+        details details summary::after {
+            grid-column: 2;
+        }
+
         details details > *:not(summary) {
-            margin: 1.25rem;
+            margin-left: 1rem;
+            margin-right: 1rem;
         }
     }
 </style>
