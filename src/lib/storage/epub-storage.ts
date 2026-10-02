@@ -17,7 +17,8 @@ export interface SerializableEpubData {
         order: number
         wordStartIndex: number
     }>
-    allText: string
+    /** Books saved by older versions have the joined text. It is not read. */
+    allText?: string
 }
 
 export interface StoredBook {
@@ -69,7 +70,7 @@ function serializeEpubData(epubData: EpubData): SerializableEpubData {
             order: toc.order,
             wordStartIndex: toc.wordStartIndex,
         })),
-        allText: epubData.allText,
+        // The joined text is not stored. It is a second copy of the chapter text.
     }
 }
 

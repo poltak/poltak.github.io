@@ -1,5 +1,4 @@
 <script lang="ts">
-    import type { EpubData } from 'poltak-epub-parser'
     import {
         epubStorage,
         type BookSummary,
@@ -10,6 +9,7 @@
     import { SpeedReaderEngine } from '$lib/speed-reader-engine'
     import ImmersiveReader from '$lib/components/speed-reader/ImmersiveReader.svelte'
     import { calculateProgressPercentage } from '$lib/speed-reader/progress'
+    import { createReaderBook, type ReaderBook } from '$lib/speed-reader/reader-content'
     import {
         createBrowserSpeechProvider,
         dedupeSpeechVoices,
@@ -22,7 +22,7 @@
     type ReaderMode = 'speed' | 'immersive'
 
     let fileInput = $state<HTMLInputElement>()
-    let epubData = $state.raw<EpubData | null>(null)
+    let epubData = $state.raw<ReaderBook | null>(null)
     let currentBookId = $state<string | null>(null)
     let isLoading = $state(false)
     let errorMessage = $state('')
@@ -257,10 +257,11 @@
             const bookId = await epubStorage.saveBook(parsed, totalWords)
             if (disposed || loadId !== bookLoadId) return
 
-            epubData = parsed
+            const readerBook = createReaderBook(parsed)
+            epubData = readerBook
             currentBookId = bookId
-            engine.loadBook(parsed.allText, parsed.tableOfContents)
-            speechController.setBook(parsed.chapters)
+            engine.loadWords(readerBook.words, readerBook.tableOfContents)
+            speechController.setBook(readerBook.chapters)
 
             currentWordIndex = 0
             currentChapterIndex = 0
@@ -272,7 +273,7 @@
             errorMessage = `Unable to import EPUB: ${error instanceof Error ? error.message : 'Unknown error'}`
             epubData = null
             currentBookId = null
-            engine.loadBook('', [])
+            engine.loadWords([], [])
             speechController.setBook([])
         } finally {
             if (loadId === bookLoadId) isLoading = false
@@ -287,7 +288,7 @@
             const storedBook = await epubStorage.getBook(book.id)
             if (disposed || loadId !== bookLoadId) return
             if (!storedBook) throw new Error('This book is no longer in your library.')
-            const storedEpubData = validateStoredEpubData(storedBook.epubData)
+            const readerBook = createReaderBook(validateStoredEpubData(storedBook.epubData))
 
             // Load saved progress
             let progress: ReadingProgress | null = null
@@ -300,10 +301,10 @@
             }
             if (disposed || loadId !== bookLoadId) return
 
-            epubData = storedEpubData
+            epubData = readerBook
             currentBookId = book.id
-            engine.loadBook(storedEpubData.allText, storedEpubData.tableOfContents)
-            speechController.setBook(storedEpubData.chapters)
+            engine.loadWords(readerBook.words, readerBook.tableOfContents)
+            speechController.setBook(readerBook.chapters)
 
             if (progress) {
                 currentWordIndex = progress.currentWordIndex
@@ -330,19 +331,18 @@
             }`
             epubData = null
             currentBookId = null
-            engine.loadBook('', [])
+            engine.loadWords([], [])
             speechController.setBook([])
         } finally {
             if (loadId === bookLoadId) isLoading = false
         }
     }
 
-    function validateStoredEpubData(data: SerializableEpubData): EpubData {
+    function validateStoredEpubData(data: SerializableEpubData): SerializableEpubData {
         if (
             !data ||
-            typeof data.allText !== 'string' ||
             !Array.isArray(data.chapters) ||
-            !Array.isArray(data.tableOfContents)
+            data.chapters.some((chapter) => typeof chapter?.content !== 'string')
         ) {
             throw new Error(
                 'The saved EPUB data is incomplete. Delete it and upload the book again.',
@@ -535,7 +535,7 @@
         showResetConfirmation = false
         epubData = null
         currentBookId = null
-        engine.loadBook('', [])
+        engine.loadWords([], [])
         readerMode = 'speed'
         showLibrary = true
     }

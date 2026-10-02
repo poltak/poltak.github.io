@@ -225,7 +225,7 @@ describe('SpeedReader page', () => {
         mockStorage.getBooks.mockResolvedValue([storedBook])
         mockStorage.getBook.mockResolvedValue({
             ...storedBook,
-            epubData: { ...storedBook.epubData, allText: undefined },
+            epubData: { ...storedBook.epubData, chapters: undefined },
         })
 
         render(SpeedReaderPage)

@@ -51,7 +51,11 @@ export class SpeedReaderEngine {
     }
 
     loadBook(allText: string, tableOfContents: TableOfContents[]) {
-        this.state.allWords = allText.match(/\S+/g) ?? []
+        this.loadWords(allText.match(/\S+/g) ?? [], tableOfContents)
+    }
+
+    loadWords(words: string[], tableOfContents: TableOfContents[]) {
+        this.state.allWords = words
         this.state.tableOfContents = tableOfContents
         this.state.currentWordIndex = 0
         this.state.currentChapterIndex = 0

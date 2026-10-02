@@ -63,6 +63,7 @@ describe('EpubStorage transactions', () => {
         await Promise.resolve()
 
         expect(add).toHaveBeenCalledTimes(2)
+        expect(add.mock.calls[0][0].epubData).not.toHaveProperty('allText')
         expect(add.mock.calls[1][0]).not.toHaveProperty('epubData')
         expect(settled).toBe(false)
 
