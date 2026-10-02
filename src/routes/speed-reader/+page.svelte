@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { parseEpub, type EpubData, type TableOfContents } from 'poltak-epub-parser'
+    import type { EpubData } from 'poltak-epub-parser'
     import {
         epubStorage,
         type BookSummary,
@@ -257,6 +257,9 @@
         errorMessage = ''
 
         try {
+            // The ZIP and EPUB parser is needed only for an import. Stored books open without it.
+            const { parseEpub } = await import('poltak-epub-parser')
+            if (disposed || loadId !== bookLoadId) return
             const parsed = await parseEpub(file)
             if (disposed || loadId !== bookLoadId) return
             const totalWords = parsed.chapters.reduce((sum, chapter) => sum + chapter.wordCount, 0)
