@@ -678,9 +678,15 @@ body {
     font-size: 16px;
     padding: 0;
     margin: 0;
+    /* A faint grid in the theme color. */
     background:
-        linear-gradient(rgba(33, 226, 122, 0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(33, 226, 122, 0.025) 1px, transparent 1px), var(--c-bg);
+        linear-gradient(color-mix(in srgb, var(--c-primary) 4%, transparent) 1px, transparent 1px),
+        linear-gradient(
+            90deg,
+            color-mix(in srgb, var(--c-primary) 3%, transparent) 1px,
+            transparent 1px
+        ),
+        var(--c-bg);
     background-size: 44px 44px;
     color: var(--c-text);
     font-family: var(--font-sans);
@@ -907,10 +913,6 @@ details details {
     max-width: 100%;
     margin: 0;
     min-height: 100vh;
-    /* box-shadow removed to ensure seamless blending with body background */
-    background-color: var(--c-bg); /* Ensures the boxed area has a background */
-    position: relative; /* Ensure it sits above the body gradient */
-    z-index: 1;
 }
 
 @media (max-width: 1024px) {
@@ -923,8 +925,5 @@ details details {
     .site {
         display: flex;
         flex-direction: column;
-        /* Remove the max-width constraint on mobile so it fills the screen */
-        max-width: 100%;
-        box-shadow: none;
     }
 }
