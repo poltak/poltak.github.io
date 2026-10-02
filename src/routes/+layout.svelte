@@ -112,7 +112,11 @@
         ].join(';')
 
         if (!navIndicatorReady) {
-            requestAnimationFrame(() => (navIndicatorReady = true))
+            // Commit the first position before the transition rule applies. If both reach the
+            // same style calculation, the indicator animates in from the corner.
+            await tick()
+            void navLinksElement.offsetWidth
+            navIndicatorReady = true
         }
     }
 
@@ -464,10 +468,8 @@
         text-align: left;
         box-sizing: border-box;
         text-transform: uppercase;
-        /* No background transition: the highlight moves to the indicator without a fade. */
-        transition:
-            color 0.2s,
-            border-color 0.2s;
+        /* Color only: the highlight moves to the indicator without a fade. */
+        transition: color 0.2s;
 
         @media (max-width: 992px) {
             padding: 0.45rem 0;
