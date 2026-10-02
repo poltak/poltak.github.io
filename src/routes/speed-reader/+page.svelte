@@ -614,7 +614,9 @@
         }
     })
 
-    function handleHoldStart(event: MouseEvent | TouchEvent) {
+    function handleHoldStart(event: PointerEvent) {
+        if (event.pointerType === 'mouse' && event.button !== 0) return
+
         // Don't trigger hold-to-pause if clicking on interactive elements
         const target = event.target as HTMLElement
         if (target.closest('button') || target.closest('[role="button"]')) {
@@ -860,12 +862,10 @@
                     class="reader-stage"
                     role="region"
                     aria-label="Speed reading display"
-                    onmousedown={handleHoldStart}
-                    onmouseup={handleHoldEnd}
-                    onmouseleave={handleHoldEnd}
-                    ontouchstart={handleHoldStart}
-                    ontouchend={handleHoldEnd}
-                    ontouchcancel={handleHoldEnd}
+                    onpointerdown={handleHoldStart}
+                    onpointerup={handleHoldEnd}
+                    onpointerleave={handleHoldEnd}
+                    onpointercancel={handleHoldEnd}
                 >
                     <div class="word-display">
                         <div class="context-words before" aria-hidden="true">
@@ -915,11 +915,10 @@
                             <div class="fs-controls fs-controls-rewind">
                                 <button
                                     type="button"
-                                    onmousedown={startRewind}
-                                    onmouseup={stopRewind}
-                                    onmouseleave={stopRewind}
-                                    ontouchstart={startRewind}
-                                    ontouchend={stopRewind}
+                                    onpointerdown={startRewind}
+                                    onpointerup={stopRewind}
+                                    onpointerleave={stopRewind}
+                                    onpointercancel={stopRewind}
                                     class="fs-btn rewind"
                                     disabled={allWords.length === 0 || currentWordIndex <= 0}
                                     class:active={isRewinding}
@@ -993,11 +992,10 @@
                     <div class="primary-controls">
                         <button
                             type="button"
-                            onmousedown={startRewind}
-                            onmouseup={stopRewind}
-                            onmouseleave={stopRewind}
-                            ontouchstart={startRewind}
-                            ontouchend={stopRewind}
+                            onpointerdown={startRewind}
+                            onpointerup={stopRewind}
+                            onpointerleave={stopRewind}
+                            onpointercancel={stopRewind}
                             class="control-btn rewind"
                             disabled={allWords.length === 0 || currentWordIndex <= 0}
                             class:active={isRewinding}
