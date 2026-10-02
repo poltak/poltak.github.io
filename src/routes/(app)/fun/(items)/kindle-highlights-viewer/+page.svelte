@@ -738,10 +738,14 @@
 
     .pager {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.5rem 0.75rem;
         color: var(--c-text-light);
         font-size: 0.9rem;
+    }
+
+    .pager span {
         white-space: nowrap;
     }
 

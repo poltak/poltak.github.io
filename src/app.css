@@ -715,10 +715,6 @@ body {
     background-size: 44px 44px;
     color: var(--c-text);
     font-family: var(--font-sans);
-
-    @media (max-width: 576px) {
-        font-size: 18px;
-    }
 }
 
 /* `clip` does not make a scroll container, so the sticky sidebar keeps the viewport as its scrollport. */
