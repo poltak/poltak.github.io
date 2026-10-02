@@ -512,6 +512,7 @@
     }
 
     function setReaderMode(mode: ReaderMode) {
+        if (usesFullscreenFallback) setFullscreenFallback(false)
         if (mode === 'immersive' && isPlaying) pauseReading()
         readerMode = mode
     }
@@ -526,6 +527,7 @@
     }
 
     function backToLibrary() {
+        if (usesFullscreenFallback) setFullscreenFallback(false)
         bookLoadId += 1
         void saveProgress().then(loadLibrary)
         speechController.setBook([])
@@ -558,7 +560,11 @@
     onMount(() => {
         const persist = () => void saveProgress()
         const handleVisibility = () => {
-            if (document.visibilityState === 'hidden') persist()
+            if (document.visibilityState !== 'hidden') return
+            // A hidden tab slows timers to about one each second, so the reader would move on
+            // slowly with no one reading. Speech continues, because a listener can be elsewhere.
+            pauseReading()
+            persist()
         }
         window.addEventListener('pagehide', persist)
         document.addEventListener('visibilitychange', handleVisibility)
@@ -574,8 +580,32 @@
         }
     })
 
+    // iPhone Safari has no element fullscreen. The fallback fills the window with the stage.
+    let usesFullscreenFallback = $state(false)
+    let previousRootOverflow: string | null = null
+
+    function getFullscreenElement(): Element | null {
+        return document.fullscreenElement ?? (document as any).webkitFullscreenElement ?? null
+    }
+
+    function setFullscreenFallback(active: boolean) {
+        if (active) {
+            previousRootOverflow = document.documentElement.style.overflow
+            document.documentElement.style.overflow = 'hidden'
+        } else if (previousRootOverflow !== null) {
+            document.documentElement.style.overflow = previousRootOverflow
+            previousRootOverflow = null
+        }
+        usesFullscreenFallback = active
+        isFullscreen = active
+    }
+
     async function toggleFullscreen() {
         if (!wordContainer) return
+        if (usesFullscreenFallback) {
+            setFullscreenFallback(false)
+            return
+        }
 
         try {
             if (!isFullscreen) {
@@ -583,6 +613,8 @@
                     await wordContainer.requestFullscreen()
                 } else if ((wordContainer as any).webkitRequestFullscreen) {
                     await (wordContainer as any).webkitRequestFullscreen()
+                } else {
+                    setFullscreenFallback(true)
                 }
             } else if (document.exitFullscreen) {
                 await document.exitFullscreen()
@@ -591,22 +623,38 @@
             }
         } catch (error) {
             console.error('Unable to change fullscreen state:', error)
+            if (!getFullscreenElement()) setFullscreenFallback(true)
         }
     }
 
     onMount(() => {
         const handler = () => {
-            isFullscreen = !!(
-                document.fullscreenElement || (document as any).webkitFullscreenElement
-            )
+            isFullscreen = usesFullscreenFallback || getFullscreenElement() === wordContainer
         }
         document.addEventListener('fullscreenchange', handler)
         document.addEventListener('webkitfullscreenchange', handler)
         return () => {
             document.removeEventListener('fullscreenchange', handler)
             document.removeEventListener('webkitfullscreenchange', handler)
+            if (usesFullscreenFallback) setFullscreenFallback(false)
         }
     })
+
+    function handleRewindPointerDown(event: PointerEvent) {
+        if (event.pointerType === 'mouse' && event.button !== 0) return
+        startRewind()
+    }
+
+    // Hold Space or Enter to rewind, the same as a pointer hold.
+    function handleRewindKeydown(event: KeyboardEvent) {
+        if (event.key !== ' ' && event.key !== 'Enter') return
+        event.preventDefault()
+        if (!event.repeat) startRewind()
+    }
+
+    function handleRewindKeyup(event: KeyboardEvent) {
+        if (event.key === ' ' || event.key === 'Enter') stopRewind()
+    }
 
     function handleHoldStart(event: PointerEvent) {
         if (event.pointerType === 'mouse' && event.button !== 0) return
@@ -859,6 +907,7 @@
                 <div
                     bind:this={wordContainer}
                     class="reader-stage"
+                    class:fullscreen-fallback={usesFullscreenFallback}
                     role="region"
                     aria-label="Speed reading display"
                     onpointerdown={handleHoldStart}
@@ -874,8 +923,11 @@
                         </div>
 
                         <div class="current-word-container">
-                            <span class="current-word" aria-live="polite" aria-atomic="true"
-                                >{surroundingWords.current}</span
+                            <!-- Not a live region during playback: that sends many words each second. -->
+                            <span
+                                class="current-word"
+                                aria-live={isPlaying || isRewinding ? 'off' : 'polite'}
+                                aria-atomic="true">{surroundingWords.current}</span
                             >
                         </div>
 
@@ -914,10 +966,13 @@
                             <div class="fs-controls fs-controls-rewind">
                                 <button
                                     type="button"
-                                    onpointerdown={startRewind}
+                                    onpointerdown={handleRewindPointerDown}
                                     onpointerup={stopRewind}
                                     onpointerleave={stopRewind}
                                     onpointercancel={stopRewind}
+                                    onkeydown={handleRewindKeydown}
+                                    onkeyup={handleRewindKeyup}
+                                    onblur={stopRewind}
                                     class="fs-btn rewind"
                                     disabled={allWords.length === 0 || currentWordIndex <= 0}
                                     class:active={isRewinding}
@@ -991,10 +1046,13 @@
                     <div class="primary-controls">
                         <button
                             type="button"
-                            onpointerdown={startRewind}
+                            onpointerdown={handleRewindPointerDown}
                             onpointerup={stopRewind}
                             onpointerleave={stopRewind}
                             onpointercancel={stopRewind}
+                            onkeydown={handleRewindKeydown}
+                            onkeyup={handleRewindKeyup}
+                            onblur={stopRewind}
                             class="control-btn rewind"
                             disabled={allWords.length === 0 || currentWordIndex <= 0}
                             class:active={isRewinding}
@@ -1735,6 +1793,31 @@
         @media screen and (display-mode: fullscreen) {
             border-radius: 0;
         }
+    }
+
+    /* In fullscreen there is nothing to scroll, so a finger movement must not cancel a hold. */
+    .reader-stage:fullscreen,
+    .reader-stage.fullscreen-fallback {
+        touch-action: none;
+    }
+
+    .reader-stage.fullscreen-fallback {
+        position: fixed;
+        z-index: 1000;
+        inset: 0;
+        width: 100dvw;
+        height: 100dvh;
+        box-sizing: border-box;
+        border-radius: 0;
+    }
+
+    /* A hold on these buttons must not start a page pan, a text selection, or the callout menu. */
+    .control-btn.rewind,
+    .fs-btn.rewind {
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
     }
 
     .word-display {

@@ -150,6 +150,13 @@
         border: 1px solid var(--c-border) !important;
     }
 
+    /* A fullscreen stage with no fill shows the black backdrop behind dark text. */
+    :global(.fun-body .reader-stage:fullscreen),
+    :global(.fun-body .reader-stage.fullscreen-fallback) {
+        background: var(--c-bg) !important;
+        border: 0 !important;
+    }
+
     /* The dialog is above page content, so it needs a solid surface. */
     :global(.fun-body .modal-card) {
         border: 1px solid var(--c-border) !important;

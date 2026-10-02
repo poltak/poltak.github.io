@@ -291,6 +291,48 @@ describe('SpeedReader page', () => {
         expect(screen.getByRole('button', { name: 'Start speed reading' })).toBeTruthy()
     })
 
+    it('pauses reading and stops live announcements at the right times', async () => {
+        mockStorage.getBooks.mockResolvedValue([storedBook])
+        const { container } = render(SpeedReaderPage)
+        await fireEvent.click(await screen.findByRole('button', { name: 'Open Stored Book' }))
+        await screen.findByText('Speed reader')
+        const currentWord = container.querySelector('.current-word')!
+        expect(currentWord.getAttribute('aria-live')).toBe('polite')
+
+        await fireEvent.click(screen.getByRole('button', { name: 'Start speed reading' }))
+        expect(currentWord.getAttribute('aria-live')).toBe('off')
+
+        const visibility = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden')
+        await fireEvent(document, new Event('visibilitychange'))
+        visibility.mockRestore()
+
+        expect(screen.getByRole('button', { name: 'Start speed reading' })).toBeTruthy()
+        expect(currentWord.getAttribute('aria-live')).toBe('polite')
+    })
+
+    it('rewinds while Space is held on the rewind button', async () => {
+        mockStorage.getBooks.mockResolvedValue([storedBook])
+        mockStorage.getProgress.mockResolvedValue({
+            bookId: storedBook.id,
+            currentWordIndex: 1,
+            wordsPerMinute: 250,
+        })
+        const { container } = render(SpeedReaderPage)
+        await fireEvent.click(await screen.findByRole('button', { name: 'Open Stored Book' }))
+        await screen.findByText('Speed reader')
+        expect(container.querySelector('.current-word')?.textContent).toBe('world')
+
+        vi.useFakeTimers()
+        const rewind = screen.getByRole('button', { name: 'Rewind speed reading' })
+        await fireEvent.keyDown(rewind, { key: ' ' })
+        expect(rewind.getAttribute('aria-pressed')).toBe('true')
+        await vi.advanceTimersByTimeAsync(200)
+        await fireEvent.keyUp(rewind, { key: ' ' })
+
+        expect(rewind.getAttribute('aria-pressed')).toBe('false')
+        expect(container.querySelector('.current-word')?.textContent).toBe('Hello')
+    })
+
     it('saves completion once and stops the progress timer', async () => {
         mockStorage.getBooks.mockResolvedValue([storedBook])
         render(SpeedReaderPage)
