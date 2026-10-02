@@ -732,9 +732,10 @@ body {
     }
 }
 
+/* `clip` does not make a scroll container, so the sticky sidebar keeps the viewport as its scrollport. */
 html,
 body {
-    overflow-x: hidden;
+    overflow-x: clip;
 }
 
 h1,
