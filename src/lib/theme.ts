@@ -9,8 +9,9 @@ export const DEFAULT_THEME = 'cyan'
  * Keep its id list the same as this one.
  */
 export const THEMES = [
-    { id: 'cyan', label: 'Cyan', color: '#00d4ff' },
-    { id: 'acid', label: 'Acid', color: '#2cff8e' },
+    // The default theme keeps its first id, because browsers have that id in storage.
+    { id: 'cyan', label: 'Green', color: '#21e27a' },
+    { id: 'acid', label: 'Acid', color: '#86ff5a' },
     { id: 'amber', label: 'Amber', color: '#f0a01e' },
     { id: 'magenta', label: 'Magenta', color: '#ff6fe9' },
     { id: 'red', label: 'Red', color: '#ff6a4f' },

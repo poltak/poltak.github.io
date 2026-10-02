@@ -34,8 +34,13 @@
         return pathname === target || pathname.startsWith(`${target}/`)
     }
 
-    let currentTheme = $state<string>(DEFAULT_THEME)
-    let colorMode = $state<ColorMode>('dark')
+    // The inline script in app.html sets the root attributes before this component runs.
+    const root = typeof document === 'undefined' ? null : document.documentElement
+    const initialTheme = root?.dataset.theme
+    let currentTheme = $state<string>(isThemeId(initialTheme) ? initialTheme : DEFAULT_THEME)
+    let colorMode = $state<ColorMode>(
+        root && initialTheme && !root.classList.contains('dark') ? 'light' : 'dark',
+    )
     let pickerOpen = $state(false)
     let reduceMotion = $state(false)
     let navLinksElement: HTMLDivElement
@@ -149,7 +154,9 @@
 
         const closeOnOutside = (event: PointerEvent) => {
             const target = event.target
-            if (!(target instanceof Element) || !target.closest('.theme-picker')) pickerOpen = false
+            if (!(target instanceof Element) || !target.closest('.display-panel, .theme-toggle')) {
+                pickerOpen = false
+            }
         }
         const closeOnEscape = (event: KeyboardEvent) => {
             if (event.key === 'Escape' && pickerOpen) {
@@ -197,11 +204,11 @@
         <div class="sidebar-panel sidebar-stats" aria-label="Site metadata">
             <div>
                 <span>Location</span>
-                <strong>Hoi An<br />Viet Nam</strong>
+                <strong>Hoi An, Viet Nam</strong>
             </div>
             <div>
                 <span>Role</span>
-                <strong>Senior Product<br />Engineer</strong>
+                <strong>Senior Product Engineer</strong>
             </div>
             <div>
                 <span>Status</span>
@@ -212,8 +219,15 @@
                 <strong>July 2026</strong>
             </div>
         </div>
-        <div class="sidebar-panel color-panel" aria-label="Color mode">
-            <div class="panel-title">Color Mode</div>
+        <!-- In the sidebar on wide screens. On narrow screens the corner button opens it. -->
+        <div
+            class="sidebar-panel display-panel"
+            class:open={pickerOpen}
+            id="display-panel"
+            role="group"
+            aria-label="Display settings"
+        >
+            <div class="panel-title">Color mode</div>
             <div class="mode-row">
                 <span>Light</span>
                 <button
@@ -226,6 +240,20 @@
                     <i></i>
                 </button>
                 <span>Dark</span>
+            </div>
+            <div class="panel-title">Theme</div>
+            <div class="theme-swatches">
+                {#each themes as theme}
+                    <button
+                        type="button"
+                        class:active={currentTheme === theme.id}
+                        style:--swatch={theme.color}
+                        aria-label={`Switch to ${theme.label} theme`}
+                        aria-pressed={currentTheme === theme.id}
+                        title={theme.label}
+                        onclick={() => applyTheme(theme.id)}
+                    ></button>
+                {/each}
             </div>
         </div>
         <div class="sidebar-footer">
@@ -253,48 +281,17 @@
     </footer>
 </div>
 
-<div
-    class="theme-picker"
-    aria-label="Theme picker"
-    role="presentation"
-    class:open={pickerOpen}
-    onpointerenter={(event) => {
-        if (event.pointerType === 'mouse') pickerOpen = true
-    }}
-    onpointerleave={(event) => {
-        if (event.pointerType === 'mouse') pickerOpen = false
-    }}
+<button
+    type="button"
+    class="theme-toggle"
+    bind:this={themeToggle}
+    aria-label="Open theme picker"
+    aria-expanded={pickerOpen}
+    aria-controls="display-panel"
+    onclick={() => (pickerOpen = !pickerOpen)}
 >
-    <button
-        type="button"
-        class="theme-toggle"
-        bind:this={themeToggle}
-        style={`--swatch:${themes.find((t) => t.id === currentTheme)?.color ?? '#00d4ff'}`}
-        aria-label="Open theme picker"
-        aria-expanded={pickerOpen}
-        aria-controls="theme-panel"
-        onclick={() => (pickerOpen = !pickerOpen)}
-    ></button>
-    {#if pickerOpen}
-        <div class="theme-panel" id="theme-panel">
-            <div class="theme-title">Theme</div>
-            <div class="theme-swatches">
-                {#each themes as theme}
-                    <button
-                        type="button"
-                        class:active={currentTheme === theme.id}
-                        style={`--swatch:${theme.color}`}
-                        aria-label={`Switch to ${theme.label} theme`}
-                        onclick={(event) => {
-                            event.stopPropagation()
-                            applyTheme(theme.id)
-                        }}
-                    ></button>
-                {/each}
-            </div>
-        </div>
-    {/if}
-</div>
+    <i></i>
+</button>
 
 <style>
     .nav-area {
@@ -320,19 +317,25 @@
         top: 1.5rem;
         display: flex;
         flex-direction: column;
-        gap: 1.45rem;
+        gap: 1.1rem;
         border: 1px solid var(--c-border-light);
         padding: 1.35rem 1.25rem;
         background: color-mix(in srgb, var(--c-bg-subtle) 38%, transparent);
+        /* A sticky sidebar that is taller than the viewport cannot be scrolled into view. */
+        max-height: calc(100vh - 3rem);
+        box-sizing: border-box;
+        overflow-y: auto;
+        scrollbar-width: thin;
 
         @media (max-width: 1024px) {
             width: 100%;
             max-width: 100%;
-            box-sizing: border-box;
         }
 
         @media (max-width: 992px) {
             position: static;
+            max-height: none;
+            overflow: visible;
             flex-direction: row;
             align-items: center;
             justify-content: flex-start;
@@ -356,7 +359,7 @@
         display: flex;
         flex-direction: column;
         gap: 0.55rem;
-        padding: 0 0 1.4rem;
+        padding: 0 0 1.1rem;
         border-bottom: 1px solid var(--c-border-light);
 
         @media (max-width: 992px) {
@@ -394,7 +397,7 @@
         position: relative;
         display: flex;
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0.3rem;
         padding: 0;
 
         @media (max-width: 992px) {
@@ -454,7 +457,7 @@
         grid-template-columns: 1.4rem 1fr auto;
         gap: 0.65rem;
         align-items: center;
-        padding: 0.78rem 0.8rem;
+        padding: 0.65rem 0.8rem;
         border-radius: 0;
         margin-right: 0;
         border: 1px solid transparent;
@@ -518,20 +521,19 @@
 
     .sidebar-stats {
         display: grid;
-        gap: 0.52rem;
+        gap: 0.6rem;
     }
 
+    /* The label goes above its value. Two columns made the values wrap to three lines. */
     .sidebar-stats div {
         display: grid;
-        grid-template-columns: 5.3rem 1fr;
-        gap: 0.7rem;
-        align-items: start;
+        gap: 0.1rem;
     }
 
     .sidebar-stats span,
     .panel-title {
         color: var(--c-text-muted);
-        font-size: 0.72rem;
+        font-size: 0.68rem;
         font-weight: 800;
         letter-spacing: 0.08em;
         text-transform: uppercase;
@@ -539,7 +541,7 @@
 
     .sidebar-stats strong {
         color: var(--c-text-light);
-        font-size: 0.8rem;
+        font-size: 0.78rem;
         font-weight: 500;
         line-height: 1.45;
     }
@@ -554,9 +556,13 @@
         vertical-align: 0.05rem;
     }
 
-    .color-panel {
+    .display-panel {
         display: grid;
-        gap: 0.65rem;
+        gap: 0.55rem;
+    }
+
+    .display-panel .panel-title:not(:first-child) {
+        margin-top: 0.25rem;
     }
 
     .mode-row {
@@ -581,11 +587,10 @@
     .mode-switch {
         position: relative;
         height: 1.4rem;
-        border: 1px solid var(--c-border-light);
+        border: 1px solid var(--c-border);
         background: var(--c-primary-light);
         padding: 0;
         cursor: pointer;
-        font: inherit;
     }
 
     .mode-switch i {
@@ -595,7 +600,6 @@
         width: 0.85rem;
         height: 0.85rem;
         background: var(--c-primary);
-        border-radius: 50%;
         transform: translateY(-50%);
         transition: right 0.18s ease;
     }
@@ -604,15 +608,57 @@
         right: 0.25rem;
     }
 
-    .mode-switch:focus-visible {
-        outline: 2px solid var(--c-primary);
-        outline-offset: 3px;
+    .theme-swatches {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+    }
+
+    .theme-swatches button {
+        width: 1.2rem;
+        height: 1.2rem;
+        border: 1px solid var(--c-border-light);
+        background: var(--swatch);
+        padding: 0;
+        cursor: pointer;
+    }
+
+    .theme-swatches button:hover {
+        border-color: var(--c-text);
+    }
+
+    .theme-swatches button.active {
+        outline: 2px solid var(--c-text);
+        outline-offset: 2px;
     }
 
     @media (prefers-reduced-motion: reduce) {
         .mode-switch i {
             transition: none;
         }
+    }
+
+    /* Narrow screens have no sidebar panels. This button opens the display panel. */
+    .theme-toggle {
+        display: none;
+        position: fixed;
+        right: 0.75rem;
+        bottom: 0.75rem;
+        z-index: 20;
+        width: 2.5rem;
+        height: 2.5rem;
+        place-items: center;
+        border: 1px solid var(--c-border);
+        background: var(--c-surface);
+        padding: 0;
+        cursor: pointer;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .theme-toggle i {
+        width: 1rem;
+        height: 1rem;
+        background: linear-gradient(135deg, var(--c-primary) 50%, var(--c-text) 50%);
     }
 
     .sidebar-footer p {
@@ -637,6 +683,28 @@
         .sidebar-footer {
             display: none;
         }
+
+        .theme-toggle {
+            display: grid;
+        }
+
+        .display-panel.open {
+            display: grid;
+            position: fixed;
+            right: 0.75rem;
+            bottom: 3.75rem;
+            z-index: 20;
+            width: 15.5rem;
+            padding: 0.9rem;
+            border-color: var(--c-border);
+            background: var(--c-surface);
+            box-shadow: var(--shadow-md);
+        }
+
+        .display-panel.open .theme-swatches button {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -652,13 +720,14 @@
         display: flex;
         flex-direction: column;
 
+        /* The bottom space keeps the footer links clear of the corner button. */
         @media (max-width: 992px) {
             grid-column: 1 / -1;
-            padding: 3rem 1.25rem;
+            padding: 2.25rem 1.25rem 4.5rem;
         }
 
         @media (min-width: 576px) and (max-width: 992px) {
-            padding: 3rem 4rem;
+            padding: 2.5rem 4rem 4.5rem;
         }
     }
 
@@ -713,109 +782,6 @@
         font-family: var(--font-mono);
         font-size: 0.86rem;
         font-weight: 700;
-    }
-
-    .theme-picker {
-        position: fixed;
-        right: 1rem;
-        bottom: 1rem;
-        width: 2.6rem;
-        height: 2.6rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        z-index: 20;
-    }
-
-    .theme-toggle {
-        width: 100%;
-        height: 100%;
-        border: 1px solid var(--c-border);
-        background: var(--swatch);
-        border-radius: var(--radius-full);
-        padding: 0;
-        cursor: pointer;
-        box-shadow: var(--shadow-sm);
-    }
-
-    .theme-panel {
-        position: absolute;
-        right: 0;
-        bottom: 0;
-        min-width: 12rem;
-        background: var(--c-surface);
-        border: 1px solid var(--c-border);
-        box-shadow: var(--shadow-md);
-        border-radius: 14px;
-        padding: 0.75rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        opacity: 0;
-        pointer-events: none;
-        transform: scale(0.9);
-        transform-origin: bottom right;
-        transition:
-            opacity 0.2s ease,
-            transform 0.2s ease;
-    }
-
-    .theme-picker.open .theme-panel {
-        opacity: 1;
-        pointer-events: auto;
-        transform: scale(1);
-    }
-
-    .theme-picker.open .theme-toggle {
-        opacity: 0;
-        pointer-events: none;
-    }
-
-    .theme-title {
-        font-size: 0.65rem;
-        text-transform: uppercase;
-        letter-spacing: 0.2em;
-        color: var(--c-text-muted);
-        background: transparent;
-        border: none;
-        padding: 0;
-        text-align: left;
-        cursor: pointer;
-    }
-
-    .theme-swatches {
-        display: flex;
-        gap: 0.4rem;
-        flex-wrap: wrap;
-    }
-
-    .theme-swatches button {
-        width: 1.25rem;
-        height: 1.25rem;
-        border: 1px solid var(--c-border);
-        background: var(--swatch);
-        border-radius: var(--radius-full);
-        padding: 0;
-        cursor: pointer;
-        box-shadow: var(--shadow-sm);
-    }
-
-    .theme-swatches button.active {
-        outline: 2px solid var(--c-primary);
-        outline-offset: 2px;
-    }
-
-    @media (max-width: 768px) {
-        .theme-picker {
-            right: 0.75rem;
-            bottom: 0.75rem;
-            width: 2rem;
-            height: 2rem;
-        }
-
-        .theme-panel {
-            min-width: 12rem;
-        }
     }
 
     @keyframes fade-in {

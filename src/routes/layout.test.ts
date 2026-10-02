@@ -34,7 +34,7 @@ describe('theme controls', () => {
     it('opens once for a touch and closes on the first outside pointer', async () => {
         mount()
         const toggle = screen.getByRole('button', { name: 'Open theme picker' })
-        expect(screen.queryByRole('button', { name: 'Switch to Cyan theme' })).toBeNull()
+        expect(toggle.getAttribute('aria-expanded')).toBe('false')
         await fireEvent.touchStart(toggle)
         await fireEvent.click(toggle)
         expect(toggle.getAttribute('aria-expanded')).toBe('true')
