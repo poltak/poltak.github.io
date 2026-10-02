@@ -376,6 +376,7 @@
             <input
                 type="search"
                 placeholder="Search titles, authors, or highlight text"
+                onfocus={() => searchClippings.prepare()}
                 bind:value={() => searchQuery, setSearchQuery}
                 disabled={!normalized.length}
             />

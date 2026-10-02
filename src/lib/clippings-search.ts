@@ -25,7 +25,7 @@ export function createClippingsSearch(items: NormalizedClipping[]) {
         return index
     }
 
-    return ({ query, type, title, author }: ClippingFilters): NormalizedClipping[] => {
+    const search = ({ query, type, title, author }: ClippingFilters): NormalizedClipping[] => {
         const matches = (item: NormalizedClipping) =>
             (type === 'all' || item.type === type) &&
             (title === 'all' || (item.title?.trim() || 'Untitled') === title) &&
@@ -36,6 +36,10 @@ export function createClippingsSearch(items: NormalizedClipping[]) {
             .search(query.trim(), { filter: (result) => matches(items[result.id]) })
             .map((result) => items[result.id])
     }
+
+    /** Build the index now, so the first text query does not wait for it. */
+    search.prepare = () => void getIndex()
+    return search
 }
 
 export function createTextHighlighter(query: string) {

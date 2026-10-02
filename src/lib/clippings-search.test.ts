@@ -50,6 +50,16 @@ describe('clippings search index', () => {
         expect(addAll).toHaveBeenCalledOnce()
         addAll.mockRestore()
     })
+
+    it('can be built before the first query', () => {
+        const addAll = vi.spyOn(MiniSearch.prototype, 'addAll')
+        const search = createClippingsSearch([] as NormalizedClipping[])
+
+        search.prepare()
+        search.prepare()
+        expect(addAll).toHaveBeenCalledOnce()
+        addAll.mockRestore()
+    })
 })
 
 describe('text highlighting', () => {
