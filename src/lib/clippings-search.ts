@@ -9,11 +9,21 @@ export interface ClippingFilters {
 }
 
 export function createClippingsSearch(items: NormalizedClipping[]) {
-    const index = new MiniSearch({
-        fields: ['title', 'author', 'content'],
-        searchOptions: { boost: { title: 2, author: 1.5 }, prefix: true, fuzzy: 0.2 },
-    })
-    index.addAll(items.map((item, id) => ({ ...item, id })))
+    // The index takes tens of milliseconds for a few thousand clippings, and the list and the
+    // filters do not use it. Build it for the first text query.
+    let index: MiniSearch | undefined
+    const getIndex = () => {
+        if (!index) {
+            index = new MiniSearch({
+                fields: ['title', 'author', 'content'],
+                searchOptions: { boost: { title: 2, author: 1.5 }, prefix: true, fuzzy: 0.2 },
+            })
+            index.addAll(
+                items.map(({ title, author, content }, id) => ({ id, title, author, content })),
+            )
+        }
+        return index
+    }
 
     return ({ query, type, title, author }: ClippingFilters): NormalizedClipping[] => {
         const matches = (item: NormalizedClipping) =>
@@ -22,7 +32,7 @@ export function createClippingsSearch(items: NormalizedClipping[]) {
             (author === 'all' || (item.author?.trim() || 'Unknown Author') === author)
 
         if (!query.trim()) return items.filter(matches)
-        return index
+        return getIndex()
             .search(query.trim(), { filter: (result) => matches(items[result.id]) })
             .map((result) => items[result.id])
     }

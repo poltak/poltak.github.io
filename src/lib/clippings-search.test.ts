@@ -1,4 +1,5 @@
-import { describe, expect, it } from 'vitest'
+import MiniSearch from 'minisearch'
+import { describe, expect, it, vi } from 'vitest'
 import type { NormalizedClipping } from 'kindle-highlights-parser'
 import { createClippingsSearch, createTextHighlighter } from './clippings-search'
 
@@ -32,6 +33,22 @@ describe('clippings search', () => {
                 items[0],
             ])
         }
+    })
+})
+
+describe('clippings search index', () => {
+    it('is built one time, for the first text query', () => {
+        const addAll = vi.spyOn(MiniSearch.prototype, 'addAll')
+        const items = [{ sourceIndex: 0, title: 'Book', content: 'Silver river' }]
+        const search = createClippingsSearch(items as NormalizedClipping[])
+
+        expect(search({ query: '  ', type: 'all', title: 'Book', author: 'all' })).toEqual(items)
+        expect(addAll).not.toHaveBeenCalled()
+
+        expect(search({ query: 'silver', type: 'all', title: 'all', author: 'all' })).toEqual(items)
+        expect(search({ query: 'river', type: 'all', title: 'all', author: 'all' })).toEqual(items)
+        expect(addAll).toHaveBeenCalledOnce()
+        addAll.mockRestore()
     })
 })
 
