@@ -361,7 +361,7 @@
 
     .toggle-group button.active {
         background: var(--c-primary);
-        color: white;
+        color: var(--c-on-primary);
     }
 
     .checkbox {

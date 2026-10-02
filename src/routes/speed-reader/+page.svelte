@@ -1358,7 +1358,7 @@
         width: 4rem;
         height: 4rem;
         background-color: var(--c-primary);
-        color: white;
+        color: var(--c-on-primary);
         border-radius: var(--radius-full);
         display: flex;
         align-items: center;
@@ -1615,12 +1615,12 @@
 
     .book-badge.completed {
         background: var(--c-success);
-        color: white;
+        color: var(--c-on-primary);
     }
 
     .book-badge.in-progress {
         background: var(--c-primary);
-        color: white;
+        color: var(--c-on-primary);
     }
 
     .delete-btn {
@@ -1763,7 +1763,7 @@
         left: 0.75rem;
         font-size: 0.75rem;
         background: rgba(0, 0, 0, 0.6);
-        color: white;
+        color: #ffffff;
         padding: 0.2rem 0.5rem;
         border-radius: 4px;
         pointer-events: none;
@@ -1939,7 +1939,7 @@
     .speech-actions button:first-child {
         border-color: var(--c-primary);
         background: var(--c-primary);
-        color: white;
+        color: var(--c-on-primary);
     }
 
     .speech-actions button:hover:not(:disabled) {
@@ -2022,7 +2022,7 @@
 
     .control-btn.rewind:hover:not(:disabled) {
         background: var(--c-accent);
-        color: white;
+        color: var(--c-on-primary);
         border-color: var(--c-accent);
     }
 
@@ -2030,7 +2030,7 @@
         width: 5rem;
         height: 5rem;
         background: var(--c-primary);
-        color: white;
+        color: var(--c-on-primary);
         box-shadow: 0 10px 25px -5px var(--c-shadow-primary);
     }
 
@@ -2109,7 +2109,7 @@
 
     .preset-btn.active {
         background: var(--c-primary);
-        color: white;
+        color: var(--c-on-primary);
         border-color: var(--c-primary);
     }
 
@@ -2252,8 +2252,8 @@
     }
 
     .toc-item.active .chapter-num {
-        background: white;
-        color: var(--c-primary);
+        background: var(--c-primary);
+        color: var(--c-on-primary);
     }
 
     .chapter-info {
@@ -2362,6 +2362,6 @@
 
     .btn-danger {
         background: var(--c-danger);
-        color: white;
+        color: var(--c-on-primary);
     }
 </style>

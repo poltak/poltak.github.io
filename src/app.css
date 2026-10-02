@@ -33,6 +33,8 @@
     --c-primary-hover-bg: rgba(18, 145, 77, 0.16);
     --c-primary-gradient-to: #18b860;
     --c-shadow-primary: rgba(18, 145, 77, 0.22);
+    /* Text and icons on a primary, accent, success, or danger fill. */
+    --c-on-primary: #ffffff;
 
     --c-accent: #12914d;
     --c-accent-light: rgba(18, 145, 77, 0.12);
@@ -56,8 +58,8 @@
     --c-info-text: #0d743d;
     --c-info-link: #12914d;
 
-    --c-progress-track: rgba(0, 143, 176, 0.25);
-    --c-context-text: #5c7785;
+    --c-progress-track: rgba(18, 145, 77, 0.2);
+    --c-context-text: #5f7a6c;
 
     --shadow-sm: 0 6px 18px rgba(10, 18, 24, 0.08);
     --shadow-md: 0 12px 24px rgba(10, 18, 24, 0.12);
@@ -82,6 +84,23 @@
 html {
     /* Prevent layout shifts when scrollbars appear/disappear */
     scrollbar-gutter: stable;
+    accent-color: var(--c-primary);
+}
+
+::selection {
+    background: color-mix(in srgb, var(--c-primary) 30%, transparent);
+}
+
+:focus-visible {
+    outline: 2px solid var(--c-primary);
+    outline-offset: 2px;
+}
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
 }
 
 :root.dark {
@@ -99,6 +118,8 @@ html {
     --c-primary-hover-bg: rgba(33, 226, 122, 0.18);
     --c-primary-gradient-to: #38f49a;
     --c-shadow-primary: rgba(33, 226, 122, 0.35);
+    /* Dark themes have bright fills, so text on them takes the page background color. */
+    --c-on-primary: var(--c-bg);
 
     --c-accent: #21e27a;
     --c-accent-light: rgba(33, 226, 122, 0.12);
@@ -122,8 +143,8 @@ html {
     --c-info-text: #a5ffc9;
     --c-info-link: #21e27a;
 
-    --c-progress-track: rgba(0, 212, 255, 0.2);
-    --c-context-text: #547d88;
+    --c-progress-track: rgba(33, 226, 122, 0.2);
+    --c-context-text: #5f8a78;
 
     --shadow-sm: 0 6px 18px rgba(0, 0, 0, 0.35);
     --shadow-md: 0 12px 24px rgba(0, 0, 0, 0.4);
@@ -144,6 +165,7 @@ html {
     --c-primary-hover-bg: rgba(38, 199, 106, 0.18);
     --c-primary-gradient-to: #59e68f;
     --c-shadow-primary: rgba(38, 199, 106, 0.35);
+    --c-on-primary: #0b2012;
 
     --c-accent: #7ad64b;
     --c-accent-light: rgba(122, 214, 75, 0.12);
@@ -189,6 +211,7 @@ html {
     --c-primary-hover-bg: rgba(44, 255, 142, 0.18);
     --c-primary-gradient-to: #5bffad;
     --c-shadow-primary: rgba(44, 255, 142, 0.35);
+    --c-on-primary: var(--c-bg);
 
     --c-accent: #86ff5a;
     --c-accent-light: rgba(134, 255, 90, 0.12);
@@ -752,6 +775,7 @@ a {
 
 a:hover {
     color: var(--c-primary-dark);
+    text-decoration: underline;
 }
 
 code,
@@ -777,7 +801,7 @@ blockquote {
 }
 
 mark {
-    background: rgba(0, 212, 255, 0.25);
+    background: color-mix(in srgb, var(--c-primary) 28%, transparent);
     color: inherit;
     padding: 0 0.2rem;
     border-radius: 0.2rem;
@@ -832,11 +856,6 @@ hr {
     details[open] summary::after {
         content: '' !important;
     }
-}
-
-a:hover {
-    color: var(--c-primary-dark);
-    text-decoration: underline;
 }
 
 ul {
