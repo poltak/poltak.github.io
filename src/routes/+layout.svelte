@@ -220,7 +220,7 @@
             </div>
             <div>
                 <span>Updated</span>
-                <strong>July 2026</strong>
+                <strong>October 2026</strong>
             </div>
         </div>
         <!-- In the sidebar on wide screens. On narrow screens the corner button opens it. -->
