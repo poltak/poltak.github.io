@@ -13,12 +13,11 @@
 
     <p>
         I track everything I eat in Calocount, and the dashboard is public. Anyone can see my meals
-        for today and the last seven days, with calories, protein, carbohydrates, and fat.
+        for today and the last 30 days, with macros and other nutrient breakdowns.
     </p>
 
     <p>
-        I add meals in a private owner dashboard, or I tell ChatGPT what I ate and it logs the meal
-        for me through a private MCP app.
+        I calculate meals using ChatGPT and it logs the meal for me through an MCP server for the app.
     </p>
 </section>
 
