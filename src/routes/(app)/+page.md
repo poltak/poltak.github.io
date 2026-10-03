@@ -70,6 +70,12 @@
             <a href="/fun/kindle-highlights-viewer?source=site">Kindle highlights</a>, a growing
             archive of passages I thought were interesting in books I read over the years.
         </p>
+
+        <p>
+            I also track everything I eat, publicly, in
+            <a href="https://calocount-app.hoian-embroidery.workers.dev/">Calocount</a>, a nutrition
+            tracker I built to run for free on Cloudflare.
+        </p>
     </div>
 
     <aside class="terminal-callout">

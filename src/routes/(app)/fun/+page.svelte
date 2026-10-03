@@ -69,6 +69,14 @@
             color: 'var(--c-danger)',
         },
         {
+            title: 'Calocount',
+            description:
+                'A calorie and nutrition tracker that I log everything I eat in, with a public dashboard. Free to host on Cloudflare.',
+            image: '🥗',
+            link: `${base}/fun/calocount`,
+            color: 'var(--c-accent)',
+        },
+        {
             title: 'Hoi An Embroidery+Craft Workshops',
             description:
                 "A simple site I made for my wife's own embroidery and other craft workshops.",
