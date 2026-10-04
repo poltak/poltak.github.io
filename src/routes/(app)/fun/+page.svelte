@@ -77,6 +77,14 @@
             color: 'var(--c-accent)',
         },
         {
+            title: 'Fex',
+            description:
+                'A small currency converter with rate history charts. It works offline and needs no account.',
+            image: '💱',
+            link: `${base}/fun/fex`,
+            color: 'var(--c-primary)',
+        },
+        {
             title: 'Hoi An Embroidery+Craft Workshops',
             description:
                 "A simple site I made for my wife's own embroidery and other craft workshops.",
